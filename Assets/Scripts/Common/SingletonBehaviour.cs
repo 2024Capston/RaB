@@ -6,7 +6,9 @@ using UnityEngine;
 /// <typeparam name="T"></typeparam>
 public class SingletonBehavior<T> : MonoBehaviour where T : SingletonBehavior<T>
 {
-    // 씬 전환 시 삭제할지 여부
+    /// <summary>
+    /// Scene이 바꿀 때 객체 파괴여부를 설정한다.
+    /// </summary>
     protected bool _isDestroyOnLoad = false;
 
     protected static T _instance;

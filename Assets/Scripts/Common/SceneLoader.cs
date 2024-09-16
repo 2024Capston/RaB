@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// 사용할 Scene의 종류
+/// Scene의 종류
 /// </summary>
 public enum SceneType
 {
@@ -25,16 +25,17 @@ public class SceneLoader : SingletonBehavior<SceneLoader>
     public void LoadScene(SceneType sceneType)
     {
         Logger.Log($"{sceneType} scene loading");
-
-        Time.timeScale = 1f;
         SceneManager.LoadScene(sceneType.ToString());
     }
 
-    public void ReloadScene()
+    /// <summary>
+    /// SceneType Enum에 해당하는 Scene을 비동기적으로 불러온다.
+    /// </summary>
+    /// <param name="sceneType"></param>
+    /// <returns></returns>
+    public AsyncOperation LoadSceneAsync(SceneType sceneType)
     {
-        Logger.Log($"{SceneManager.GetActiveScene().name} scene loading");
-
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Logger.Log($"{sceneType} scene async loading");
+        return SceneManager.LoadSceneAsync(sceneType.ToString());
     }
 }
