@@ -25,29 +25,8 @@ public class TitleManager : MonoBehaviour
 
     private void Start()
     {
-        if (IsSteamClientInitialized())
-        {
-            // TODO : User의 Data를 불러오는 작업이 필요하다.
-
-            StartCoroutine(CoLoadHome());
-        }
-    }
-
-    private bool IsSteamClientInitialized()
-    {
-        try
-        {
-            SteamClient.Init(APP_ID);
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e.ToString());
-
-            // TODO : 클라이언트 초기화에 실패했다고 팝업을 띄우면서 게임을 종료한다.
-
-            return false;
-        }
-        return true;
+        // TODO : User의 Data를 불러오는 작업이 필요하다.
+        StartCoroutine(CoLoadHome());
     }
 
     /// <summary>
