@@ -359,6 +359,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1920886422659417433, guid: 57452d2a827118b488197ccb6666994c, type: 3}
+      propertyPath: _facepunch
+      value: 
+      objectReference: {fileID: 321331666}
+    - target: {fileID: 1920886422659417433, guid: 57452d2a827118b488197ccb6666994c, type: 3}
       propertyPath: _progressText
       value: 
       objectReference: {fileID: 5374359155834376406}

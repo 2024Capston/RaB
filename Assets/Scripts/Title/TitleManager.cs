@@ -5,9 +5,13 @@ using Unity.Netcode;
 using UnityEngine;
 using Steamworks;
 using System;
+using Netcode.Transports.Facepunch;
 
 public class TitleManager : MonoBehaviour
 {
+    [SerializeField]
+    private FacepunchTransport _facepunch;
+
     [SerializeField]
     private GameObject _title;
 
@@ -18,15 +22,46 @@ public class TitleManager : MonoBehaviour
 
     private static readonly uint APP_ID = 480;
 
+    private bool _isSteamClientInitialized;
+
     private void Awake()
     {
         _title.SetActive(true);
+        _isSteamClientInitialized = false;
+        InitSteamClient();
     }
 
     private void Start()
     {
         // TODO : User의 Data를 불러오는 작업이 필요하다.
-        StartCoroutine(CoLoadHome());
+
+        if (_isSteamClientInitialized)
+        {
+            StartCoroutine(CoLoadHome());
+        }
+        
+    }
+    
+    /// <summary>
+    /// SteamClient를 Initialize한다. 성공하면 _isSteamClientInitialized가 true가 된다.
+    /// </summary>
+    private void InitSteamClient()
+    {
+        try
+        {
+            SteamClient.Init(APP_ID, false);
+            _isSteamClientInitialized = true;
+        }
+        catch (Exception e)
+        {
+            Logger.LogError($"[{nameof(FacepunchTransport)}] - Caught an exeption during initialization of Steam client: {e}");
+
+            // TODO : 실패 팝업을 띄우고 게임을 종료한다.
+        }
+        finally
+        {
+            _facepunch.InitSteamworks();
+        }
     }
 
     /// <summary>

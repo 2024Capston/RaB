@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -40,21 +40,9 @@ namespace Netcode.Transports.Facepunch
 
         #region MonoBehaviour Messages
 
-        private void Awake()
+        public void InitSteamworks()
         {
-            try
-            {
-                SteamClient.Init(steamAppId, false);
-            }
-            catch (Exception e)
-            {
-                if (LogLevel <= LogLevel.Error)
-                    Debug.LogError($"[{nameof(FacepunchTransport)}] - Caught an exeption during initialization of Steam client: {e}");
-            }
-            finally
-            {
-                StartCoroutine(InitSteamworks());
-            }
+            StartCoroutine(CoInitSteamworks());
         }
 
         private void Update()
@@ -288,7 +276,7 @@ namespace Netcode.Transports.Facepunch
 
         #region Utility Methods
 
-        private IEnumerator InitSteamworks()
+        private IEnumerator CoInitSteamworks()
         {
             yield return new WaitUntil(() => SteamClient.IsValid);
 
