@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using Steamworks;
+using System;
 
 public class TitleManager : MonoBehaviour
 {
@@ -14,6 +16,8 @@ public class TitleManager : MonoBehaviour
 
     private AsyncOperation _asyncOperation;
 
+    private static readonly uint APP_ID = 480;
+
     private void Awake()
     {
         _title.SetActive(true);
@@ -21,9 +25,29 @@ public class TitleManager : MonoBehaviour
 
     private void Start()
     {
-        // TODO : User의 Data를 불러오는 작업이 필요하다.
+        if (IsSteamClientInitialized())
+        {
+            // TODO : User의 Data를 불러오는 작업이 필요하다.
 
-        StartCoroutine(CoLoadHome());
+            StartCoroutine(CoLoadHome());
+        }
+    }
+
+    private bool IsSteamClientInitialized()
+    {
+        try
+        {
+            SteamClient.Init(APP_ID);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e.ToString());
+
+            // TODO : 클라이언트 초기화에 실패했다고 팝업을 띄우면서 게임을 종료한다.
+
+            return false;
+        }
+        return true;
     }
 
     /// <summary>
