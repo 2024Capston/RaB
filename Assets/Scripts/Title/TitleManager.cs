@@ -37,6 +37,8 @@ public class TitleManager : MonoBehaviour
 
         if (_isSteamClientInitialized)
         {
+            LoadUserData();
+
             StartCoroutine(CoLoadHome());
         }
         
@@ -64,6 +66,21 @@ public class TitleManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// UserData를 불러온다.
+    /// </summary>
+    private void LoadUserData()
+    {
+        UserDataManager.Instance.LoadUserData();
+
+        // 저장된 UserData가 없으면 신규 유저이므로 기본값을 넣어준다.
+        if (!UserDataManager.Instance.HasUserData)
+        {
+            UserDataManager.Instance.SetDefaultUserData();
+            UserDataManager.Instance.SaveUserData();
+        }
+    }
+    
     /// <summary>
     /// Home Scene을 Load하기 위한 Coroutine
     /// </summary>
