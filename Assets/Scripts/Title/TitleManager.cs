@@ -105,6 +105,8 @@ public class TitleManager : MonoBehaviour
                 yield return new WaitForSecondsRealtime(0.5f);
 
                 _asyncOperation.allowSceneActivation = true;
+
+                Logger.Log($"UserName : {Steamworks.SteamClient.Name}\nUserID : {SteamClient.SteamId}");
                 yield break;
             }
 
