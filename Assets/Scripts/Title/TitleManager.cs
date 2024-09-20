@@ -58,7 +58,21 @@ public class TitleManager : MonoBehaviour
         {
             Logger.LogError($"[{nameof(FacepunchTransport)}] - Caught an exeption during initialization of Steam client: {e}");
 
-            // TODO : 실패 팝업을 띄우고 게임을 종료한다.
+            // 팝업에 대한 정보를 넣는다.
+            ConfirmUIData confirmUIData = new ConfirmUIData()
+            {
+                ConfirmType = ConfirmType.OK,
+                TitleText = "네트워크 연결 실패",
+                DescText = $"[{nameof(FacepunchTransport)}] - Caught an exeption during initialization of Steam client: {e}",
+                OKButtonText = "종료",
+                OnClickOKButton = () =>
+                {
+                    Application.Quit();
+                }
+            };
+
+            // Confirm 팝업을 연다.
+            UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
         }
         finally
         {

@@ -130,10 +130,10 @@ public class UIManager : SingletonBehavior<UIManager>
         // UI 객체가 생성되지 않았으면 새로 생성한다.
         else
         {
-            GameObject uiObj = Instantiate(Resources.Load<GameObject>($"UI/{uiType}"));
+            GameObject uiObj = Instantiate(Resources.Load<GameObject>($"Prefabs/UI/{uiType}"));
             ui = uiObj.GetComponent<BaseUI>();
         }
 
-        return ui;
+        return ui;  
     }
 }
