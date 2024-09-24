@@ -254,7 +254,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7998878515950438913}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7479427663568433915}
+        m_TargetAssemblyTypeName: HomeUIController, Assembly-CSharp
+        m_MethodName: OnClickCreateButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1274627659874031507
 GameObject:
   m_ObjectHideFlags: 0
@@ -655,7 +667,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6360716520751581404}
-  - component: {fileID: 1920886422659417433}
+  - component: {fileID: 7479427663568433915}
   m_Layer: 0
   m_Name: Home
   m_TagString: Untagged
@@ -680,7 +692,7 @@ Transform:
   - {fileID: 2806084925316914991}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1920886422659417433
+--- !u!114 &7479427663568433915
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -689,12 +701,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3949430894545060346}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 498a4b8453724f94a9b5763b9a79cca7, type: 3}
+  m_Script: {fileID: 11500000, guid: 7497c519310bead4aad2cf4970e00a23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _facepunch: {fileID: 0}
-  _title: {fileID: 3949430894545060346}
-  _progressText: {fileID: 0}
 --- !u!1 &4483387382867311251
 GameObject:
   m_ObjectHideFlags: 0
@@ -815,7 +824,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 640636809318076729}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7479427663568433915}
+        m_TargetAssemblyTypeName: HomeUIController, Assembly-CSharp
+        m_MethodName: OnClickSettingButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5161724385093877965
 GameObject:
   m_ObjectHideFlags: 0
@@ -1070,7 +1091,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1143405393713007516}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7479427663568433915}
+        m_TargetAssemblyTypeName: HomeUIController, Assembly-CSharp
+        m_MethodName: OnClickExitButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6694942991656979920
 GameObject:
   m_ObjectHideFlags: 0
@@ -1408,4 +1441,16 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1943860460663759558}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7479427663568433915}
+        m_TargetAssemblyTypeName: HomeUIController, Assembly-CSharp
+        m_MethodName: OnClickEnterButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
