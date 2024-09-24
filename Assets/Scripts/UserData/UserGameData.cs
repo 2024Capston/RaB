@@ -15,12 +15,17 @@ using UnityEngine;
 /// </summary>
 public class UserGameData : IUserData
 {
-    public int ProgessChapter { get; set; }
+    public int[] ProgessChapter { get; private set; }
     public void SetDefaultData()
     {
         Logger.Log($"{GetType()}::SetDefaultData");
 
-        ProgessChapter = 0;
+        ProgessChapter = new int[3];
+
+        for (int i = 0; i < 3; i++)
+        {
+            ProgessChapter[i] = i;
+        }
     }
 
     public bool LoadData()
@@ -31,9 +36,12 @@ public class UserGameData : IUserData
 
         try
         {
-            ProgessChapter = PlayerPrefs.GetInt("ProgessChapter");
-            result = true;
-            Logger.Log($"Progress Chapter : {ProgessChapter}");
+            for (int i = 0; i < 3; i++)
+            {
+                ProgessChapter[i] = PlayerPrefs.GetInt($"ProgessChapter{i}");
+                result = true;
+            }
+            
         }
         catch (Exception e)
         {
@@ -51,8 +59,11 @@ public class UserGameData : IUserData
 
         try
         {
-            PlayerPrefs.SetInt("ProgessChapter", ProgessChapter);
-            result = true;
+            for (int i = 0; i < 3; i++)
+            {
+                PlayerPrefs.SetInt($"ProgessChapter{i}", ProgessChapter[i]);
+                result = true;
+            }
         }
         catch (Exception e)
         {
