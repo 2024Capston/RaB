@@ -32,6 +32,8 @@ public class UserGameData : IUserData
     {
         Logger.Log($"{GetType()}::LoadData");
 
+        ProgessChapter = new int[3];
+
         bool result = false;
 
         try
