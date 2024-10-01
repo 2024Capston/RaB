@@ -43,7 +43,7 @@ public class SaveSelectUI : BaseUI
     /// <param name="index"></param>
     public void OnClickSelectButton(int index)
     {
-        HomeManager.Instance.SelectedIndex = index;
+        GameManager.Instance.SelectedIndex = index;
 
         string descText;
         if (_saveSelectUIData.UserGameData.ProgessChapter[index] == -1)
@@ -63,11 +63,7 @@ public class SaveSelectUI : BaseUI
             DescText = $"{descText}을\n시작하겠습니까?",
             OKButtonText = "확인",
             CancelButtonText = "취소",
-
-            // TODO OK 버튼을 눌렀을 때 
-            // 1. Lobby를 생성하고 참가한다.
-            // 2. Host로 실행한다.
-            // 3. Lobby Scene으로 이동한다.
+            OnClickOKButton = SteamManager.Instance.CreateLobby,
         };
         UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
 
@@ -75,7 +71,7 @@ public class SaveSelectUI : BaseUI
     
     public void OnClickUndoButton()
     {
-        HomeManager.Instance.SelectedIndex = -1;
+        GameManager.Instance.SelectedIndex = -1;
         CloseUI();
     }
 }

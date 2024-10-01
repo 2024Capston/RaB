@@ -14,11 +14,6 @@ public class HomeManager : SingletonBehavior<HomeManager>
 
     public HomeUIController HomeUIController { get; private set; }
 
-    /// <summary>
-    /// 선택한 ChapterIndex
-    /// </summary>
-    public int SelectedIndex { get; set; } = -1;
-
     private void Start()
     {
         _userGameData = UserDataManager.Instance.GetUserData<UserGameData>();
