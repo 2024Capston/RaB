@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+
 public class HomeManager : SingletonBehavior<HomeManager>
 {
     private UserGameData _userGameData;
