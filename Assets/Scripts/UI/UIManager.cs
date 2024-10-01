@@ -72,7 +72,7 @@ public class UIManager : SingletonBehavior<UIManager>
         _frontUI = ui;
         _openUIPool[uiType] = ui.gameObject;
     }
-    
+
     /// <summary>
     /// BaseUI를 닫는다.
     /// </summary>
@@ -134,6 +134,17 @@ public class UIManager : SingletonBehavior<UIManager>
             ui = uiObj.GetComponent<BaseUI>();
         }
 
-        return ui;  
+        return ui;
+    }
+
+    /// <summary>
+    /// 열려 있는 모든 UI를 닫는다.
+    /// </summary>
+    public void CloseAllOpenUI()
+    {
+        while(_frontUI)
+        {
+            _frontUI.CloseUI();
+        }
     }
 }

@@ -68,7 +68,7 @@ public class CodeInputUI : BaseUI
         _currentLobby = null;
     }
 
-    public void OnClickReturnButton()
+    public void OnClickUndoButton()
     {
         CloseUI();
     }
