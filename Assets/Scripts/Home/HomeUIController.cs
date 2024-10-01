@@ -24,7 +24,8 @@ public class HomeUIController : MonoBehaviour
     /// </summary>
     public void OnClickEnterButton()
     {
-
+        BaseUIData uidata = new BaseUIData();
+        UIManager.Instance.OpenUI<CodeInputUI>(uidata); 
     }
 
     /// <summary>

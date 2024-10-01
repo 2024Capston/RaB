@@ -66,7 +66,8 @@ public class SaveSelectUI : BaseUI
 
             // TODO OK 버튼을 눌렀을 때 
             // 1. Lobby를 생성하고 참가한다.
-            // 2. Lobby Scene으로 이동한다.
+            // 2. Host로 실행한다.
+            // 3. Lobby Scene으로 이동한다.
         };
         UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
 
