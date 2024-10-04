@@ -47,6 +47,13 @@ public class CodeInputUI : BaseUI
         {
             if (lobby.Id == ID)
             {
+                if (lobby.MemberCount == 2)
+                {
+                    _descText.text = "Lobby is full";
+                    _descText.color = UnityEngine.Color.red;
+                    return;
+                }
+ 
                 _descText.text = "Find the lobby!";
                 _descText.color = UnityEngine.Color.black;
                 _currentLobby = lobby;
