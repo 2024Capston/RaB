@@ -18,4 +18,6 @@ public class GameManager : SingletonBehavior<GameManager>
     /// 선택한 ChapterIndex
     /// </summary>
     public int SelectedIndex { get; set; } = -1;
+
+    
 }

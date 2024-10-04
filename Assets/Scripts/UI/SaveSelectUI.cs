@@ -63,7 +63,7 @@ public class SaveSelectUI : BaseUI
             DescText = $"{descText}을\n시작하겠습니까?",
             OKButtonText = "확인",
             CancelButtonText = "취소",
-            OnClickOKButton = SteamManager.Instance.CreateLobby,
+            OnClickOKButton = HomeManager.Instance.CreateLobby,
         };
         UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
 
