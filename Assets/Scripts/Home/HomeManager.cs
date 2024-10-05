@@ -67,6 +67,9 @@ public class HomeManager : SingletonBehavior<HomeManager>
         // LobbyID.text = lobby.Id.ToString();
         Logger.Log("We entered Lobby");
 
+        BaseUIData baseUIData = new BaseUIData();
+        UIManager.Instance.OpenUI<LoadingUI>(baseUIData);
+
         // Host일 때는 LoadScene 메소드를 통해 Lobby Scene로 들어갈 수 있게 한다.
         if (NetworkManager.Singleton.IsHost)
         {

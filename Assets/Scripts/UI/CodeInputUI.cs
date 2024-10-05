@@ -51,7 +51,7 @@ public class CodeInputUI : BaseUI
                 {
                     _descText.text = "Lobby is full";
                     _descText.color = UnityEngine.Color.red;
-                    return;
+                    return; 
                 }
  
                 _descText.text = "Find the lobby!";
