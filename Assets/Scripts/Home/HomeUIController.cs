@@ -41,6 +41,6 @@ public class HomeUIController : MonoBehaviour
     /// </summary>
     public void OnClickExitButton()
     {
-
+        Application.Quit();
     }
 }
