@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,7 +14,7 @@ public class UserDataManager : SingletonBehavior<UserDataManager>
     /// </summary>
     public bool HasUserData { get; private set; }
 
-    
+
 
     protected override void Init()
     {

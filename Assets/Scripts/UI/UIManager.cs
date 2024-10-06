@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -142,7 +141,7 @@ public class UIManager : SingletonBehavior<UIManager>
     /// </summary>
     public void CloseAllOpenUI()
     {
-        while(_frontUI)
+        while (_frontUI)
         {
             _frontUI.CloseUI();
         }

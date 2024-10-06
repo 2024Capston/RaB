@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /*
@@ -43,7 +41,7 @@ public class UserGameData : IUserData
                 ProgessChapter[i] = PlayerPrefs.GetInt($"ProgessChapter{i}");
                 result = true;
             }
-            
+
         }
         catch (Exception e)
         {
@@ -75,5 +73,5 @@ public class UserGameData : IUserData
         return result;
     }
 
-    
+
 }

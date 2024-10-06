@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -68,7 +66,7 @@ public class SaveSelectUI : BaseUI
         UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
 
     }
-    
+
     public void OnClickUndoButton()
     {
         GameManager.Instance.SelectedIndex = -1;

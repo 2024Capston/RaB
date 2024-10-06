@@ -16,6 +16,7 @@ public class CodeInputUI : BaseUI
     private TMP_Text _descText;
 
     private Lobby? _currentLobby;
+
     public override void SetInfo(BaseUIData uiData)
     {
         base.SetInfo(uiData);
@@ -51,9 +52,9 @@ public class CodeInputUI : BaseUI
                 {
                     _descText.text = "Lobby is full";
                     _descText.color = UnityEngine.Color.red;
-                    return; 
+                    return;
                 }
- 
+
                 _descText.text = "Find the lobby!";
                 _descText.color = UnityEngine.Color.black;
                 _currentLobby = lobby;

@@ -1,8 +1,4 @@
-using Steamworks;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HomeUIController : MonoBehaviour
 {
@@ -25,7 +21,7 @@ public class HomeUIController : MonoBehaviour
     public void OnClickEnterButton()
     {
         BaseUIData uidata = new BaseUIData();
-        UIManager.Instance.OpenUI<CodeInputUI>(uidata); 
+        UIManager.Instance.OpenUI<CodeInputUI>(uidata);
     }
 
     /// <summary>
@@ -33,7 +29,7 @@ public class HomeUIController : MonoBehaviour
     /// </summary>
     public void OnClickSettingButton()
     {
-
+        // TODO : 설정 팝업을 만들면 해당 팝업을 띄운다.
     }
 
     /// <summary>

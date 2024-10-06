@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Steamworks.Data;
 
 
@@ -19,5 +16,5 @@ public class GameManager : SingletonBehavior<GameManager>
     /// </summary>
     public int SelectedIndex { get; set; } = -1;
 
-    
+
 }
