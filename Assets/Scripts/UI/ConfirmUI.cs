@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -52,7 +50,7 @@ public class ConfirmUI : BaseUI
     {
         base.SetInfo(uiData);
 
-        _confirmUIData = uiData as ConfirmUIData;   
+        _confirmUIData = uiData as ConfirmUIData;
 
         _titleText.text = _confirmUIData.TitleText;
         _descText.text = _confirmUIData.DescText;

@@ -1,10 +1,7 @@
 using Netcode.Transports.Facepunch;
 using Steamworks;
 using Steamworks.Data;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEngine;
 
 
 public class HomeManager : SingletonBehavior<HomeManager>
@@ -49,7 +46,6 @@ public class HomeManager : SingletonBehavior<HomeManager>
         base.Init();
     }
 
-
     private void LobbyCreated(Result result, Lobby lobby)
     {
         if (result == Result.OK)
@@ -67,6 +63,7 @@ public class HomeManager : SingletonBehavior<HomeManager>
         // LobbyID.text = lobby.Id.ToString();
         Logger.Log("We entered Lobby");
 
+        // Loading UI를 띄운다.
         BaseUIData baseUIData = new BaseUIData();
         UIManager.Instance.OpenUI<LoadingUI>(baseUIData);
 
@@ -78,7 +75,7 @@ public class HomeManager : SingletonBehavior<HomeManager>
 
         }
 
-        // Client일 때는 Host의 Scene으로 자동이동하기 때문에 로딩화면을 띄울 수 있게 해야한다.
+        // Client일 때는 Host의 Scene으로 자동이동하므로 Loading UI 상태에서 대기한다.
         NetworkManager.Singleton.gameObject.GetComponent<FacepunchTransport>().targetSteamId = lobby.Owner.Id;
         NetworkManager.Singleton.StartClient();
     }
@@ -87,7 +84,5 @@ public class HomeManager : SingletonBehavior<HomeManager>
     {
         await lobby.Join();
     }
-
-    // TODO : 화면을 로딩할 때 회색 창 팝업을 띄워주는게 필요하당...!
 }
 

@@ -1,11 +1,10 @@
+using Netcode.Transports.Facepunch;
+using Steamworks;
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using Steamworks;
-using System;
-using Netcode.Transports.Facepunch;
 
 public class TitleManager : MonoBehaviour
 {
@@ -41,9 +40,9 @@ public class TitleManager : MonoBehaviour
 
             StartCoroutine(CoLoadHome());
         }
-        
+
     }
-    
+
     /// <summary>
     /// SteamClient를 Initialize한다. 성공하면 _isSteamClientInitialized가 true가 된다.
     /// </summary>
@@ -94,7 +93,7 @@ public class TitleManager : MonoBehaviour
             UserDataManager.Instance.SaveUserData();
         }
     }
-    
+
     /// <summary>
     /// Home Scene을 Load하기 위한 Coroutine
     /// </summary>
