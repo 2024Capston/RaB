@@ -1,10 +1,12 @@
 using Netcode.Transports.Facepunch;
 using Steamworks;
+using Steamworks.Data;
 using System;
 using System.Collections;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
@@ -110,7 +112,7 @@ public class TitleManager : MonoBehaviour
         _progressText.text = "10%";
 
         // Home Scene을 비동기적으로 불러오기 위해 시도한다.
-        _asyncOperation = SceneLoader.Instance.LoadSceneAsync(SceneType.Home);
+        _asyncOperation = SceneManager.LoadSceneAsync(SceneType.Home.ToString());
 
         if (_asyncOperation == null)
         {
