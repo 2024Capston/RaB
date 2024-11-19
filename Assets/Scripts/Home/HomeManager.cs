@@ -59,7 +59,8 @@ public class HomeManager : SingletonBehavior<HomeManager>
 
     private void LobbyEntered(Lobby lobby)
     {
-        GameManager.Instance.CurrentLobby = lobby;
+        // TODO : 다른 객체가 현재 Lobby를 들고 있을 것!
+        // GameManager.Instance.CurrentLobby = lobby;
         // LobbyID.text = lobby.Id.ToString();
         Logger.Log("We entered Lobby");
 

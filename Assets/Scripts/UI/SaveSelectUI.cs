@@ -41,7 +41,8 @@ public class SaveSelectUI : BaseUI
     /// <param name="index"></param>
     public void OnClickSelectButton(int index)
     {
-        GameManager.Instance.SelectedIndex = index;
+        // TODO : 다른 객체가 현재 선택한 것을 들고 있을 것!
+        //GameManager.Instance.SelectedIndex = index;
 
         string descText;
         if (_saveSelectUIData.UserGameData.ProgessChapter[index] == -1)
@@ -69,7 +70,8 @@ public class SaveSelectUI : BaseUI
 
     public void OnClickUndoButton()
     {
-        GameManager.Instance.SelectedIndex = -1;
+        // TODO : 다른 객체가 현재 선택한 것을 들고 있을 것!
+        //GameManager.Instance.SelectedIndex = -1;
         CloseUI();
     }
 }
