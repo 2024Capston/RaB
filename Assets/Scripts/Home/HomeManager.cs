@@ -2,6 +2,7 @@ using Netcode.Transports.Facepunch;
 using Steamworks;
 using Steamworks.Data;
 using Unity.Netcode;
+using UnityEngine;
 
 
 public class HomeManager : SingletonBehavior<HomeManager>
@@ -54,6 +55,9 @@ public class HomeManager : SingletonBehavior<HomeManager>
             lobby.SetJoinable(true);
 
             NetworkManager.Singleton.StartHost();
+
+            GameObject gameObject = Instantiate(Resources.Load<GameObject>("Prefabs/Lobby/PlayerManager"));
+            gameObject.GetComponent<NetworkObject>().Spawn();
         }
     }
 
@@ -71,6 +75,7 @@ public class HomeManager : SingletonBehavior<HomeManager>
         // Host일 때는 LoadScene 메소드를 통해 Lobby Scene로 들어갈 수 있게 한다.
         if (NetworkManager.Singleton.IsHost)
         {
+
             NetworkManager.Singleton.SceneManager.LoadScene(SceneType.Lobby.ToString(), UnityEngine.SceneManagement.LoadSceneMode.Single);
             return;
 

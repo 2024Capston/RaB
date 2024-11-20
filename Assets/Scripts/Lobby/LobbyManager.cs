@@ -30,8 +30,11 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
 
         LobbyUIController.SetPlayerColorData(IsHost);
 
-        GameObject gameObject = Instantiate(Resources.Load<GameObject>(LOBBY_PATH + "PlayerManager"));
-        gameObject.GetComponent<NetworkObject>().Spawn();
+        if (IsHost)
+        {
+            
+        }
+        
 
         /* 
          TODO 
