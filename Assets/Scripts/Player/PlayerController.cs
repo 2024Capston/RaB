@@ -26,7 +26,7 @@ public class PlayerController : NetworkBehaviour
             _mainCamera = new GameObject("Main Camera");
             _mainCamera.transform.parent = transform;
             _mainCamera.transform.localPosition = new Vector3(0, 20, 0);
-            _mainCamera.AddComponent<Camera>();
+            _mainCamera.AddComponent<Camera>().cullingMask ^= 1 << LayerMask.NameToLayer("UI");
             _mainCamera.AddComponent<AudioListener>();
             _mainCamera.tag = "MainCamera";
 
