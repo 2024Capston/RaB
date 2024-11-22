@@ -8,9 +8,9 @@ public class LobbyUIController : MonoBehaviour
     [SerializeField]
     private TMP_Text _playerColorData;
 
-    public void SetPlayerColorData(bool IsHost)
+    public void SetPlayerColorData(bool isHost)
     {
-        if (IsHost)
+        if (isHost)
         {
             _playerColorData.text = "Your Color: <color=\"blue\">Blue</color>";
         }

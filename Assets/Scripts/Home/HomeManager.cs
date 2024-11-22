@@ -33,6 +33,12 @@ public class HomeManager : SingletonBehavior<HomeManager>
         SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
     }
 
+    protected override void Init()
+    {
+        _isDestroyOnLoad = true;
+        base.Init();
+    }
+    
     /// <summary>
     /// Lobby를 생성하는 메소드
     /// </summary>
@@ -40,13 +46,7 @@ public class HomeManager : SingletonBehavior<HomeManager>
     {
         await SteamMatchmaking.CreateLobbyAsync(2);
     }
-
-    protected override void Init()
-    {
-        _isDestroyOnLoad = true;
-        base.Init();
-    }
-
+    
     private void LobbyCreated(Result result, Lobby lobby)
     {
         if (result == Result.OK)
@@ -56,17 +56,16 @@ public class HomeManager : SingletonBehavior<HomeManager>
 
             NetworkManager.Singleton.StartHost();
 
-            GameObject gameObject = Instantiate(Resources.Load<GameObject>("Prefabs/Lobby/PlayerManager"));
-            gameObject.GetComponent<NetworkObject>().Spawn();
+            GameObject playerManager = Instantiate(Resources.Load<GameObject>("Prefabs/Lobby/PlayerManager"));
+            playerManager.GetComponent<NetworkObject>().Spawn();
         }
     }
 
     private void LobbyEntered(Lobby lobby)
     {
         // TODO : 다른 객체가 현재 Lobby를 들고 있을 것!
-        // GameManager.Instance.CurrentLobby = lobby;
-        // LobbyID.text = lobby.Id.ToString();
-        Logger.Log("We entered Lobby");
+        ConnectionManager.Instance.CurrentLobby = lobby;
+        Logger.Log($"Lobby ID : {lobby.Id.ToString()}");
 
         // Loading UI를 띄운다.
         BaseUIData baseUIData = new BaseUIData();
@@ -75,10 +74,8 @@ public class HomeManager : SingletonBehavior<HomeManager>
         // Host일 때는 LoadScene 메소드를 통해 Lobby Scene로 들어갈 수 있게 한다.
         if (NetworkManager.Singleton.IsHost)
         {
-
             NetworkManager.Singleton.SceneManager.LoadScene(SceneType.Lobby.ToString(), UnityEngine.SceneManagement.LoadSceneMode.Single);
             return;
-
         }
 
         // Client일 때는 Host의 Scene으로 자동이동하므로 Loading UI 상태에서 대기한다.

@@ -17,13 +17,6 @@ public class PlayerManager : NetworkSingletonBehaviour<PlayerManager>
 
     private GameObject _playerPrefab;
 
-    protected override void Init()
-    {
-        base.Init();
-
-        
-    }
-
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -35,19 +28,17 @@ public class PlayerManager : NetworkSingletonBehaviour<PlayerManager>
             Logger.LogError("PlayerPrefabs does not exist");
             return;
         }
-
-        Logger.Log("PlayerManager does NetworkSpawn");
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        GameObject gameObject = Instantiate(Resources.Load<GameObject>(PLAYER_PATH));
-        gameObject.transform.position = Vector3.zero;
-        gameObject.transform.rotation = Quaternion.identity;
+        GameObject player = Instantiate(Resources.Load<GameObject>(PLAYER_PATH));
+        player.transform.position = Vector3.zero;
+        player.transform.rotation = Quaternion.identity;
 
-        gameObject.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
-        _players.Add(gameObject.GetComponent<PlayerController>());  
+        player.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
+        _players.Add(player.GetComponent<PlayerController>());  
     }
 
 }
