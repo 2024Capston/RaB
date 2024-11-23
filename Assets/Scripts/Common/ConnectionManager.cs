@@ -18,7 +18,8 @@ public class ConnectionManager : NetworkSingletonBehaviour<ConnectionManager>
      * 2. 상대방이 연결이 끊겼을 때의 처리
      *
      *  2.1 현재 Scene이 Lobby일 때
-     *      2.1.1 Server인 상대가 끊어졌을 때
+     * 
+     *      2.1.1 Server인 상대가 끊어졌을 때 
      *          -> 연결을 모두 초기화하고 HomeScene으로 돌아간다.
      *      2.1.2 Client인 상대가 끊어졌을 때
      *          -> 어떤 일을 해주어야할지 아직 잘 모르겠다.
@@ -30,24 +31,41 @@ public class ConnectionManager : NetworkSingletonBehaviour<ConnectionManager>
      *          -> LobbyScene으로 돌아간다.
      */
 
+    /// <summary>
+    /// OnConnectionEvent에 Event를 등록하는 메소드
+    /// </summary>
     public void RegisterNetworkEvents()
     {
-        NetworkManager.Singleton.OnConnectionEvent += OnClientDisconnect;
+        NetworkManager.Singleton.OnConnectionEvent += DisconnectHandler;
     }
 
-    private void OnClientDisconnect(NetworkManager networkManager, ConnectionEventData connectionEventData)
+    public void UnRegisterNetworkEvents()
     {
-        if (connectionEventData.EventType == ConnectionEvent.ClientConnected || connectionEventData.EventType == ConnectionEvent.PeerConnected)
+        NetworkManager.Singleton.OnConnectionEvent -= DisconnectHandler;
+    }
+    
+    /// <summary>
+    /// 연결이 끊어졌을 때 처리를 담당하는 핸들러
+    /// </summary>
+    private void DisconnectHandler(NetworkManager networkManager, ConnectionEventData connectionEventData)
+    {
+        // ConnectionEvent.ClientDisconnected만 처리한다.
+        if (connectionEventData.EventType != ConnectionEvent.ClientDisconnected)
         {
-            // TODO 
-            // 아마 여기는 처리 할게 없긴 한데 혹시 몰라서 적어 놓습니다.
             return;
         }
         
+        // Client가 Server와 연결이 끊어진 경우에만 처리합니다.
+        if (!NetworkManager.Singleton.IsHost)
+        {
+            ClearConnection();
+            UnRegisterNetworkEvents();
+            SceneManager.LoadScene("Home");
+        }
     }
 
     /// <summary>
-    /// 연결을 모두 초기화하고 HomeScene으로 돌아간다.
+    /// 연결상태를 모두 초기화한다.
     /// </summary>
     private void ClearConnection()
     {

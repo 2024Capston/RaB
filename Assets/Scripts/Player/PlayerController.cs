@@ -34,6 +34,14 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkDespawn()
+    {
+        if (IsOwner)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+    }
+
     private void Update()
     {
         if (!IsOwner)

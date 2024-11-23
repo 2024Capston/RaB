@@ -70,7 +70,10 @@ public class HomeManager : SingletonBehavior<HomeManager>
         // Loading UI를 띄운다.
         BaseUIData baseUIData = new BaseUIData();
         UIManager.Instance.OpenUI<LoadingUI>(baseUIData);
-
+        
+        // Disconnect 관련 Event를 등록한다.
+        ConnectionManager.Instance.RegisterNetworkEvents();
+        
         // Host일 때는 LoadScene 메소드를 통해 Lobby Scene로 들어갈 수 있게 한다.
         if (NetworkManager.Singleton.IsHost)
         {
