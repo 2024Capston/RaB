@@ -12,23 +12,12 @@ public class ConnectionManager : NetworkSingletonBehaviour<ConnectionManager>
     
     // TODO
     /*
-     * 1. 자신의 연결이 끊겼을 때의 처리
-     *    -> 연결을 모두 초기화하고 HomeScene으로 돌아간다.
-     * 
-     * 2. 상대방이 연결이 끊겼을 때의 처리
+     * 1. 내가 Client일 때 - 모든 연결을 끊고 Home으로 이동한다.
+     * -> DisconnectHandler
      *
-     *  2.1 현재 Scene이 Lobby일 때
-     * 
-     *      2.1.1 Server인 상대가 끊어졌을 때 
-     *          -> 연결을 모두 초기화하고 HomeScene으로 돌아간다.
-     *      2.1.2 Client인 상대가 끊어졌을 때
-     *          -> 어떤 일을 해주어야할지 아직 잘 모르겠다.
-     * 
-     *  2.2 현재 Scene이 InGame일 때
-     *      2.2.1 Server인 상대가 끊어졌을 때
-     *          -> 연결을 모두 초기화 하고 HomeScene으로 돌아간다.
-     *      2.2.2 Client인 상대가 끊어졌을 때
-     *          -> LobbyScene으로 돌아간다.
+     * 2. 내가 Server일 때 -
+     *  2.1 현재 Scene이 Lobby다. -> Client가 Owner인 NetworkObject는 모두 Destory되기 때문에 크게 처리할 것이 없다.
+     *  2.2 현재 Scene이 InGame이다 -> Lobby로 Scene로 이동한다.
      */
 
     /// <summary>

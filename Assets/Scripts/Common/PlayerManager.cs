@@ -10,24 +10,35 @@ public class PlayerManager : NetworkSingletonBehaviour<PlayerManager>
 {
     // PlayerManager는 멀티 플레이 상황에서만 유지하고 HomeScene으로 이동할 때 파괴해주어야 한다. 
     // 이는 전체 Scene을 관통하는 매니저에서 추후 해줘야할 일일 듯
-
-    private readonly string PLAYER_PATH = "Prefabs/Object/Player/Player";
+    
+    private readonly string PLAYER_PATH = "Prefabs/Object/Player/Player";    
 
     private List<PlayerController> _players = new List<PlayerController>();
-
+    
+    private ClientRpcParams _clientRpcParams = new ClientRpcParams();
+    
     private GameObject _playerPrefab;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
+        // PlayerPrefab을 캐싱한다.
         _playerPrefab = Resources.Load<GameObject>(PLAYER_PATH);
-
         if (_playerPrefab == null)
         {
             Logger.LogError("PlayerPrefabs does not exist");
             return;
         }
+        
+        // ClientRpcParams를 캐싱한다.
+        _clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[1] 
+            }
+        };
     }
 
     [ServerRpc(RequireOwnership = false)]
