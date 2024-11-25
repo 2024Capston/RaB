@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class HomeManager : SingletonBehavior<HomeManager>
 {
+    private readonly string HOME_PATH = "Prefabs/Lobby/";
+    
     private UserGameData _userGameData;
     public UserGameData UserGameData => _userGameData;
 
@@ -56,7 +58,7 @@ public class HomeManager : SingletonBehavior<HomeManager>
 
             NetworkManager.Singleton.StartHost();
 
-            GameObject playerManager = Instantiate(Resources.Load<GameObject>("Prefabs/Lobby/PlayerManager"));
+            GameObject playerManager = Instantiate(Resources.Load<GameObject>(HOME_PATH + "PlayerManager"));
             playerManager.GetComponent<NetworkObject>().Spawn();
         }
     }

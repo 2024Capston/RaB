@@ -20,7 +20,7 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         _rigidbody = GetComponent<Rigidbody>();
-
+ 
         if (IsOwner)
         {
             _mainCamera = new GameObject("Main Camera");
