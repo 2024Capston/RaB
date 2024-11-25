@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class HomeManager : SingletonBehavior<HomeManager>
 {
-    private readonly string HOME_PATH = "Prefabs/Lobby/";
+    private readonly string HOME_PATH = "Prefabs/Home/";
     
     private UserGameData _userGameData;
     public UserGameData UserGameData => _userGameData;
