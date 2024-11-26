@@ -52,4 +52,12 @@ public class PlayerManager : NetworkSingletonBehaviour<PlayerManager>
         _players.Add(player.GetComponent<PlayerController>());  
     }
 
+    public void DespawnClientPlayer()
+    {
+        if (_players.Count == 2)
+        {
+            _players.RemoveAt(1);
+        }
+    }
+
 }

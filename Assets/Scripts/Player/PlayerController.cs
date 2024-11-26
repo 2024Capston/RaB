@@ -42,15 +42,21 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (!IsOwner)
         {
             return;
         }
 
+        if (Cursor.lockState != CursorLockMode.Locked)
+        {
+            return;
+        }
+
         CameraHandler();
         MoveHandler();
+        InputHandler();
     }
 
     private void CameraHandler()
@@ -72,5 +78,32 @@ public class PlayerController : NetworkBehaviour
 
         Vector3 moveDir = (v * transform.forward + h * transform.right).normalized * _walkSpeed;
         _rigidbody.velocity = new Vector3(moveDir.x, _rigidbody.velocity.y, moveDir.z);
+    }
+
+    private void InputHandler()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            ConfirmUIData confirmUIData = new ConfirmUIData()
+            {
+                ConfirmType = ConfirmType.OK_Cancel,
+                TitleText = "돌아가기",
+                DescText = $"홈 화면으로 돌아가시겠습니까?",
+                OKButtonText = "확인",
+                CancelButtonText = "취소",
+                OnClickOKButton = () =>
+                {
+                    ConnectionManager.Instance.RequestDisconnect();
+                    NetworkManager.Singleton.Shutdown();
+                },
+                OnClickCancelButton = () =>
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
+                }
+            };
+        
+            UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
+        }
     }
 }
