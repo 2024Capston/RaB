@@ -11,6 +11,8 @@ public class ConnectionManager : NetworkSingletonBehaviour<ConnectionManager>
     /// Steam을 통해서 현재 접속해 있는 Lobby를 저장한다.
     /// </summary>
     public Lobby? CurrentLobby { get; set; }
+
+    public StageName SelectStage { get; set; } = StageName.Size;
     
     // TODO
     /*
@@ -65,7 +67,7 @@ public class ConnectionManager : NetworkSingletonBehaviour<ConnectionManager>
                 {
                     ConfirmType = ConfirmType.OK,
                     TitleText = "네트워크 연결 실패",
-                    DescText = $"서버와의 연결이 끊어졌습니다.",
+                    DescText = "서버와의 연결이 끊어졌습니다.",
                     OKButtonText = "확인",
                 };
         

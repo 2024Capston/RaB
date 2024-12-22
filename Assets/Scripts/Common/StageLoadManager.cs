@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
 {
-    private readonly string STAGELOADER_PATH = "Prefabs/StageLoader/";
+    private readonly string STAGELOADER_PATH = "Prefabs/Stage/StageLoader";
     
     private Dictionary<StageName, string> _stageLoaderData;
     
@@ -43,7 +43,8 @@ public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
         {
             return;
         }
-
+        gameObject.GetComponent<NetworkObject>().Spawn();
+        
         StageLoader stageLoader = gameObject.GetComponent<StageLoader>();
         if (!stageLoader)
         {

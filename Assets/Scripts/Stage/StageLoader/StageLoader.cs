@@ -21,6 +21,7 @@ public abstract class StageLoader : NetworkBehaviour
     public void LoadStage()
     {
         Instantiate(StageManager);
+        StageManager.GetComponent<NetworkObject>().Spawn();
         StageManager.StageLoader = this;
         
         Instantiate(Map);
