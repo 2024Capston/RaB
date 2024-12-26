@@ -24,13 +24,13 @@ public class SaveSelectUI : BaseUI
 
         for (int i = 0; i < 3; i++)
         {
-            if (_saveSelectUIData.UserGameData.ProgessChapter[i] == -1)
+            if (!_saveSelectUIData.UserGameData.SaveDatas[i].HasData)
             {
                 _saveDatasText[i].text = "새 게임";
             }
             else
             {
-                _saveDatasText[i].text = $"현재 챕터 : {_saveSelectUIData.UserGameData.ProgessChapter[i]}";
+                _saveDatasText[i].text = $"챕터 진행도 : {_saveSelectUIData.UserGameData.SaveDatas[i].StageClearCount} / {_saveSelectUIData.UserGameData.SaveDatas[i].StageCount}";
             }
         }
     }
@@ -45,13 +45,13 @@ public class SaveSelectUI : BaseUI
         //GameManager.Instance.SelectedIndex = index;
 
         string descText;
-        if (_saveSelectUIData.UserGameData.ProgessChapter[index] == -1)
+        if (!_saveSelectUIData.UserGameData.SaveDatas[index].HasData)
         {
             descText = "새 게임";
         }
         else
         {
-            descText = $"현재 챕터 : {_saveSelectUIData.UserGameData.ProgessChapter[index]}";
+            descText = $"챕터 진행도 : {_saveSelectUIData.UserGameData.SaveDatas[index].StageClearCount} / {_saveSelectUIData.UserGameData.SaveDatas[index].StageCount}";
         }
 
 
@@ -62,7 +62,15 @@ public class SaveSelectUI : BaseUI
             DescText = $"{descText}을\n시작하겠습니까?",
             OKButtonText = "확인",
             CancelButtonText = "취소",
-            OnClickOKButton = HomeManager.Instance.CreateLobby,
+            OnClickOKButton = () =>
+            {
+                if (!_saveSelectUIData.UserGameData.SaveDatas[index].HasData)
+                {
+                    _saveSelectUIData.UserGameData.SetNewData(index);
+                    _saveSelectUIData.UserGameData.SaveData();
+                }
+                HomeManager.Instance.CreateLobby();
+            },
         };
         UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
 

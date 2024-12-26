@@ -34,8 +34,6 @@ public class TitleManager : MonoBehaviour
 
     private void Start()
     {
-        // TODO : User의 Data를 불러오는 작업이 필요하다.
-
         if (_isSteamClientInitialized)
         {
             LoadUserData();

@@ -1,0 +1,34 @@
+{
+  "MapInfoList" : [
+    {
+      "Floor" : 1,
+      "Stage" : 1,
+      "ClearFlag" : 0
+    },
+    {
+      "Floor" : 1,
+      "Stage" : 2,
+      "ClearFlag" : 0
+    },
+    {
+      "Floor" : 1,
+      "Stage" : 3,
+      "ClearFlag" : 0
+    },
+    {
+      "Floor" : 1,
+      "Stage" : 4,
+      "ClearFlag" : 0
+    },
+    {
+      "Floor" : 1,
+      "Stage" : 5,
+      "ClearFlag" : 0
+    },
+    {
+      "Floor" : 1,
+      "Stage" : 6,
+      "ClearFlag" : 0
+    }
+  ]  
+}

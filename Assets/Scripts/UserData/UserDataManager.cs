@@ -13,9 +13,7 @@ public class UserDataManager : SingletonBehavior<UserDataManager>
     /// 저장된 User Data가 있는지 확인하는 Bool Property
     /// </summary>
     public bool HasUserData { get; private set; }
-
-
-
+    
     protected override void Init()
     {
         base.Init();
@@ -43,7 +41,7 @@ public class UserDataManager : SingletonBehavior<UserDataManager>
     {
         // 저장된 UserData가 있는지 불러온다. 
         // TODO : SteamCloud 사용시 해당 경로로 바꾸어야 한다.
-        HasUserData = PlayerPrefs.GetInt("HasUserData") == 1 ? true : false;
+        HasUserData = PlayerPrefs.GetInt("HasUserData") == 1;
 
         if (HasUserData)
         {

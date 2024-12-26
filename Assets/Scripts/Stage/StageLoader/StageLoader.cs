@@ -45,6 +45,7 @@ public class StageLoader : NetworkBehaviour
         GameObject stageManager = Instantiate(_stageManager);
         stageManager.GetComponent<NetworkObject>().Spawn();
         
+        
         // Map은 Client에 개별적으로 Load 한다.
         LoadMapClientRpc(); 
         
