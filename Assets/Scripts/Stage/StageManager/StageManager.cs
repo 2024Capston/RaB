@@ -5,11 +5,7 @@ using UnityEngine;
 
 public abstract class StageManager : NetworkSingletonBehaviour<StageManager>
 {
-    public StageLoader StageLoader { get; set; }
-    
-    protected override void Init()
-    {
-        _isDestroyOnLoad = true;
-        base.Init();
-    }
+    public abstract void StartGame();
+    public abstract void RestartGame();
+    public abstract void EndGame();
 }

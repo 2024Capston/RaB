@@ -29,18 +29,18 @@ public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
     /// StageName에 해당하는 StageLoader를 Load
     /// </summary>
     /// <param name="stageName"></param>
-    [ServerRpc]
-    public void LoadStageServerRpc(StageName stageName)
+    public void LoadStage(StageName stageName)
     {
-        if (!_stageLoaderData.TryGetValue(stageName, out string stageLoderName))
+        if (!_stageLoaderData.TryGetValue(stageName, out string stageLoaderName))
         {
-            
+            Logger.LogError($"{stageName} does not exist in the dictionary");
             return;
         }
 
-        GameObject gameObject = Instantiate(Resources.Load<GameObject>(STAGELOADER_PATH + stageLoderName));
+        GameObject gameObject = Instantiate(Resources.Load<GameObject>(STAGELOADER_PATH + stageLoaderName));
         if (!gameObject)
         {
+            Logger.LogError($"Cannot find the path {STAGELOADER_PATH + stageLoaderName}");
             return;
         }
         gameObject.GetComponent<NetworkObject>().Spawn();
@@ -48,6 +48,7 @@ public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
         StageLoader stageLoader = gameObject.GetComponent<StageLoader>();
         if (!stageLoader)
         {
+            Logger.LogError("StageLoader does not exist");
             return;
         }
 
