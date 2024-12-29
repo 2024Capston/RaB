@@ -7,11 +7,11 @@ public class HomeUIController : MonoBehaviour
     /// </summary>
     public void OnClickCreateButton()
     {
-        SaveSelectUIData saveSelectUIData = new SaveSelectUIData()
+        PlayDataSelectUIData playDataSelectUIData = new PlayDataSelectUIData()
         {
             UserGameData = HomeManager.Instance.UserGameData
         };
-        UIManager.Instance.OpenUI<SaveSelectUI>(saveSelectUIData);
+        UIManager.Instance.OpenUI<PlayDataSelectUI>(playDataSelectUIData);
 
     }
 

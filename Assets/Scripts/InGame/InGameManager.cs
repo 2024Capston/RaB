@@ -45,6 +45,7 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
     [ServerRpc]
     public void EndGameServerRpc()
     {
-        
+        UserGameData userGameData = UserDataManager.Instance.GetUserData<UserGameData>();
+        userGameData.UpdateData(ConnectionManager.Instance.SelectPlayData, ConnectionManager.Instance.SelectStage, 1);
     }
 }

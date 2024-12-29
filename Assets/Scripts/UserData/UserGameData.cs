@@ -33,19 +33,29 @@ public class MapInfoListWrapper
     public List<MapInfo> MapInfoList;
 }
 
-public class SaveData
+public class PlayData
 {
     public bool HasData { get; set; }
     public List<MapInfo> MapInfoList { get; set; }
     public int StageCount { get; set; }
     public int StageClearCount { get; set; }
 
-    public SaveData()
+    public PlayData()
     {
         HasData = false;
         MapInfoList = new List<MapInfo>();
         StageCount = 0;
         StageClearCount = 0;
+    }
+
+    public void UpdatePlayData()
+    {
+        StageCount = MapInfoList.Count;
+        StageClearCount = 0;
+        foreach (MapInfo mapInfo in MapInfoList)
+        {
+            StageClearCount += mapInfo.ClearFlag;
+        }
     }
 }
 
@@ -55,17 +65,17 @@ public class SaveData
 public class UserGameData : IUserData
 {
     private readonly string MAP_DATA_PATH = "Json/";
-    public List<SaveData> SaveDatas { get; private set; }
+    public List<PlayData> PlayDatas { get; private set; }
     
     public void SetDefaultData()
     {
         Logger.Log($"{GetType()}::SetDefaultData");
 
-        SaveDatas = new List<SaveData>();
+        PlayDatas = new List<PlayData>();
         
         for (int i = 0; i < 3; i++)
         {
-            SaveDatas.Add(new SaveData());
+            PlayDatas.Add(new PlayData());
         }
     }
 
@@ -74,32 +84,32 @@ public class UserGameData : IUserData
         Logger.Log($"{GetType()}::LoadData");
         
         bool result = false;
-        SaveDatas = new List<SaveData>();
+        PlayDatas = new List<PlayData>();
         
         try
         {
             for (int i = 0; i < 3; i++)
             {
-                SaveData saveData = new SaveData();
+                PlayData playData = new PlayData();
                 string mapInfoListstring = PlayerPrefs.GetString($"MapInfoList{i}");
 
                 if (mapInfoListstring[0] == '1')
                 {
-                    saveData.HasData = true;
+                    playData.HasData = true;
                     string mapInfoListJson = mapInfoListstring.Substring(1);
                     if (!string.IsNullOrEmpty(mapInfoListJson))
                     {
                         MapInfoListWrapper mapInfoListWrapper = JsonUtility.FromJson<MapInfoListWrapper>(mapInfoListJson);
                         foreach (MapInfo mapInfo in mapInfoListWrapper.MapInfoList)
                         {
-                            saveData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.ClearFlag));                   
-                            saveData.StageCount++;
-                            saveData.StageClearCount += mapInfo.ClearFlag;
+                            playData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.ClearFlag));                   
+                            playData.StageCount++;
+                            playData.StageClearCount += mapInfo.ClearFlag;
                         }
                     }    
                 }
                 
-                SaveDatas.Add(saveData);
+                PlayDatas.Add(playData);
             }
             result = true;
         }
@@ -121,11 +131,11 @@ public class UserGameData : IUserData
         {
             for (int i = 0; i < 3; i++)
             {
-                string mapInfoListstring = SaveDatas[i].HasData ? "1" : "0";
-                if (SaveDatas[i].HasData)
+                string mapInfoListstring = PlayDatas[i].HasData ? "1" : "0";
+                if (PlayDatas[i].HasData)
                 {
                     MapInfoListWrapper mapInfoListWrapper = new MapInfoListWrapper();
-                    mapInfoListWrapper.MapInfoList = SaveDatas[i].MapInfoList;
+                    mapInfoListWrapper.MapInfoList = PlayDatas[i].MapInfoList;
                     string mapInfoListJson = JsonUtility.ToJson(mapInfoListWrapper);
                     mapInfoListstring += mapInfoListJson;
                 }
@@ -144,12 +154,12 @@ public class UserGameData : IUserData
 
     public void SetNewData(int index)
     {
-        SaveData saveData = SaveDatas[index];
+        PlayData playData = PlayDatas[index];
 
-        saveData.HasData = true;
-        saveData.StageCount = 0;
-        saveData.StageClearCount = 0;
-        saveData.MapInfoList = new List<MapInfo>();
+        playData.HasData = true;
+        playData.StageCount = 0;
+        playData.StageClearCount = 0;
+        playData.MapInfoList = new List<MapInfo>();
         
         // defaultData는 Resources/Json/mapdefaultinfo.json을 읽어온다.
         TextAsset defalutjson = Resources.Load<TextAsset>(MAP_DATA_PATH + "defaultmapinfo");
@@ -163,9 +173,17 @@ public class UserGameData : IUserData
         
         foreach (MapInfo mapInfo in mapInfoListWrapper.MapInfoList)
         {
-            saveData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.ClearFlag));                   
-            saveData.StageCount++;
-            saveData.StageClearCount += mapInfo.ClearFlag;
+            playData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.ClearFlag));                   
+            playData.StageCount++;
+            playData.StageClearCount += mapInfo.ClearFlag;
         }
     }
+
+    public void UpdateData(int selectPlayData, StageName stageName, int clearFlag)
+    {
+        PlayData playData = PlayDatas[selectPlayData];
+        playData.MapInfoList[(int)stageName].ClearFlag = clearFlag;
+        playData.UpdatePlayData();
+        SaveData();
+    } 
 }

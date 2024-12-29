@@ -11,7 +11,15 @@ public class ConnectionManager : NetworkSingletonBehaviour<ConnectionManager>
     /// Steam을 통해서 현재 접속해 있는 Lobby를 저장한다.
     /// </summary>
     public Lobby? CurrentLobby { get; set; }
-
+    
+    /// <summary>
+    /// 현재 선택한 PlayData
+    /// </summary>
+    public int SelectPlayData { get; set; }
+    
+    /// <summary>
+    /// 현재 선택한 Stage
+    /// </summary>
     public StageName SelectStage { get; set; } = StageName.Size;
     
     // TODO

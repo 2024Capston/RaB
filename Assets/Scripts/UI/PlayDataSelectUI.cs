@@ -1,7 +1,8 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class SaveSelectUIData : BaseUIData
+public class PlayDataSelectUIData : BaseUIData
 {
     public UserGameData UserGameData;
 }
@@ -9,28 +10,28 @@ public class SaveSelectUIData : BaseUIData
 /// <summary>
 /// 저장된 데이터를 선택하는 UI
 /// </summary>
-public class SaveSelectUI : BaseUI
+public class PlayDataSelectUI : BaseUI
 {
-    [SerializeField]
-    private TMP_Text[] _saveDatasText = new TMP_Text[3];
+    [FormerlySerializedAs("_saveDatasText")] [SerializeField]
+    private TMP_Text[] _playDatasText = new TMP_Text[3];
 
-    private SaveSelectUIData _saveSelectUIData;
+    private PlayDataSelectUIData _playDataSelectUIData;
 
     public override void SetInfo(BaseUIData uiData)
     {
         base.SetInfo(uiData);
 
-        _saveSelectUIData = uiData as SaveSelectUIData;
+        _playDataSelectUIData = uiData as PlayDataSelectUIData;
 
         for (int i = 0; i < 3; i++)
         {
-            if (!_saveSelectUIData.UserGameData.SaveDatas[i].HasData)
+            if (!_playDataSelectUIData.UserGameData.PlayDatas[i].HasData)
             {
-                _saveDatasText[i].text = "새 게임";
+                _playDatasText[i].text = "새 게임";
             }
             else
             {
-                _saveDatasText[i].text = $"챕터 진행도 : {_saveSelectUIData.UserGameData.SaveDatas[i].StageClearCount} / {_saveSelectUIData.UserGameData.SaveDatas[i].StageCount}";
+                _playDatasText[i].text = $"챕터 진행도 : {_playDataSelectUIData.UserGameData.PlayDatas[i].StageClearCount} / {_playDataSelectUIData.UserGameData.PlayDatas[i].StageCount}";
             }
         }
     }
@@ -45,13 +46,13 @@ public class SaveSelectUI : BaseUI
         //GameManager.Instance.SelectedIndex = index;
 
         string descText;
-        if (!_saveSelectUIData.UserGameData.SaveDatas[index].HasData)
+        if (!_playDataSelectUIData.UserGameData.PlayDatas[index].HasData)
         {
             descText = "새 게임";
         }
         else
         {
-            descText = $"챕터 진행도 : {_saveSelectUIData.UserGameData.SaveDatas[index].StageClearCount} / {_saveSelectUIData.UserGameData.SaveDatas[index].StageCount}";
+            descText = $"챕터 진행도 : {_playDataSelectUIData.UserGameData.PlayDatas[index].StageClearCount} / {_playDataSelectUIData.UserGameData.PlayDatas[index].StageCount}";
         }
 
 
@@ -64,11 +65,13 @@ public class SaveSelectUI : BaseUI
             CancelButtonText = "취소",
             OnClickOKButton = () =>
             {
-                if (!_saveSelectUIData.UserGameData.SaveDatas[index].HasData)
+                if (!_playDataSelectUIData.UserGameData.PlayDatas[index].HasData)
                 {
-                    _saveSelectUIData.UserGameData.SetNewData(index);
-                    _saveSelectUIData.UserGameData.SaveData();
+                    _playDataSelectUIData.UserGameData.SetNewData(index);
+                    _playDataSelectUIData.UserGameData.SaveData();
                 }
+
+                ConnectionManager.Instance.SelectPlayData = index;
                 HomeManager.Instance.CreateLobby();
             },
         };
