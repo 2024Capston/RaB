@@ -22,11 +22,6 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
             return;
         }
         
-        // TODO
-        // 현재 Loader는 Host에서만 생성되어 있는데
-        // 아마 Client에서도 생성이 되어야할 것 같아요
-        // Test 필요
-        
         // 시작한 스테이지를 가져온다.
         StageName stageName = ConnectionManager.Instance.SelectStage;
         if (stageName == StageName.Size)

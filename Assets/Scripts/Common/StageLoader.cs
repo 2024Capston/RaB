@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /// <summary>
 /// Stage들을 Load하는 Class
@@ -15,10 +13,13 @@ public class StageLoader : NetworkBehaviour
 
     [SerializeField] private List<GameObject> _localObjects;
 
-    [SerializeField] private List<NetworkObject> _instantiatedNetworkObjects;
+    private List<NetworkObject> _instantiatedNetworkObjects;
 
-    [SerializeField] private List<GameObject> _instantiatedLocalObjects;
+    private List<GameObject> _instantiatedLocalObjects;
     
+    /// <summary>
+    /// 해당 Stage에 필요한 NetworkObject와 LocalObject를 모두 Load
+    /// </summary>
     public void LoadStage()
     {
         Init();
@@ -26,13 +27,16 @@ public class StageLoader : NetworkBehaviour
         // NetworkObject는 모두 서버에서 Spawn
         LoadAllNetworkObjects();
         
-        // Map은 Client에 개별적으로 Load 한다.
-        LoadAllLocalObject(); 
+        // Local Object는 Client에 개별적으로 Load 한다.
+        LoadAllLocalObjectClientRpc(); 
         
         // InGameManager에도 자신을 등록한다.
         InGameManager.Instance.StageLoader = this;
     }
 
+    /// <summary>
+    /// LoadStage를 통해 생성된 모든 Object들을 Destory
+    /// </summary>
     public void DestoryStage()
     {   
         Init();
@@ -74,7 +78,7 @@ public class StageLoader : NetworkBehaviour
     /// _localObject List에 저장된 모든 Object를 각 클라이언트에서 Spawn 하는 메소드
     /// </summary>
     [ClientRpc]
-    private void LoadAllLocalObject()
+    private void LoadAllLocalObjectClientRpc()
     {
         
         foreach (GameObject localObject in _localObjects)
@@ -97,7 +101,10 @@ public class StageLoader : NetworkBehaviour
         // TODO 
         // 둘 중 한 플레이어의 Load가 TimeOut되면 연결을 초기화 한다.
     }
-
+    
+    /// <summary>
+    /// 생성된 모든 NetworkObject를 Destory하는 메소드
+    /// </summary>
     private void DestroyAllNetworkObject()
     {
         foreach (NetworkObject networkObject in _instantiatedNetworkObjects)
@@ -108,6 +115,9 @@ public class StageLoader : NetworkBehaviour
         _instantiatedNetworkObjects.Clear();
     }
 
+    /// <summary>
+    /// 생성된 모든 LocalObject를 Destory하는 메소드
+    /// </summary>
     [ClientRpc]
     private void DestoryAllLocalObjectClientRpc()
     {
