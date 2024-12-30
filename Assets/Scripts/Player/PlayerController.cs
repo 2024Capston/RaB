@@ -1,11 +1,6 @@
 using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
-using Unity.Netcode.Components;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class PlayerController : NetworkBehaviour
@@ -14,6 +9,7 @@ public class PlayerController : NetworkBehaviour
 
     private CharacterController _characterController;
     private float _colliderHeight;
+    private NetworkObject _platform;
 
     private Vector3 _moveInput;
     private bool _jumpInput;
@@ -21,13 +17,22 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        GameObject renderer = new GameObject("Ghost");
+
+        renderer.AddComponent<MeshFilter>().mesh = GetComponent<MeshFilter>().mesh;
+        renderer.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
+        Destroy(GetComponent<MeshFilter>());
+        Destroy(GetComponent<MeshRenderer>());
+
+        renderer.AddComponent<NetworkInterpolator>().SetTarget(transform);
+
         if (IsOwner)
         {
             _characterController = GetComponent<CharacterController>();
             _colliderHeight = GetComponent<CapsuleCollider>().height / 2f;
 
-            FindObjectOfType<CinemachineFreeLook>().Follow = transform;
-            FindObjectOfType<CinemachineFreeLook>().LookAt = transform;
+            FindObjectOfType<CinemachineFreeLook>().Follow = renderer.transform;
+            FindObjectOfType<CinemachineFreeLook>().LookAt = renderer.transform;
 
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -60,6 +65,36 @@ public class PlayerController : NetworkBehaviour
 
             _verticalSpeed += Physics.gravity.y * Time.deltaTime;
             _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
+
+            if (_platform && _platform.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+            {
+                _characterController.Move(rigidbody.velocity * Time.deltaTime);
+            }
+
+            FindPlatform();
+
+            if (IsServer)
+            {
+                if (_platform)
+                {
+                    UpdateTransformClientRpc(_platform, transform.position - _platform.transform.position, transform.rotation);
+                }
+                else
+                {
+                    UpdateTransformClientRpc(transform.position, transform.rotation);
+                }
+            }
+            else
+            {
+                if (_platform)
+                {
+                    UpdateTransformServerRpc(_platform, transform.position - _platform.transform.position, transform.rotation);
+                }
+                else
+                {
+                    UpdateTransformServerRpc(transform.position, transform.rotation);
+                }
+            }
         }
     }
 
@@ -68,6 +103,30 @@ public class PlayerController : NetworkBehaviour
         RaycastHit[] hit = Physics.RaycastAll(transform.position, Vector3.down, _colliderHeight + 0.1f);
 
         return hit.Length > 0;
+    }
+
+    void FindPlatform()
+    {
+        RaycastHit[] hit = Physics.RaycastAll(transform.position, Vector3.down, _colliderHeight + 3.2f);
+
+        if (hit.Length > 0)
+        {
+            if (hit[0].collider.gameObject.TryGetComponent<NetworkObject>(out _platform))
+            {
+                Debug.Log("OKAY");
+            }
+            else
+            {
+                Debug.DrawLine(transform.position, transform.position + Vector3.down * (_colliderHeight + 3.2f), Color.red, 2f);
+                Debug.Log("NO");
+            }
+        }
+        else
+        {
+            Debug.DrawLine(transform.position, transform.position + Vector3.down * (_colliderHeight + 3.2f), Color.red, 2f);
+            Debug.Log("NO");
+            _platform = null;
+        }
     }
 
     void OnMoveInput(InputValue value)
@@ -90,10 +149,58 @@ public class PlayerController : NetworkBehaviour
 
     }
 
+    public void UpdateTransform(Vector3 position, Quaternion rotation)
+    {
+        transform.position = position;
+        transform.rotation = rotation;
+    }
+
+    [ServerRpc]
+    public void UpdateTransformServerRpc(NetworkObjectReference platform, Vector3 position, Quaternion rotation)
+    {
+        if (platform.TryGet(out NetworkObject networkObject))
+        {
+            position += networkObject.transform.position;
+        }
+
+        UpdateTransform(position, rotation);
+    }
+
+    [ClientRpc]
+    public void UpdateTransformClientRpc(NetworkObjectReference platform, Vector3 position, Quaternion rotation)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        if (platform.TryGet(out NetworkObject networkObject))
+        {
+            position += networkObject.transform.position;
+        }
+
+        UpdateTransform(position, rotation);
+    }
+
+    [ServerRpc]
+    public void UpdateTransformServerRpc(Vector3 position, Quaternion rotation)
+    {
+        UpdateTransform(position, rotation);
+    }
+
+    [ClientRpc]
+    public void UpdateTransformClientRpc(Vector3 position, Quaternion rotation)
+    {
+        UpdateTransform(position, rotation);
+    }
+
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(10, 10, 30, 30));
-        GUILayout.Label($"{_characterController?.isGrounded}");
-        GUILayout.EndArea();
+        if (IsOwner)
+        {
+            GUILayout.BeginArea(new Rect(10, 10, 100, 100));
+            GUILayout.Label($"{_verticalSpeed * Time.deltaTime}\t");
+            GUILayout.EndArea();
+        }
     }
 }
