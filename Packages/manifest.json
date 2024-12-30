@@ -1,13 +1,29 @@
 {
   "dependencies": {
+    "com.unity.cinemachine": "2.10.3",
+    "com.unity.animation.rigging": "1.2.1",
+<<<<<<< HEAD
     "com.unity.animation.rigging": "1.2.1",
     "com.unity.collab-proxy": "2.5.1",
     "com.unity.feature.development": "1.0.1",
     "com.unity.multiplayer.samples.coop": "https://github.com/Unity-Technologies/com.unity.multiplayer.samples.coop.git?path=/Packages/com.unity.multiplayer.samples.coop#main",
+=======
+    "com.unity.cinemachine": "2.10.3",
+    "com.unity.collab-proxy": "2.5.1",
+    "com.unity.feature.development": "1.0.1",
+    "com.unity.inputsystem": "1.7.0",
+    "com.unity.multiplayer.tools": "1.1.1",
+>>>>>>> de0a34b (기본적인 이동 구현)
     "com.unity.netcode.gameobjects": "1.10.0",
     "com.unity.postprocessing": "3.4.0",
     "com.unity.textmeshpro": "3.0.9",
     "com.unity.timeline": "1.7.6",
+    "com.unity.transport": "2.4.0",
+    "com.unity.inputsystem": "1.7.0",
+    "com.unity.multiplayer.tools": "1.1.1",
+    "com.unity.multiplayer.samples.coop": "https://github.com/Unity-Technologies/com.unity.multiplayer.samples.coop.git?path=/Packages/com.unity.multiplayer.samples.coop#main",
+    "com.unity.postprocessing": "3.4.0",
+    "com.unity.transport": "2.4.0",
     "com.unity.ugui": "1.0.0",
     "com.unity.visualscripting": "1.9.4",
     "com.unity.modules.ai": "1.0.0",
