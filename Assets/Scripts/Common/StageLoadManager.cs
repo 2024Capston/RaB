@@ -37,15 +37,15 @@ public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
             return;
         }
 
-        GameObject gameObject = Instantiate(Resources.Load<GameObject>(STAGELOADER_PATH + stageLoaderName));
-        if (!gameObject)
+        GameObject loaderObject = Instantiate(Resources.Load<GameObject>(STAGELOADER_PATH + stageLoaderName));
+        if (!loaderObject)
         {
             Logger.LogError($"Cannot find the path {STAGELOADER_PATH + stageLoaderName}");
             return;
         }
-        gameObject.GetComponent<NetworkObject>().Spawn();
+        loaderObject.GetComponent<NetworkObject>().Spawn();
         
-        StageLoader stageLoader = gameObject.GetComponent<StageLoader>();
+        StageLoader stageLoader = loaderObject.GetComponent<StageLoader>();
         if (!stageLoader)
         {
             Logger.LogError("StageLoader does not exist");

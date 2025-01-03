@@ -52,6 +52,7 @@ public class TitleManager : MonoBehaviour
         {
             SteamClient.Init(APP_ID, false);
             _isSteamClientInitialized = true;
+            _facepunch.InitSteamworks();
         }
         catch (Exception e)
         {
@@ -72,10 +73,6 @@ public class TitleManager : MonoBehaviour
 
             // Confirm 팝업을 연다.
             UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
-        }
-        finally
-        {
-            _facepunch.InitSteamworks();
         }
     }
 
