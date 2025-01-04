@@ -1,37 +1,54 @@
+using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class NetworkInterpolator : MonoBehaviour
+public class NetworkInterpolator : NetworkBehaviour
 {
-    private const float OWNER_LERP_SPEED = 32f;
-    private const float OTHER_LERP_SPEED = 8f;
+    [SerializeField] private bool _alwaysLocal = false;
 
-    private Transform _target;
-    private float _lerpSpeed = OWNER_LERP_SPEED;
-
-    void Update()
+    private GameObject _visualReference;
+    public GameObject VisualReference
     {
-        if (_target != null)
-        {
-            transform.position = Vector3.Lerp(transform.position, _target.position, Time.deltaTime * _lerpSpeed);
-        }
+        get => _visualReference;
     }
 
-    public void SetTarget(Transform target, bool isOwner = true)
+    private Action _VisualReferenceCreated;
+    public Action VisualReferenceCreated
     {
-        _target = target;
+        get => _VisualReferenceCreated;
+        set => _VisualReferenceCreated = value;
+    }
 
-        transform.position = _target.position;
-        transform.rotation = _target.rotation;
+    public override void OnNetworkSpawn()
+    {
+        _visualReference = new GameObject(gameObject.name + " (Visual)");
 
-        if (isOwner)
+        _visualReference.transform.position = transform.position;
+        _visualReference.transform.rotation = transform.rotation;
+        _visualReference.transform.localScale = transform.localScale;
+
+        _visualReference.AddComponent<MeshFilter>().mesh = GetComponent<MeshFilter>().mesh;
+        _visualReference.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
+        Destroy(GetComponent<MeshFilter>());
+        Destroy(GetComponent<MeshRenderer>());
+
+        if (TryGetComponent<Outline>(out Outline outline))
         {
-            _lerpSpeed = OWNER_LERP_SPEED;
+            Outline newOutline = _visualReference.AddComponent<Outline>();
+
+            newOutline.OutlineMode = outline.OutlineMode;
+            newOutline.OutlineColor = outline.OutlineColor;
+            newOutline.OutlineWidth = outline.OutlineWidth;
+
+            Destroy(outline);
         }
-        else
-        {
-            _lerpSpeed = OTHER_LERP_SPEED;
-        }
+
+        _visualReference.AddComponent<NetworkInterpolatorUtil>().SetTarget(transform, _alwaysLocal | IsOwner);
+
+        _VisualReferenceCreated?.Invoke();
     }
 }

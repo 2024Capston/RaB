@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -1949792986154470707}
   - component: {fileID: -3061813936034661368}
   - component: {fileID: 1076297442845328188}
+  - component: {fileID: -2161484111408225323}
   - component: {fileID: 7651059345379365957}
   - component: {fileID: -640124323256899825}
   m_Layer: 0
@@ -185,7 +186,20 @@ MonoBehaviour:
   SceneMigrationSynchronization: 1
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
+  AutoObjectParentSync: 0
+--- !u!114 &-2161484111408225323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2598954008640769726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 301aa2e6ccde7424d9fa9adb00c532d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _alwaysLocal: 0
 --- !u!114 &7651059345379365957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,3 +243,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moveSpeed: 10
+  _jumpSpeed: 5

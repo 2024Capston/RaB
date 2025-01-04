@@ -8,37 +8,50 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _moveSpeed = 10f;
     [SerializeField] private float _jumpSpeed = 5f;
 
-    private GameObject _ghost;
+    private const float GROUND_DETECTION_THRESHOLD = 0.1f;
+    private const float PLATFORM_DETECTION_THRESHOLD = 2f;
+    private const float SEND_TRANSFORM_THRESHOLD = 0.01f;
+
     private CharacterController _characterController;
+    private NetworkInterpolator _networkInterpolator;
+
     private float _colliderHeight;
     private Rigidbody _platform;
+    private GameObject _interactableOnPointer;
+    private GameObject _interactableInHand;
 
     private Vector3 _moveInput;
     private bool _jumpInput;
     private float _jumpRemember;
     private float _verticalSpeed;
 
-    private Vector3 _lastFetchedPosition;
-    private Quaternion _lastFetchedRotation;
+    private Vector3 _lastSyncedPosition;
+    private Quaternion _lastSyncedRotation;
 
     public override void OnNetworkSpawn()
     {
-        _ghost = new GameObject("Ghost");
-
-        _ghost.AddComponent<MeshFilter>().mesh = GetComponent<MeshFilter>().mesh;
-        _ghost.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
-        Destroy(GetComponent<MeshFilter>());
-        Destroy(GetComponent<MeshRenderer>());
-
-        _ghost.AddComponent<NetworkInterpolator>().SetTarget(transform, IsOwner);
-
         if (IsOwner)
         {
             _characterController = GetComponent<CharacterController>();
+            _networkInterpolator = GetComponent<NetworkInterpolator>();
+
             _colliderHeight = GetComponent<CapsuleCollider>().height / 2f;
 
-            FindObjectOfType<CinemachineFreeLook>().Follow = _ghost.transform;
-            FindObjectOfType<CinemachineFreeLook>().LookAt = _ghost.transform;
+            CinemachineFreeLook camera = FindAnyObjectByType<CinemachineFreeLook>();
+
+            if (_networkInterpolator.VisualReference)
+            {
+                camera.Follow = _networkInterpolator.VisualReference.transform;
+                camera.LookAt = _networkInterpolator.VisualReference.transform;
+            }
+            else
+            {
+                _networkInterpolator.VisualReferenceCreated += () =>
+                {
+                    camera.Follow = _networkInterpolator.VisualReference.transform;
+                    camera.LookAt = _networkInterpolator.VisualReference.transform;
+                };
+            }
 
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -55,10 +68,11 @@ public class PlayerController : NetworkBehaviour
             HandleMovement();
             HandleJump();
             HandlePlatform();
+            SearchInteractables();
 
             SendTransform();
         }
-        else if (_lastFetchedPosition != null && _lastFetchedRotation != null)
+        else if (_lastSyncedPosition != null && _lastSyncedRotation != null)
         {
             UpdateFetchedTransform();
         }
@@ -77,22 +91,24 @@ public class PlayerController : NetworkBehaviour
     {
         _jumpRemember -= Time.deltaTime;
 
-        if (IsGrounded() && _verticalSpeed < 0f)
+        if (IsGrounded())
         {
-            _verticalSpeed = 0f;
-        }
-
-        if (IsGrounded() && _jumpInput)
-        {
-            if (_jumpRemember > 0f)
+            if (_verticalSpeed < 0f)
             {
-                _verticalSpeed = _jumpSpeed;
+                _verticalSpeed = 0f;
             }
 
-            _jumpInput = false;
-        }
+            if (_jumpInput)
+            {
+                if (_jumpRemember > 0f)
+                {
+                    _verticalSpeed = _jumpSpeed;
+                }
 
-        if (!IsGrounded())
+                _jumpInput = false;
+            }
+        }
+        else
         {
             _verticalSpeed += Physics.gravity.y * Time.deltaTime;
         }
@@ -104,9 +120,33 @@ public class PlayerController : NetworkBehaviour
     {
         FindPlatform();
 
-        if (_platform && _platform.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+        if (_platform)
         {
-            _characterController.Move(rigidbody.velocity * Time.deltaTime);
+            transform.position += _platform.velocity * Time.deltaTime;
+        }
+    }
+
+    private void SearchInteractables()
+    {
+        if (_interactableInHand)
+        {
+            return;
+        }
+
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 20f))
+        {
+            if (_interactableOnPointer != hit.collider.gameObject)
+            {
+                if (_interactableOnPointer)
+                {
+                    _interactableOnPointer = null;
+                }
+
+                if (hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable) && interactable.IsInteractable(this))
+                {
+                    _interactableOnPointer = hit.collider.gameObject;
+                }
+            }
         }
     }
 
@@ -116,8 +156,19 @@ public class PlayerController : NetworkBehaviour
 
         if (_platform)
         {
-            positionToSend -= _platform.position;
+            positionToSend -= _platform.transform.position;
         }
+
+        float positionDiff = Vector3.Distance(transform.position, _lastSyncedPosition);
+        float rotationDiff = Quaternion.Angle(transform.rotation, _lastSyncedRotation) / 10f;
+
+        if (positionDiff < SEND_TRANSFORM_THRESHOLD && rotationDiff < SEND_TRANSFORM_THRESHOLD)
+        {
+            return;
+        }
+
+        _lastSyncedPosition = positionToSend;
+        _lastSyncedRotation = transform.rotation;
 
         if (IsServer)
         {
@@ -133,42 +184,43 @@ public class PlayerController : NetworkBehaviour
     {
         if (_platform)
         {
-            transform.position = _lastFetchedPosition + _platform.position;
-            transform.rotation = _lastFetchedRotation;
+            transform.position = _lastSyncedPosition + _platform.transform.position;
+            transform.rotation = _lastSyncedRotation;
         }
         else
         {
-            transform.position = _lastFetchedPosition;
-            transform.rotation = _lastFetchedRotation;
+            transform.position = _lastSyncedPosition;
+            transform.rotation = _lastSyncedRotation;
         }
     }
 
     bool IsGrounded()
     {
-        RaycastHit[] hit = Physics.RaycastAll(transform.position, Vector3.down, _colliderHeight + 0.16f);
-
-        return hit.Length > 0;
+        return Physics.Raycast(transform.position, Vector3.down, _colliderHeight + GROUND_DETECTION_THRESHOLD);
     }
 
     void FindPlatform()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _colliderHeight + 2f))
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _colliderHeight + PLATFORM_DETECTION_THRESHOLD))
         {
-            if (hit.collider.gameObject.TryGetComponent<Rigidbody>(out _platform) &&
-                hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject))
+            if (_platform != hit.collider.gameObject)
             {
-                if (IsServer)
+                if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) && 
+                    hit.collider.gameObject.TryGetComponent<Rigidbody>(out _platform))
                 {
-                    SetPlatformClientRpc(networkObject);
+                    if (IsServer)
+                    {
+                        SetPlatformClientRpc(networkObject);
+                    }
+                    else
+                    {
+                        SetPlatformServerRpc(networkObject);
+                    }
                 }
                 else
                 {
-                    SetPlatformServerRpc(networkObject);
+                    ResetPlatform();
                 }
-            }
-            else
-            {
-                ResetPlatform();
             }
         }
         else if (_platform != null)
@@ -206,7 +258,16 @@ public class PlayerController : NetworkBehaviour
 
     void OnInteractionInput()
     {
-
+        if (_interactableInHand)
+        {
+            _interactableOnPointer.GetComponent<IInteractable>().StopInteraction(this);
+            _interactableInHand = null;
+        }
+        else if (_interactableOnPointer)
+        {
+            _interactableOnPointer.GetComponent<IInteractable>().StartInteraction(this);
+            _interactableOnPointer = null;
+        }
     }
 
     void OnEscapeInput()
@@ -226,6 +287,11 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void SetPlatformClientRpc(NetworkObjectReference platform)
     {
+        if (IsServer)
+        {
+            return;
+        }
+
         if (platform.TryGet(out NetworkObject networkObject))
         {
             networkObject.TryGetComponent<Rigidbody>(out _platform);
@@ -252,8 +318,8 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc]
     public void SendTransformServerRpc(Vector3 position, Quaternion rotation)
     {
-        _lastFetchedPosition = position;
-        _lastFetchedRotation = rotation;
+        _lastSyncedPosition = position;
+        _lastSyncedRotation = rotation;
     }
 
     [ClientRpc]
@@ -264,8 +330,8 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        _lastFetchedPosition = position;
-        _lastFetchedRotation = rotation;
+        _lastSyncedPosition = position;
+        _lastSyncedRotation = rotation;
     }
 
     private void OnGUI()
@@ -273,15 +339,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            if (_platform)
-            {
-                Vector3 diff = transform.position - _platform.transform.position;
-                GUILayout.Label($"On Platform: {diff.x} {diff.y} {diff.z}");
-            }
-            else
-            {
-                GUILayout.Label($"{transform.position.x} {transform.position.y} {transform.position.z}");
-            }
+            if (_platform) GUILayout.Label($"");
             GUILayout.EndArea();
         }
     }
