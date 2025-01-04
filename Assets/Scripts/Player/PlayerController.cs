@@ -6,33 +6,36 @@ using UnityEngine.InputSystem;
 public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private float _moveSpeed = 10f;
+    [SerializeField] private float _jumpSpeed = 5f;
 
+    private GameObject _ghost;
     private CharacterController _characterController;
     private float _colliderHeight;
     private NetworkObject _platform;
 
     private Vector3 _moveInput;
     private bool _jumpInput;
+    private float _jumpRemember;
     private float _verticalSpeed;
 
     public override void OnNetworkSpawn()
     {
-        GameObject renderer = new GameObject("Ghost");
+        _ghost = new GameObject("Ghost");
 
-        renderer.AddComponent<MeshFilter>().mesh = GetComponent<MeshFilter>().mesh;
-        renderer.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
+        _ghost.AddComponent<MeshFilter>().mesh = GetComponent<MeshFilter>().mesh;
+        _ghost.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
         Destroy(GetComponent<MeshFilter>());
         Destroy(GetComponent<MeshRenderer>());
 
-        renderer.AddComponent<NetworkInterpolator>().SetTarget(transform);
+        _ghost.AddComponent<NetworkInterpolator>().SetTarget(transform, IsOwner);
 
         if (IsOwner)
         {
             _characterController = GetComponent<CharacterController>();
             _colliderHeight = GetComponent<CapsuleCollider>().height / 2f;
 
-            FindObjectOfType<CinemachineFreeLook>().Follow = renderer.transform;
-            FindObjectOfType<CinemachineFreeLook>().LookAt = renderer.transform;
+            FindObjectOfType<CinemachineFreeLook>().Follow = _ghost.transform;
+            FindObjectOfType<CinemachineFreeLook>().LookAt = _ghost.transform;
 
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -52,18 +55,28 @@ public class PlayerController : NetworkBehaviour
 
             _characterController.Move((Quaternion.Euler(rotation) * _moveInput) * Time.deltaTime * _moveSpeed);
 
-            if (OnGround() && _verticalSpeed < 0f)
+            _jumpRemember -= Time.deltaTime;
+
+            if (IsGrounded() && _verticalSpeed < 0f)
             {
                  _verticalSpeed = 0f;
             }
 
-            if (_jumpInput)
+            if (IsGrounded() && _jumpInput)
             {
-                _verticalSpeed = 5f;
+                if (_jumpRemember > 0f)
+                {
+                    _verticalSpeed = _jumpSpeed;
+                }
+
                 _jumpInput = false;
             }
 
-            _verticalSpeed += Physics.gravity.y * Time.deltaTime;
+            if (!IsGrounded())
+            {
+                _verticalSpeed += Physics.gravity.y * Time.deltaTime;
+            }
+            
             _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
 
             if (_platform && _platform.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
@@ -98,33 +111,21 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    bool OnGround()
+    bool IsGrounded()
     {
-        RaycastHit[] hit = Physics.RaycastAll(transform.position, Vector3.down, _colliderHeight + 0.1f);
+        RaycastHit[] hit = Physics.RaycastAll(transform.position, Vector3.down, _colliderHeight + 0.16f);
 
         return hit.Length > 0;
     }
 
     void FindPlatform()
     {
-        RaycastHit[] hit = Physics.RaycastAll(transform.position, Vector3.down, _colliderHeight + 3.2f);
-
-        if (hit.Length > 0)
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _colliderHeight + 2f))
         {
-            if (hit[0].collider.gameObject.TryGetComponent<NetworkObject>(out _platform))
-            {
-                Debug.Log("OKAY");
-            }
-            else
-            {
-                Debug.DrawLine(transform.position, transform.position + Vector3.down * (_colliderHeight + 3.2f), Color.red, 2f);
-                Debug.Log("NO");
-            }
+            hit.collider.gameObject.TryGetComponent<NetworkObject>(out _platform);
         }
         else
         {
-            Debug.DrawLine(transform.position, transform.position + Vector3.down * (_colliderHeight + 3.2f), Color.red, 2f);
-            Debug.Log("NO");
             _platform = null;
         }
     }
@@ -138,13 +139,16 @@ public class PlayerController : NetworkBehaviour
 
     void OnJumpInput()
     {
-        if (OnGround())
-        {
-            _jumpInput = true;
-        }
+        _jumpInput = true;
+        _jumpRemember = 0.1f;
     }
 
     void OnInteractionInput()
+    {
+
+    }
+
+    void OnEscapeInput()
     {
 
     }
@@ -199,7 +203,15 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            GUILayout.Label($"{_verticalSpeed * Time.deltaTime}\t");
+            if (_platform)
+            {
+                Vector3 diff = transform.position - _platform.transform.position;
+                GUILayout.Label($"On Platform: {diff.x} {diff.y} {diff.z}");
+            }
+            else
+            {
+                GUILayout.Label($"{transform.position.x} {transform.position.y} {transform.position.z}");
+            }
             GUILayout.EndArea();
         }
     }

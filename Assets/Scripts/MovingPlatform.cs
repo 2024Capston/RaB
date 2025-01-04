@@ -12,17 +12,18 @@ public class MovingPlatform : NetworkBehaviour
         GameObject renderer = new GameObject("Ghost");
 
         renderer.transform.localScale = transform.localScale;
+
         renderer.AddComponent<MeshFilter>().mesh = GetComponent<MeshFilter>().mesh;
         renderer.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
         Destroy(GetComponent<MeshFilter>());
         Destroy(GetComponent<MeshRenderer>());
 
-        renderer.AddComponent<NetworkInterpolator>().SetTarget(transform);
+        renderer.AddComponent<NetworkInterpolator>().SetTarget(transform, true);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        _timer += Time.deltaTime;
+        _timer += Time.fixedDeltaTime;
 
         if (IsServer && _timer > Mathf.PI * 2f)
         {
@@ -33,7 +34,7 @@ public class MovingPlatform : NetworkBehaviour
         Vector3 newPosition = transform.position;
         newPosition.y = (Mathf.Sin(_timer) * 5f) + 3f;
 
-        GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(transform.position, newPosition, Time.deltaTime * 20f));
+        GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(GetComponent<Rigidbody>().position, newPosition, Time.fixedDeltaTime * 20f));
     }
 
     [ClientRpc]
@@ -41,21 +42,5 @@ public class MovingPlatform : NetworkBehaviour
     {
         _timer = timer;
         GetComponent<Rigidbody>().MovePosition(position);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.TryGetComponent<PlayerController>(out PlayerController playerController))
-        {
-            // collision.gameObject.GetComponent<NetworkObject>().TrySetParent(gameObject, true);
-        }
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.TryGetComponent<PlayerController>(out PlayerController playerController))
-        {
-            // collision.gameObject.GetComponent<NetworkObject>().TryRemoveParent(true);
-        }
     }
 }
