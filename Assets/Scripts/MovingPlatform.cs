@@ -18,7 +18,7 @@ public class MovingPlatform : NetworkBehaviour
         Destroy(GetComponent<MeshFilter>());
         Destroy(GetComponent<MeshRenderer>());
 
-        renderer.AddComponent<NetworkInterpolator>().SetTarget(transform, true);
+        renderer.AddComponent<NetworkInterpolator>().SetTarget(transform);
     }
 
     void FixedUpdate()

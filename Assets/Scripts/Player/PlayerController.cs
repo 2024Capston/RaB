@@ -11,12 +11,15 @@ public class PlayerController : NetworkBehaviour
     private GameObject _ghost;
     private CharacterController _characterController;
     private float _colliderHeight;
-    private NetworkObject _platform;
+    private Rigidbody _platform;
 
     private Vector3 _moveInput;
     private bool _jumpInput;
     private float _jumpRemember;
     private float _verticalSpeed;
+
+    private Vector3 _lastFetchedPosition;
+    private Quaternion _lastFetchedRotation;
 
     public override void OnNetworkSpawn()
     {
@@ -49,65 +52,94 @@ public class PlayerController : NetworkBehaviour
     {
         if (IsOwner)
         {
-            Vector3 rotation = Camera.main.transform.rotation.eulerAngles;
-            rotation.x = 0;
-            rotation.z = 0;
+            HandleMovement();
+            HandleJump();
+            HandlePlatform();
 
-            _characterController.Move((Quaternion.Euler(rotation) * _moveInput) * Time.deltaTime * _moveSpeed);
+            SendTransform();
+        }
+        else if (_lastFetchedPosition != null && _lastFetchedRotation != null)
+        {
+            UpdateFetchedTransform();
+        }
+    }
 
-            _jumpRemember -= Time.deltaTime;
+    private void HandleMovement()
+    {
+        Vector3 rotation = Camera.main.transform.rotation.eulerAngles;
+        rotation.x = 0;
+        rotation.z = 0;
 
-            if (IsGrounded() && _verticalSpeed < 0f)
+        _characterController.Move((Quaternion.Euler(rotation) * _moveInput) * Time.deltaTime * _moveSpeed);
+    }
+
+    private void HandleJump()
+    {
+        _jumpRemember -= Time.deltaTime;
+
+        if (IsGrounded() && _verticalSpeed < 0f)
+        {
+            _verticalSpeed = 0f;
+        }
+
+        if (IsGrounded() && _jumpInput)
+        {
+            if (_jumpRemember > 0f)
             {
-                 _verticalSpeed = 0f;
+                _verticalSpeed = _jumpSpeed;
             }
 
-            if (IsGrounded() && _jumpInput)
-            {
-                if (_jumpRemember > 0f)
-                {
-                    _verticalSpeed = _jumpSpeed;
-                }
+            _jumpInput = false;
+        }
 
-                _jumpInput = false;
-            }
+        if (!IsGrounded())
+        {
+            _verticalSpeed += Physics.gravity.y * Time.deltaTime;
+        }
 
-            if (!IsGrounded())
-            {
-                _verticalSpeed += Physics.gravity.y * Time.deltaTime;
-            }
-            
-            _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
+        _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
+    }
 
-            if (_platform && _platform.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
-            {
-                _characterController.Move(rigidbody.velocity * Time.deltaTime);
-            }
+    private void HandlePlatform()
+    {
+        FindPlatform();
 
-            FindPlatform();
+        if (_platform && _platform.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+        {
+            _characterController.Move(rigidbody.velocity * Time.deltaTime);
+        }
+    }
 
-            if (IsServer)
-            {
-                if (_platform)
-                {
-                    UpdateTransformClientRpc(_platform, transform.position - _platform.transform.position, transform.rotation);
-                }
-                else
-                {
-                    UpdateTransformClientRpc(transform.position, transform.rotation);
-                }
-            }
-            else
-            {
-                if (_platform)
-                {
-                    UpdateTransformServerRpc(_platform, transform.position - _platform.transform.position, transform.rotation);
-                }
-                else
-                {
-                    UpdateTransformServerRpc(transform.position, transform.rotation);
-                }
-            }
+    private void SendTransform()
+    {
+        Vector3 positionToSend = transform.position;
+
+        if (_platform)
+        {
+            positionToSend -= _platform.position;
+        }
+
+        if (IsServer)
+        {
+            SendTransformClientRpc(positionToSend, transform.rotation);
+        }
+        else
+        {
+            SendTransformServerRpc(positionToSend, transform.rotation);
+        }
+    }
+
+    private void UpdateFetchedTransform()
+    {
+        if (_platform)
+        {
+            transform.position = _lastFetchedPosition + _platform.position;
+            transform.rotation = _lastFetchedRotation;
+        }
+        else
+        {
+            transform.position = _lastFetchedPosition;
+            transform.rotation = _lastFetchedRotation;
         }
     }
 
@@ -122,11 +154,40 @@ public class PlayerController : NetworkBehaviour
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _colliderHeight + 2f))
         {
-            hit.collider.gameObject.TryGetComponent<NetworkObject>(out _platform);
+            if (hit.collider.gameObject.TryGetComponent<Rigidbody>(out _platform) &&
+                hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject))
+            {
+                if (IsServer)
+                {
+                    SetPlatformClientRpc(networkObject);
+                }
+                else
+                {
+                    SetPlatformServerRpc(networkObject);
+                }
+            }
+            else
+            {
+                ResetPlatform();
+            }
+        }
+        else if (_platform != null)
+        {
+            ResetPlatform();
+        }
+    }
+
+    private void ResetPlatform()
+    {
+        _platform = null;
+
+        if (IsServer)
+        {
+            ResetPlatformClientRpc();
         }
         else
         {
-            _platform = null;
+            ResetPlatformServerRpc();
         }
     }
 
@@ -140,7 +201,7 @@ public class PlayerController : NetworkBehaviour
     void OnJumpInput()
     {
         _jumpInput = true;
-        _jumpRemember = 0.1f;
+        _jumpRemember = 0.16f;
     }
 
     void OnInteractionInput()
@@ -153,49 +214,58 @@ public class PlayerController : NetworkBehaviour
 
     }
 
-    public void UpdateTransform(Vector3 position, Quaternion rotation)
-    {
-        transform.position = position;
-        transform.rotation = rotation;
-    }
-
     [ServerRpc]
-    public void UpdateTransformServerRpc(NetworkObjectReference platform, Vector3 position, Quaternion rotation)
+    public void SetPlatformServerRpc(NetworkObjectReference platform)
     {
         if (platform.TryGet(out NetworkObject networkObject))
         {
-            position += networkObject.transform.position;
+            networkObject.TryGetComponent<Rigidbody>(out _platform);
         }
-
-        UpdateTransform(position, rotation);
     }
 
     [ClientRpc]
-    public void UpdateTransformClientRpc(NetworkObjectReference platform, Vector3 position, Quaternion rotation)
+    public void SetPlatformClientRpc(NetworkObjectReference platform)
+    {
+        if (platform.TryGet(out NetworkObject networkObject))
+        {
+            networkObject.TryGetComponent<Rigidbody>(out _platform);
+        }
+    }
+
+    [ServerRpc]
+    public void ResetPlatformServerRpc()
+    {
+        _platform = null;
+    }
+
+    [ClientRpc]
+    public void ResetPlatformClientRpc()
     {
         if (IsServer)
         {
             return;
         }
 
-        if (platform.TryGet(out NetworkObject networkObject))
-        {
-            position += networkObject.transform.position;
-        }
-
-        UpdateTransform(position, rotation);
+        _platform = null;
     }
 
     [ServerRpc]
-    public void UpdateTransformServerRpc(Vector3 position, Quaternion rotation)
+    public void SendTransformServerRpc(Vector3 position, Quaternion rotation)
     {
-        UpdateTransform(position, rotation);
+        _lastFetchedPosition = position;
+        _lastFetchedRotation = rotation;
     }
 
     [ClientRpc]
-    public void UpdateTransformClientRpc(Vector3 position, Quaternion rotation)
+    public void SendTransformClientRpc(Vector3 position, Quaternion rotation)
     {
-        UpdateTransform(position, rotation);
+        if (IsServer)
+        {
+            return;
+        }
+
+        _lastFetchedPosition = position;
+        _lastFetchedRotation = rotation;
     }
 
     private void OnGUI()

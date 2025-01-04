@@ -5,7 +5,7 @@ using UnityEngine;
 public class NetworkInterpolator : MonoBehaviour
 {
     private const float OWNER_LERP_SPEED = 32f;
-    private const float OTHER_LERP_SPEED = 16f;
+    private const float OTHER_LERP_SPEED = 8f;
 
     private Transform _target;
     private float _lerpSpeed = OWNER_LERP_SPEED;
@@ -18,7 +18,7 @@ public class NetworkInterpolator : MonoBehaviour
         }
     }
 
-    public void SetTarget(Transform target, bool isOwner)
+    public void SetTarget(Transform target, bool isOwner = true)
     {
         _target = target;
 
