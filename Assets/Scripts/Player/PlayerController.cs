@@ -174,7 +174,7 @@ public class PlayerController : NetworkBehaviour
         // 플랫폼에 올라가 있다면 플랫폼의 이동을 플레이어에게도 적용
         if (_platform)
         {
-            transform.position += _platform.velocity * Time.deltaTime;
+            _characterController.Move(_platform.velocity * Time.deltaTime);
         }
     }
 
