@@ -30,6 +30,9 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+
         if (IsOwner)
         {
             _characterController = GetComponent<CharacterController>();
@@ -37,7 +40,7 @@ public class PlayerController : NetworkBehaviour
 
             _colliderHeight = GetComponent<CapsuleCollider>().height / 2f;
 
-            CinemachineFreeLook camera = FindAnyObjectByType<CinemachineFreeLook>();
+            CinemachineFreeLook camera = GetComponentInChildren<CinemachineFreeLook>();
 
             if (_networkInterpolator.VisualReference)
             {
@@ -58,6 +61,9 @@ public class PlayerController : NetworkBehaviour
         else
         {
             GetComponent<PlayerInput>().enabled = false;
+
+            Destroy(GetComponentInChildren<CinemachineFreeLook>().gameObject);
+            Destroy(GetComponentInChildren<Camera>().gameObject);
         }
     }
 
