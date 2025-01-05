@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Steamworks;
+using Steamworks.Data;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -9,22 +11,64 @@ namespace RaB.Connection
     public class ConnectionManager : SingletonBehavior<ConnectionManager>
     {
         private ConnectionState _currentState;
+
+        internal readonly OfflineState Offline = new OfflineState();
+        internal readonly StartingHostState StartingHost = new StartingHostState();
+        internal readonly HostingState Hosting = new HostingState();
+        internal readonly ClientConnectingState ClientConnecting = new ClientConnectingState();
+        internal readonly ClientConnectedState ClientConnected = new ClientConnectedState();
+        
+        public Lobby? CurrentLobby { get; internal set; }
+
         private void Start()
         {
+            CurrentLobby = null;
+
+            SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
+            SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
+            SteamFriends.OnGameLobbyJoinRequested += GameLobbyJoinRequested;
+            NetworkManager.Singleton.OnConnectionEvent += OnConnectionEvent;
+            NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+            NetworkManager.Singleton.OnServerStopped += OnServerStopped;
+            NetworkManager.Singleton.OnTransportFailure += OnTransportFailure;
         }
 
         private void OnDestroy()
         {
+            CurrentLobby = null;
             
+            SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
+            SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
+            SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
+            NetworkManager.Singleton.OnConnectionEvent -= OnConnectionEvent;
+            NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
+            NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
+            NetworkManager.Singleton.OnTransportFailure -= OnTransportFailure;
         }
-        
+
+        public void StartServer()
+        {
+            _currentState.StartServer();
+        }
+
+        public void StartClient(string lobbyId, out Result result)
+        {
+            _currentState.StartClient(lobbyId, out result);
+        }
+
+        public void RequestShutdown()
+        {
+            _currentState.OnUserRequestedShutdown();
+        }
+
         /// <summary>
         /// 현재 State를 나가고 nextState에 들어간다. 
         /// </summary>
         /// <param name="nextState"></param>
         internal void ChangeState(ConnectionState nextState)
         {
-            Debug.Log($"{name}: Changed connection state from {_currentState.GetType().Name} to {nextState.GetType().Name}.");
+            Debug.Log(
+                $"{name}: Changed connection state from {_currentState.GetType().Name} to {nextState.GetType().Name}.");
 
             if (_currentState != null)
             {
@@ -55,7 +99,7 @@ namespace RaB.Connection
         private void OnClientDisconnetCallback(ulong clientId)
         {
             _currentState.OnClientDisconnect(clientId);
-        }  
+        }
 
         private void OnServerStarted()
         {
@@ -67,29 +111,24 @@ namespace RaB.Connection
             _currentState.OnServerStopped();
         }
 
-        private void ApprovalCheck()
-        {
-            _currentState.ApprovalCheck();
-        }
-
         private void OnTransportFailure()
         {
             _currentState.OnTransportFailure();
         }
 
-        public void StartServer()
+        private void OnLobbyCreated(Result result, Lobby lobby)
         {
-            _currentState.StartServer();
+            _currentState.OnLobbyCreated(result, lobby);
         }
 
-        public void StartClient()
+        private void OnLobbyEntered(Lobby lobby)
         {
-            _currentState.StartCleint();
+            _currentState.OnLobbyEntered(lobby);
         }
 
-        public void RequestShutdown()
+        private void GameLobbyJoinRequested(Lobby lobby, SteamId steamId)
         {
-            _currentState.OnUserRequestedShutdown();
+            _currentState.GameLobbyJoinRequested(lobby, steamId);
         }
     }
 }

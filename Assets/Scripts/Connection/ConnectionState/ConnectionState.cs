@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Steamworks;
+using Steamworks.Data;
 using UnityEngine;
 
 namespace RaB.Connection
 {
-    public abstract class ConnectionState
+    internal abstract class ConnectionState
     {
-        protected ConnectionManager _connectionManager;
-
         public abstract void Enter();
 
         public abstract void Exit();
@@ -22,13 +22,17 @@ namespace RaB.Connection
         
         public virtual void StartServer() { }
         
-        public virtual void StartCleint() { }
+        public virtual void StartClient(string lobbyId, out Result result) { result = Result.None; }
         
         public virtual void OnUserRequestedShutdown() { }
         
-        public virtual void ApprovalCheck() { }
-        
         public virtual void OnTransportFailure() { }
+        
+        public virtual void OnLobbyCreated(Result result, Lobby lobby) { }
+        
+        public virtual void OnLobbyEntered(Lobby lobby) { }
+        
+        public virtual void GameLobbyJoinRequested(Lobby lobby, SteamId steamId) { }
     } 
 }
 
