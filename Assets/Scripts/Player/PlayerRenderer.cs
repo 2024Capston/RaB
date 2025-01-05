@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerRenderer : NetworkBehaviour
+public class PlayerRenderer : LocalDependantBehaviour
 {
     [SerializeField] GameObject[] _playerRenderPrefab;
 
-    void Start()
+    public override void OnLocalInitialized()
     {
-        
-    }
-
-    void Update()
-    {
-        
+        // 플레이어 색상 가져오기
+        // 플레이어 색상에 따라 처리
     }
 }

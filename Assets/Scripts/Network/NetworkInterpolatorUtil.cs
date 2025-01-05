@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 보간용으로 생성된 Visual 오브젝트의 보간을 수행하는 Class
+/// </summary>
 public class NetworkInterpolatorUtil : MonoBehaviour
 {
     private const float LOCAL_LERP_SPEED = 16f;

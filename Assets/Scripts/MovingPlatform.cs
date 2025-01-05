@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+/// <summary>
+/// 이동 플랫폼 테스트용 Class
+/// </summary>
 public class MovingPlatform : NetworkBehaviour
 {
     private Rigidbody _rigidbody;
@@ -18,6 +21,7 @@ public class MovingPlatform : NetworkBehaviour
     {
         _timer += Time.deltaTime;
 
+        // 일정 시점마다 서버 측에서 동기화 RPC를 전송
         if (IsServer && _timer > Mathf.PI * 2f)
         {
             _timer -= Mathf.PI * 2f;

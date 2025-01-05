@@ -4,6 +4,9 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 네트워크 테스트용 Class
+/// </summary>
 public class NetworkTestUI : MonoBehaviour
 {
     [SerializeField] Button _hostButton;
