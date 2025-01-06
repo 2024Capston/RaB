@@ -69,5 +69,11 @@ namespace RaB.Connection
             return (null, Result.InvalidName);
         }
         
+        public override void GameLobbyJoinRequested(Lobby lobby, SteamId _)
+        {
+            ConnectionManager.Instance.CurrentLobby = lobby;
+            ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.ClientConnecting);
+        }
+        
     }
 }
