@@ -46,8 +46,9 @@ namespace RaB.Connection
             {
                 await ConnectionManager.Instance.CurrentLobby?.Join();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError($"{e}");
                 StartingClientFailed();
                 throw;
             }

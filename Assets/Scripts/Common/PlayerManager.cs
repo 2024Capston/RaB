@@ -42,7 +42,6 @@ public class PlayerManager : NetworkSingletonBehaviour<PlayerManager>
         };
     }
     
-    
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default)

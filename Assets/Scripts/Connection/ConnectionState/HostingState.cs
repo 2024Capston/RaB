@@ -57,10 +57,5 @@ namespace RaB.Connection
         {
             ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.Offline);
         }
-
-        public override async void GameLobbyJoinRequested(Lobby lobby, SteamId steamId)
-        {
-            await lobby.Join();
-        }
     }
 }

@@ -124,11 +124,13 @@ namespace RaB.Connection
 
         private void OnLobbyEntered(Lobby lobby)
         {
+            Logger.Log($"On Lobby Entered, Current State {_currentState.GetType()}");
             _currentState.OnLobbyEntered(lobby);
         }
 
         private void GameLobbyJoinRequested(Lobby lobby, SteamId steamId)
         {
+            Logger.Log($"Client Request Join, Current State {_currentState.GetType()}");
             _currentState.GameLobbyJoinRequested(lobby, steamId);
         }
     }
