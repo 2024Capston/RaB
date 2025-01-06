@@ -23,7 +23,8 @@ namespace RaB.Connection
         private void Start()
         {
             CurrentLobby = null;
-
+            _currentState = Offline;
+            
             SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
             SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
             SteamFriends.OnGameLobbyJoinRequested += GameLobbyJoinRequested;

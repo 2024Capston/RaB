@@ -4,7 +4,7 @@ namespace RaB.Connection
     {
         public override void Enter()
         {
-            
+            UIManager.Instance.CloseAllOpenUI();
         }
 
         public override void Exit()

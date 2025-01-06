@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Steamworks;
 using Steamworks.Data;
+using Unity.Multiplayer.Samples.Utilities;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
@@ -14,11 +15,12 @@ namespace RaB.Connection
             ConnectionManager.Instance.CurrentLobby = null;
             NetworkManager.Singleton.Shutdown();
             
+            UIManager.Instance.CloseAllOpenUI();
+            
             // Offline 상태에서는 Home Scene에 있어야 합니다.
             if (SceneManager.GetActiveScene().name != SceneType.Home.ToString())
             {
-                // TODO
-                // SceneManager를 개편하고 HomeScene을 Load하는 코드를 추가한다.
+                SceneLoaderWrapper.Instance.LoadScene(SceneType.Home.ToString(), false);
             }
         }
 

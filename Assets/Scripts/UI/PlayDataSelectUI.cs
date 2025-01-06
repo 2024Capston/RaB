@@ -72,7 +72,7 @@ public class PlayDataSelectUI : BaseUI
                 }
 
                 ConnectionManager.Instance.SelectPlayData = index;
-                HomeManager.Instance.CreateLobby();
+                RaB.Connection.ConnectionManager.Instance.StartServer();
             },
         };
         UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);

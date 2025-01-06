@@ -22,7 +22,8 @@ public class PlayerManager : NetworkSingletonBehaviour<PlayerManager>
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
+        
+        Logger.Log("NetworkSpawn");
         // PlayerPrefab을 캐싱한다.
         _playerPrefab = Resources.Load<GameObject>(PLAYER_PATH);
         if (_playerPrefab == null)
@@ -40,6 +41,8 @@ public class PlayerManager : NetworkSingletonBehaviour<PlayerManager>
             }
         };
     }
+    
+    
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default)
