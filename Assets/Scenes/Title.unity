@@ -595,6 +595,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6973775365259079555, guid: 50fb12bd3be972742b33db26c150a2a7, type: 3}
+      propertyPath: NetworkConfig.ForceSamePrefabs
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6973775365259079555, guid: 50fb12bd3be972742b33db26c150a2a7, type: 3}
       propertyPath: NetworkConfig.Prefabs.NetworkPrefabsLists.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: 7494af70c6ea48f45acd6cb01c06b487, type: 2}
