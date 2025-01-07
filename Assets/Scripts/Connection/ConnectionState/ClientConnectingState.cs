@@ -12,17 +12,14 @@ namespace RaB.Connection
             EnterLobby();
         }
 
-        public override void Exit()
-        {
-            
-        }
+        public override void Exit() { }
 
-        public override void OnClientConnected(ulong _)
+        public override void OnClientConnected()
         {
             ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.ClientConnected);
         }
 
-        public override void OnClientDisconnect(ulong _)
+        public override void OnClientDisconnect()
         {
             StartingClientFailed();
         }
@@ -44,7 +41,11 @@ namespace RaB.Connection
         {
             try
             {
-                await ConnectionManager.Instance.CurrentLobby?.Join();
+                if (!ConnectionManager.Instance.CurrentLobby.HasValue)
+                {
+                    throw new NullReferenceException("CurrentLobby is null");
+                }
+                await ConnectionManager.Instance.CurrentLobby.Value.Join();
             }
             catch (Exception e)
             {
@@ -58,7 +59,5 @@ namespace RaB.Connection
         {
             ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.Offline);    
         }       
-        
-        
     }
 }

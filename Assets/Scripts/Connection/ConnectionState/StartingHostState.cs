@@ -23,7 +23,8 @@ namespace RaB.Connection
                 StartHostFailed();
                 return;
             }
-            
+
+            lobby.SetData("game_id", "RaB");
             lobby.SetPublic();
             lobby.SetJoinable(true);
         }

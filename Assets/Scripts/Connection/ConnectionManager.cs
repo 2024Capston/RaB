@@ -84,22 +84,22 @@ namespace RaB.Connection
         {
             if (connectionEventData.EventType == ConnectionEvent.ClientConnected)
             {
-                OnClientConnectedCallback(connectionEventData.ClientId);
+                OnClientConnectedCallback();
             }
             else if (connectionEventData.EventType == ConnectionEvent.ClientDisconnected)
             {
-                OnClientDisconnetCallback(connectionEventData.ClientId);
+                OnClientDisconnetCallback();
             }
         }
 
-        private void OnClientConnectedCallback(ulong clientId)
+        private void OnClientConnectedCallback()
         {
-            _currentState.OnClientConnected(clientId);
+            _currentState.OnClientConnected();
         }
 
-        private void OnClientDisconnetCallback(ulong clientId)
+        private void OnClientDisconnetCallback()
         {
-            _currentState.OnClientDisconnect(clientId);
+            _currentState.OnClientDisconnect();
         }
 
         private void OnServerStarted()
@@ -124,13 +124,11 @@ namespace RaB.Connection
 
         private void OnLobbyEntered(Lobby lobby)
         {
-            Logger.Log($"On Lobby Entered, Current State {_currentState.GetType()}");
             _currentState.OnLobbyEntered(lobby);
         }
 
         private void GameLobbyJoinRequested(Lobby lobby, SteamId steamId)
         {
-            Logger.Log($"Client Request Join, Current State {_currentState.GetType()}");
             _currentState.GameLobbyJoinRequested(lobby, steamId);
         }
     }

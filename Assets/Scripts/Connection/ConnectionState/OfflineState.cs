@@ -34,9 +34,8 @@ namespace RaB.Connection
 
         public override async Task<Result> StartClient(string lobbyId)
         {
-            Logger.Log($"input lobbyId : {lobbyId}");
-            Lobby? lobby = null;
-            Result result = Result.None;
+            Lobby? lobby;
+            Result result;
             (lobby, result) =  await FindLobby(lobbyId);
             
             if (result == Result.OK)
@@ -47,7 +46,7 @@ namespace RaB.Connection
 
             return result;
         }
-
+        
         private async Task<(Lobby? lobby, Result result)> FindLobby(string lobbyId)
         {
             if (!ulong.TryParse(lobbyId, out ulong id))
@@ -55,9 +54,9 @@ namespace RaB.Connection
                 return (null, Result.InvalidParam);
             }
 
-            LobbyQuery lobbyQuery = new LobbyQuery();
-            Lobby[] lobbies = await lobbyQuery.WithSlotsAvailable(1).RequestAsync();
-
+            // RaB에서 생성된 모든 Lobby를 불러온 후 주어진 id와 일치하는 Lobby가 있는지 확인한다.
+            Lobby[] lobbies = await SteamMatchmaking.LobbyList.WithKeyValue("game_id", "RaB").RequestAsync();
+        
             foreach (Lobby lobby in lobbies)
             {
                 if (lobby.Id == id)
@@ -79,6 +78,5 @@ namespace RaB.Connection
             ConnectionManager.Instance.CurrentLobby = lobby;
             ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.ClientConnecting);
         }
-        
     }
 }

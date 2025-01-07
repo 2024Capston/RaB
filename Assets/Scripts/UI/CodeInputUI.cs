@@ -22,7 +22,7 @@ public class CodeInputUI : BaseUI
     }
 
     /// <summary>
-    ///  버튼을 눌렀을 때 일치하는 Lobby가 있는지 확인한다.
+    ///  버튼을 눌렀을 때 일치하는 Lobby가 있는지 확인하고, 해당하는 Lobby가 있으면 입장한다.
     /// </summary>
     public async void OnClickOkButton()
     {

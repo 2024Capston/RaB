@@ -13,9 +13,9 @@ namespace RaB.Connection
 
         public abstract void Exit();
         
-        public virtual void OnClientConnected(ulong clientId) { }
+        public virtual void OnClientConnected() { }
         
-        public virtual void OnClientDisconnect(ulong clientId) { }
+        public virtual void OnClientDisconnect() { }
         
         public virtual void OnServerStarted() { }
         
