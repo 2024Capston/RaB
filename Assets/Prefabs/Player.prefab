@@ -222,6 +222,7 @@ GameObject:
   - component: {fileID: -3061813936034661368}
   - component: {fileID: 1076297442845328188}
   - component: {fileID: -2161484111408225323}
+  - component: {fileID: 1968184193364488746}
   - component: {fileID: 7651059345379365957}
   - component: {fileID: -640124323256899825}
   m_Layer: 0
@@ -386,7 +387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2245490204
+  GlobalObjectIdHash: 2212483413
   InScenePlacedSourceGlobalObjectIdHash: 2212483413
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
@@ -408,6 +409,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _alwaysLocal: 0
+--- !u!114 &1968184193364488746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2598954008640769726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1afd4dd3dfbec74ab3a9fa6b366c6be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sendThreshold: 0.01
 --- !u!114 &7651059345379365957
 MonoBehaviour:
   m_ObjectHideFlags: 0

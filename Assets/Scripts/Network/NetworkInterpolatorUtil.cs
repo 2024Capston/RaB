@@ -11,13 +11,22 @@ public class NetworkInterpolatorUtil : MonoBehaviour
     private const float OTHER_LERP_SPEED = 8f;
 
     private Transform _target;
+
     private float _lerpSpeed = LOCAL_LERP_SPEED;
+    private bool _moveTowards = false;
 
     void Update()
     {
         if (_target != null)
         {
-            transform.position = Vector3.Lerp(transform.position, _target.position, Time.deltaTime * _lerpSpeed);
+            if (_moveTowards)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, _target.position, Time.deltaTime * _lerpSpeed);
+            }
+            else
+            {
+                transform.position = Vector3.Lerp(transform.position, _target.position, Time.deltaTime * _lerpSpeed);
+            }
         }
     }
 
@@ -33,5 +42,10 @@ public class NetworkInterpolatorUtil : MonoBehaviour
         {
             _lerpSpeed = OTHER_LERP_SPEED;
         }
+    }
+
+    public void SetMoveTowards(bool moveTowards)
+    {
+        _moveTowards = moveTowards;
     }
 }

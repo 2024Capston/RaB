@@ -17,6 +17,7 @@ public class PlayerController : NetworkBehaviour
 
     private CharacterController _characterController;
     private NetworkInterpolator _networkInterpolator;
+    private NetworkSyncTransform _networkSyncTransform;
 
     private float _colliderHeight;              // 플레이어 콜라이더 높이의 절반 값 (h/2)
     private Rigidbody _platform;                // 플레이어가 따라갈 플랫폼
@@ -43,6 +44,7 @@ public class PlayerController : NetworkBehaviour
         {
             _characterController = GetComponent<CharacterController>();
             _networkInterpolator = GetComponent<NetworkInterpolator>();
+            _networkSyncTransform = GetComponent<NetworkSyncTransform>();
 
             _colliderHeight = GetComponent<CapsuleCollider>().height / 2f;
 
@@ -81,12 +83,6 @@ public class PlayerController : NetworkBehaviour
             HandleJump();
             HandlePlatform();
             SearchInteractables();
-
-            SendTransform();
-        }
-        else if (_lastSyncedPosition != null && _lastSyncedRotation != null)
-        {
-            UpdateFetchedTransform();
         }
     }
 
@@ -145,53 +141,31 @@ public class PlayerController : NetworkBehaviour
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _colliderHeight + PLATFORM_DETECTION_THRESHOLD))
         {
-            if (_platform != hit.collider.gameObject)
+            if (_platform?.gameObject != hit.collider.gameObject)
             {
                 // 새로운 플랫폼을 발견한 경우
                 if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) &&
                     hit.collider.gameObject.TryGetComponent<Rigidbody>(out _platform))
                 {
-                    if (IsServer)
-                    {
-                        SetPlatformClientRpc(networkObject);
-                    }
-                    else
-                    {
-                        SetPlatformServerRpc(networkObject);
-                    }
+                    _networkSyncTransform.SetParent(networkObject.gameObject);
                 }
-                else
+                else if (_platform != null)
                 {
-                    ResetPlatform();
+                    _networkSyncTransform.SetParent(null);
+                    _platform = null;
                 }
             }
         }
         else if (_platform != null)
         {
-            ResetPlatform();
+            _networkSyncTransform.SetParent(null);
+            _platform = null;
         }
 
         // 플랫폼에 올라가 있다면 플랫폼의 이동을 플레이어에게도 적용
         if (_platform)
         {
             _characterController.Move(_platform.velocity * Time.deltaTime);
-        }
-    }
-
-    /// <summary>
-    /// 플레이어와 플랫폼 사이의 연결을 제거한다.
-    /// </summary>
-    private void ResetPlatform()
-    {
-        _platform = null;
-
-        if (IsServer)
-        {
-            ResetPlatformClientRpc();
-        }
-        else
-        {
-            ResetPlatformServerRpc();
         }
     }
 
@@ -219,59 +193,6 @@ public class PlayerController : NetworkBehaviour
                     _interactableOnPointer = hit.collider.gameObject;
                 }
             }
-        }
-    }
-
-    /// <summary>
-    /// 상대에게 자신의 위치를 전송한다.
-    /// </summary>
-    private void SendTransform()
-    {
-        Vector3 positionToSend = transform.position;
-
-        // 플랫폼에 올라가 있는 경우, 상대(relative) 위치를 전송.
-        if (_platform)
-        {
-            positionToSend -= _platform.transform.position;
-        }
-
-        float positionDiff = Vector3.Distance(transform.position, _lastSyncedPosition);
-        float rotationDiff = Quaternion.Angle(transform.rotation, _lastSyncedRotation) / 10f;
-
-        // transform 변화값이 기준을 넘어서는 경우에만 전송
-        if (positionDiff < SEND_TRANSFORM_THRESHOLD && rotationDiff < SEND_TRANSFORM_THRESHOLD)
-        {
-            return;
-        }
-
-        // 마지막으로 전송한 transform 값 저장
-        _lastSyncedPosition = positionToSend;
-        _lastSyncedRotation = transform.rotation;
-
-        if (IsServer)
-        {
-            SendTransformClientRpc(positionToSend, transform.rotation);
-        }
-        else
-        {
-            SendTransformServerRpc(positionToSend, transform.rotation);
-        }
-    }
-
-    /// <summary>
-    /// 전송 받은 transform에 따라 상대의 위치를 갱신한다.
-    /// </summary>
-    private void UpdateFetchedTransform()
-    {
-        if (_platform)
-        {
-            transform.position = _lastSyncedPosition + _platform.transform.position;
-            transform.rotation = _lastSyncedRotation;
-        }
-        else
-        {
-            transform.position = _lastSyncedPosition;
-            transform.rotation = _lastSyncedRotation;
         }
     }
 
@@ -329,95 +250,12 @@ public class PlayerController : NetworkBehaviour
 
     }
 
-    /// <summary>
-    /// 클라이언트에서 서버로 새 플랫폼 연결을 전달한다.
-    /// </summary>
-    /// <param name="platform">새 플랫폼</param>
-    [ServerRpc]
-    public void SetPlatformServerRpc(NetworkObjectReference platform)
-    {
-        if (platform.TryGet(out NetworkObject networkObject))
-        {
-            networkObject.TryGetComponent<Rigidbody>(out _platform);
-        }
-    }
-
-    /// <summary>
-    /// 서버에서 클라이언트로 새 플랫폼 연결을 전달한다.
-    /// </summary>
-    /// <param name="platform">새 플랫폼</param>
-    [ClientRpc]
-    public void SetPlatformClientRpc(NetworkObjectReference platform)
-    {
-        if (IsServer)
-        {
-            return;
-        }
-
-        if (platform.TryGet(out NetworkObject networkObject))
-        {
-            networkObject.TryGetComponent<Rigidbody>(out _platform);
-        }
-    }
-
-    /// <summary>
-    /// 클라이언트에서 서버로 플랫폼 연결 초기화를 요청한다.
-    /// </summary>
-    [ServerRpc]
-    public void ResetPlatformServerRpc()
-    {
-        _platform = null;
-    }
-
-    /// <summary>
-    /// 서버에서 클라이언트로 플랫폼 연결 초기화를 요청한다.
-    /// </summary>
-    [ClientRpc]
-    public void ResetPlatformClientRpc()
-    {
-        if (IsServer)
-        {
-            return;
-        }
-
-        _platform = null;
-    }
-
-    /// <summary>
-    /// 클라이언트에서 서버로 transform을 전달한다.
-    /// </summary>
-    /// <param name="position">위치</param>
-    /// <param name="rotation">회전</param>
-    [ServerRpc]
-    public void SendTransformServerRpc(Vector3 position, Quaternion rotation)
-    {
-        _lastSyncedPosition = position;
-        _lastSyncedRotation = rotation;
-    }
-
-    /// <summary>
-    /// 서버에서 클라이언트로 transform을 전달한다.
-    /// </summary>
-    /// <param name="position">위치</param>
-    /// <param name="rotation">회전</param>
-    [ClientRpc]
-    public void SendTransformClientRpc(Vector3 position, Quaternion rotation)
-    {
-        if (IsServer)
-        {
-            return;
-        }
-
-        _lastSyncedPosition = position;
-        _lastSyncedRotation = rotation;
-    }
-
     private void OnGUI()
     {
-        if (IsOwner)
+        if (!IsOwner)
         {
             GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            if (_platform) GUILayout.Label($"");
+            // if (_platform) GUILayout.Label($"{_platform.gameObject.name}");
             GUILayout.EndArea();
         }
     }

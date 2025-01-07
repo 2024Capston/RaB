@@ -16,6 +16,8 @@ public class NetworkInterpolator : NetworkBehaviour
     /// </summary>
     [SerializeField] private bool _alwaysLocal = false;
 
+    private NetworkInterpolatorUtil _networkInterpolatorUtil;
+
     /// <summary>
     /// 보간용 오브젝트
     /// </summary>
@@ -62,8 +64,14 @@ public class NetworkInterpolator : NetworkBehaviour
         }
 
         // Visual 오브젝트의 타겟을 지정한다.
-        _visualReference.AddComponent<NetworkInterpolatorUtil>().SetTarget(transform, _alwaysLocal | IsOwner);
+        _networkInterpolatorUtil = _visualReference.AddComponent<NetworkInterpolatorUtil>();
+        _networkInterpolatorUtil.SetTarget(transform, _alwaysLocal | IsOwner);
 
         _VisualReferenceCreated?.Invoke();
+    }
+
+    public void SetMoveTowards(bool moveTowards)
+    {
+        _networkInterpolatorUtil.SetMoveTowards(moveTowards);
     }
 }
