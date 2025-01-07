@@ -94,8 +94,7 @@ public class PlayerController : NetworkBehaviour
                 CancelButtonText = "취소",
                 OnClickOKButton = () =>
                 {
-                    ConnectionManager.Instance.RequestDisconnect();
-                    NetworkManager.Singleton.Shutdown();
+                    RaB.Connection.ConnectionManager.Instance.RequestShutdown();
                 },
                 OnClickCancelButton = () =>
                 {

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Steamworks;
 using Steamworks.Data;
 using UnityEngine;
@@ -21,8 +22,8 @@ namespace RaB.Connection
         public virtual void OnServerStopped() { }
         
         public virtual void StartServer() { }
-        
-        public virtual void StartClient(string lobbyId, out Result result) { result = Result.None; }
+
+        public virtual Task<Result> StartClient(string lobbyId) { return Task.FromResult(Result.None); } 
         
         public virtual void OnUserRequestedShutdown() { }
         

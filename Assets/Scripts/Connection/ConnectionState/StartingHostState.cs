@@ -41,7 +41,7 @@ namespace RaB.Connection
         }
 
         public override void OnServerStarted()
-        {
+        {   
              ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.Hosting);
         }
 

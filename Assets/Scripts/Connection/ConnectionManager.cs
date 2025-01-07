@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Steamworks;
 using Steamworks.Data;
 using Unity.Netcode;
@@ -52,9 +53,9 @@ namespace RaB.Connection
             _currentState.StartServer();
         }
 
-        public void StartClient(string lobbyId, out Result result)
+        public async Task<Result> StartClient(string lobbyId)
         {
-            _currentState.StartClient(lobbyId, out result);
+            return await _currentState.StartClient(lobbyId);
         }
 
         public void RequestShutdown()
@@ -68,8 +69,7 @@ namespace RaB.Connection
         /// <param name="nextState"></param>
         internal void ChangeState(ConnectionState nextState)
         {
-            Debug.Log(
-                $"{name}: Changed connection state from {_currentState.GetType().Name} to {nextState.GetType().Name}.");
+            Debug.Log($"{name}: Changed connection state from {_currentState.GetType().Name} to {nextState.GetType().Name}.");
 
             if (_currentState != null)
             {

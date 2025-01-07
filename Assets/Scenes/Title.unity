@@ -586,6 +586,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Network Manager
       objectReference: {fileID: 0}
+    - target: {fileID: 6442880004960348328, guid: 50fb12bd3be972742b33db26c150a2a7, type: 3}
+      propertyPath: steamAppId
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6973775365259079555, guid: 50fb12bd3be972742b33db26c150a2a7, type: 3}
       propertyPath: NetworkConfig.ForceSamePrefabs
       value: 0

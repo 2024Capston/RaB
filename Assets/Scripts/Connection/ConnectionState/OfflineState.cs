@@ -27,21 +27,25 @@ namespace RaB.Connection
         public override void Exit() { }
 
         public override void StartServer()
-        {
+    {   
             // Server를 시작하면 StartingHost State로 전환
             ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.StartingHost);
         }
 
-        public override void StartClient(string lobbyId, out Result result)
+        public override async Task<Result> StartClient(string lobbyId)
         {
+            Logger.Log($"input lobbyId : {lobbyId}");
             Lobby? lobby = null;
-            (lobby, result) = FindLobby(lobbyId).Result;
+            Result result = Result.None;
+            (lobby, result) =  await FindLobby(lobbyId);
             
             if (result == Result.OK)
             {
                 ConnectionManager.Instance.CurrentLobby = lobby;
                 ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.ClientConnecting);
             }
+
+            return result;
         }
 
         private async Task<(Lobby? lobby, Result result)> FindLobby(string lobbyId)
@@ -51,7 +55,8 @@ namespace RaB.Connection
                 return (null, Result.InvalidParam);
             }
 
-            Lobby[] lobbies = await SteamMatchmaking.LobbyList.WithSlotsAvailable(1).RequestAsync();
+            LobbyQuery lobbyQuery = new LobbyQuery();
+            Lobby[] lobbies = await lobbyQuery.WithSlotsAvailable(1).RequestAsync();
 
             foreach (Lobby lobby in lobbies)
             {

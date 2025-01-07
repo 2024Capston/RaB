@@ -24,9 +24,9 @@ public class CodeInputUI : BaseUI
     /// <summary>
     ///  버튼을 눌렀을 때 일치하는 Lobby가 있는지 확인한다.
     /// </summary>
-    public void OnClickOkButton()
+    public async void OnClickOkButton()
     {
-        RaB.Connection.ConnectionManager.Instance.StartClient(_inputField.text, out Result result);
+        Result result = await RaB.Connection.ConnectionManager.Instance.StartClient(_inputField.text);
 
         switch (result)
         {
@@ -39,7 +39,7 @@ public class CodeInputUI : BaseUI
             }
             case Result.InvalidParam:
             {
-                _descText.text = $"The format is incorrect.";
+                _descText.text = "The format is incorrect.";
                 _descText.color = UnityEngine.Color.red;
                 break;
             }
@@ -51,7 +51,7 @@ public class CodeInputUI : BaseUI
             }
             case Result.InvalidName:
             {
-                _descText.text = $"Couldn't find the lobby";
+                _descText.text = "Couldn't find the lobby";
                 _descText.color = UnityEngine.Color.red;
                 break;
             }
