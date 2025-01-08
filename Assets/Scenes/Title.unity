@@ -232,6 +232,72 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1779891602
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1779891605}
+  - component: {fileID: 1779891603}
+  - component: {fileID: 1779891604}
+  m_Layer: 0
+  m_Name: SessionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1779891603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779891602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2135956397
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &1779891604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779891602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea92136a2ffc8214991de07e1a44e384, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1779891605
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779891602}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.000831604, y: -0.21444988, z: 0.1520071}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1807856991 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8777856235143956709, guid: 574778d0a418bd54491165e18172c572, type: 3}
@@ -595,10 +661,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6973775365259079555, guid: 50fb12bd3be972742b33db26c150a2a7, type: 3}
-      propertyPath: NetworkConfig.ForceSamePrefabs
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6973775365259079555, guid: 50fb12bd3be972742b33db26c150a2a7, type: 3}
       propertyPath: NetworkConfig.Prefabs.NetworkPrefabsLists.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: 7494af70c6ea48f45acd6cb01c06b487, type: 2}
@@ -865,7 +927,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Connection Manager
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4534678105290483708, guid: 574778d0a418bd54491165e18172c572, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -885,6 +948,7 @@ SceneRoots:
   - {fileID: 2851421571848596150}
   - {fileID: 3504100819068813152}
   - {fileID: 2135300223}
+  - {fileID: 1779891605}
   - {fileID: 410546396}
   - {fileID: 5374359155834376405}
   - {fileID: 1604955740}

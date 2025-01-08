@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Steamworks;
 using Steamworks.Data;
@@ -56,8 +57,7 @@ namespace RaB.Connection
 
             // RaB에서 생성된 모든 Lobby를 불러온 후 주어진 id와 일치하는 Lobby가 있는지 확인한다.
             Lobby[] lobbies = await SteamMatchmaking.LobbyList.WithKeyValue("game_id", "RaB").RequestAsync();
-        
-            foreach (Lobby lobby in lobbies)
+            foreach (Lobby lobby in lobbies ?? Enumerable.Empty<Lobby>())
             {
                 if (lobby.Id == id)
                 {
