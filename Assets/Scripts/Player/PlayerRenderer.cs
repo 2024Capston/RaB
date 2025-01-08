@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerRenderer : LocalDependantBehaviour
+public class PlayerRenderer : PlayerDependantBehaviour
 {
-    [SerializeField] GameObject[] _playerRenderPrefab;
+    [SerializeField] private GameObject[] _playerRenderPrefab;
+
+    private PlayerController _playerController;
+    private NetworkInterpolator _networkInterpolator;
 
     public override void OnLocalInitialized()
     {
-        // 플레이어 색상 가져오기
-        // 플레이어 색상에 따라 처리
+        _playerController = GetComponent<PlayerController>();
+        _networkInterpolator = GetComponent<NetworkInterpolator>();
     }
 }

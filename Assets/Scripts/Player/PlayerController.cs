@@ -1,4 +1,5 @@
 using Cinemachine;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,7 +14,6 @@ public class PlayerController : NetworkBehaviour
 
     private const float GROUND_DETECTION_THRESHOLD = 0.1f;  // 접지 판정 범위
     private const float PLATFORM_DETECTION_THRESHOLD = 2f;  // 플랫폼 탐색 범위
-    private const float SEND_TRANSFORM_THRESHOLD = 0.01f;   // transform 전송 기준값
 
     private CharacterController _characterController;
     private NetworkInterpolator _networkInterpolator;
@@ -30,9 +30,27 @@ public class PlayerController : NetworkBehaviour
     private float _jumpRemember;    // 입력된 점프를 처리할 수 있는 쿨타임
     private float _verticalSpeed;   // 현재 수직 속력
 
-    // transform 싱크 관련
-    private Vector3 _lastSyncedPosition;    // 마지막으로 주고 받은 위치
-    private Quaternion _lastSyncedRotation; // 마지막으로 주고 받은 회전
+    // 로컬 플레이어를 나타내는 static 변수
+    private static PlayerController _localPlayer;
+    public static PlayerController LocalPlayer
+    {
+        get => _localPlayer;
+    }
+
+    // 로컬 플레이어가 생성됐을 때 호출되는 delegate
+    private static Action _localPlayerCreated;
+    public static Action LocalPlayerCreated
+    {
+        get => _localPlayerCreated;
+        set => _localPlayerCreated = value;
+    }
+
+    // 플레이어 색깔
+    private ColorType _playerColor;
+    public ColorType PlayerColor
+    {
+        get => _playerColor;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -65,6 +83,18 @@ public class PlayerController : NetworkBehaviour
             }
 
             Cursor.lockState = CursorLockMode.Locked;
+
+            if (IsServer)
+            {
+                _playerColor = ColorType.Red;
+            }
+            else
+            {
+                _playerColor = ColorType.Blue;
+            }
+
+            _localPlayer = this;
+            _localPlayerCreated.Invoke();
         }
         else
         {
