@@ -23,7 +23,7 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
         }
         
         // 시작한 스테이지를 가져온다.
-        StageName stageName = ConnectionManager.Instance.SelectStage;
+        StageName stageName = SessionManager.Instance.SelectedStage;
         if (stageName == StageName.Size)
         {
             Logger.LogError("StageName MissMatch");
@@ -45,7 +45,7 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
     [ServerRpc]
     public void EndGameServerRpc()
     {
-        UserGameData userGameData = UserDataManager.Instance.GetUserData<UserGameData>();
-        userGameData.UpdateData(ConnectionManager.Instance.SelectPlayData, ConnectionManager.Instance.SelectStage, 1);
+        // TODO Clear 했을 때만 해당 함수를 호출하거나 인수를 통해 클리어 여부를 받을 수 있게 변경해야합니다.
+        SessionManager.Instance.SaveGameData();
     }
 }

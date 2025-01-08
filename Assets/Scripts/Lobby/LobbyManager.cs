@@ -56,7 +56,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     public void LoadInGameServerRpc(StageName stageName)
     {
         // InGame Scene으로 이동하면 ConnectionManager에 있는 SelectStage로 Loader를 불러온다.
-        ConnectionManager.Instance.SelectStage = stageName;
+        SessionManager.Instance.SelectedStage = stageName;
         NetworkManager.SceneManager.LoadScene(SceneType.InGame.ToString(), UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
 }

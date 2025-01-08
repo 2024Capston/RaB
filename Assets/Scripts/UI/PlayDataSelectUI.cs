@@ -1,3 +1,4 @@
+using RaB.Connection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -71,8 +72,8 @@ public class PlayDataSelectUI : BaseUI
                     _playDataSelectUIData.UserGameData.SaveData();
                 }
 
-                ConnectionManager.Instance.SelectPlayData = index;
-                RaB.Connection.ConnectionManager.Instance.StartServer();
+                SessionManager.Instance.CreateSession(index);
+                ConnectionManager.Instance.StartServer();
             },
         };
         UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
