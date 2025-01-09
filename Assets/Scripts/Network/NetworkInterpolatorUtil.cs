@@ -13,20 +13,31 @@ public class NetworkInterpolatorUtil : MonoBehaviour
     private Transform _target;
 
     private float _lerpSpeed = LOCAL_LERP_SPEED;
-    private bool _moveTowards = false;
+
+    private bool _isParenting = false;
+    private float _parentingCooldown = 0f;
 
     void Update()
     {
-        if (_target != null)
+        if (_target)
         {
-            if (_moveTowards)
+            if (_isParenting)
             {
                 transform.position = Vector3.MoveTowards(transform.position, _target.position, Time.deltaTime * _lerpSpeed);
+
+                _parentingCooldown -= Time.deltaTime;
+                if (_parentingCooldown < 0f)
+                {
+                    _parentingCooldown = 0f;
+                    _isParenting = false;
+                }
             }
             else
             {
                 transform.position = Vector3.Lerp(transform.position, _target.position, Time.deltaTime * _lerpSpeed);
             }
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, _target.rotation, Time.deltaTime * _lerpSpeed);
         }
     }
 
@@ -44,8 +55,21 @@ public class NetworkInterpolatorUtil : MonoBehaviour
         }
     }
 
-    public void SetMoveTowards(bool moveTowards)
+    public void ChangeLerpSpeed(bool isLocal)
     {
-        _moveTowards = moveTowards;
+        if (isLocal)
+        {
+            _lerpSpeed = LOCAL_LERP_SPEED;
+        }
+        else
+        {
+            _lerpSpeed = OTHER_LERP_SPEED;
+        }
+    }
+
+    public void StartParenting(float cooldown)
+    {
+        _isParenting = true;
+        _parentingCooldown = cooldown;
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,8 +14,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     private NetworkInterpolator _networkInterpolator;   // 현재 오브젝트의 interpolator
 
     private GameObject _parent;             // 현재 오브젝트가 parent로 간주하는 오브젝트
-    private bool _isParenting = false;      // parenting 보간이 진행 중인지 여부
-    private float _currentCooldown = 0f;    // parenting 보간에 사용하는 시간 변수
+    private List<GameObject> _children;     // 현재 오브젝트가 자식으로 간주하는 오브젝트
 
     // transform 정보 관련
     private Vector3 _lastSyncedPosition;    // 마지막으로 주고 받은 위치
@@ -23,30 +23,26 @@ public class NetworkSyncTransform : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         _networkInterpolator = GetComponent<NetworkInterpolator>();
+
+        _children = new List<GameObject>();
+
+        _lastSyncedPosition = transform.position;
+        _lastSyncedRotation = transform.rotation;
     }
 
     void Update()
     {
+        if (!IsServer && !IsClient)
+        {
+            return;
+        }
+
         if (IsOwner)
         {
             SendTransform();
         }
         else if (_lastSyncedPosition != null && _lastSyncedRotation != null)
         {
-            // interpolator가 존재하는 경우 parenting 보간 진행
-            if (_networkInterpolator && _isParenting)
-            {
-                _currentCooldown -= Time.deltaTime;
-                
-                if (_currentCooldown <= 0f)
-                {
-                    _currentCooldown = 0f;
-                    _isParenting = false;
-
-                    _networkInterpolator.SetMoveTowards(false);
-                }
-            }
-
             UpdateFetchedTransform();
         }
     }
@@ -145,6 +141,22 @@ public class NetworkSyncTransform : NetworkBehaviour
         }
     }
 
+    public void AddChild(GameObject child)
+    {
+        if (!_children.Contains(child))
+        {
+            _children.Add(child);
+        }
+    }
+
+    public void RemoveChild(GameObject child)
+    {
+        if (!_children.Contains(child))
+        {
+            _children.Remove(child);
+        }
+    }
+
     /// <summary>
     /// 클라이언트에서 서버로 transform을 전달한다.
     /// </summary>
@@ -184,10 +196,12 @@ public class NetworkSyncTransform : NetworkBehaviour
 
         if (_networkInterpolator)
         {
-            _networkInterpolator.SetMoveTowards(true);
+            _networkInterpolator.StartParenting(_parentingCooldown);
 
-            _isParenting = true;
-            _currentCooldown = _parentingCooldown;
+            foreach (GameObject child in _children)
+            {
+                child.GetComponent<NetworkInterpolator>().StartParenting(_parentingCooldown);
+            }
         }
     }
 

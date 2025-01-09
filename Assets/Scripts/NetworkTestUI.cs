@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,13 +18,17 @@ public class NetworkTestUI : MonoBehaviour
         _hostButton.onClick.AddListener(() =>
         {
             NetworkManager.Singleton.StartHost();
-            gameObject.SetActive(false);
+
+            _hostButton.gameObject.SetActive(false);
+            _clientButton.gameObject.SetActive(false);
         });
 
         _clientButton.onClick.AddListener(() =>
         {
             NetworkManager.Singleton.StartClient();
-            gameObject.SetActive(false);
+
+            _hostButton.gameObject.SetActive(false);
+            _clientButton.gameObject.SetActive(false);
         });
     }
 }

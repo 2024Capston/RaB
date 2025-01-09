@@ -46,10 +46,13 @@ public class NetworkInterpolator : NetworkBehaviour
         _visualReference.transform.localScale = transform.localScale;
 
         // 시각 정보를 복사한다.
-        _visualReference.AddComponent<MeshFilter>().mesh = GetComponent<MeshFilter>().mesh;
-        _visualReference.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
-        Destroy(GetComponent<MeshFilter>());
-        Destroy(GetComponent<MeshRenderer>());
+        if (TryGetComponent<MeshFilter>(out MeshFilter meshFilter) && TryGetComponent<MeshRenderer>(out MeshRenderer meshRenderer))
+        {
+            _visualReference.AddComponent<MeshFilter>().mesh = meshFilter.mesh;
+            _visualReference.AddComponent<MeshRenderer>().material = meshRenderer.material;
+            Destroy(meshFilter);
+            Destroy(meshRenderer);
+        }
 
         // Outline 컴포넌트가 있다면 복사한다.
         if (TryGetComponent<Outline>(out Outline outline))
@@ -70,8 +73,13 @@ public class NetworkInterpolator : NetworkBehaviour
         _VisualReferenceCreated?.Invoke();
     }
 
-    public void SetMoveTowards(bool moveTowards)
+    protected override void OnOwnershipChanged(ulong previous, ulong current)
     {
-        _networkInterpolatorUtil.SetMoveTowards(moveTowards);
+        _networkInterpolatorUtil.ChangeLerpSpeed(_alwaysLocal | IsOwner);
+    }
+
+    public void StartParenting(float parentingCooldown)
+    {
+        _networkInterpolatorUtil.StartParenting(parentingCooldown);
     }
 }

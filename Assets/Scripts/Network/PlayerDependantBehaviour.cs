@@ -9,20 +9,20 @@ public class PlayerDependantBehaviour : NetworkBehaviour
     {
         if (PlayerController.LocalPlayer)
         {
-            OnLocalInitialized();
+            OnPlayerInitialized();
         }
         else
         {
-            PlayerController.LocalPlayerCreated += OnLocalInitialized;
+            PlayerController.LocalPlayerCreated += OnPlayerInitialized;
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        PlayerController.LocalPlayerCreated -= OnLocalInitialized;
+        PlayerController.LocalPlayerCreated -= OnPlayerInitialized;
     }
 
-    virtual public void OnLocalInitialized()
+    virtual public void OnPlayerInitialized()
     {
 
     }

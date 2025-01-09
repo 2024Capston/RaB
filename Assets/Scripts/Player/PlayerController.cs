@@ -16,6 +16,7 @@ public class PlayerController : NetworkBehaviour
     private const float PLATFORM_DETECTION_THRESHOLD = 2f;  // 플랫폼 탐색 범위
 
     private CharacterController _characterController;
+    private PlayerRenderer _playerRenderer;
     private NetworkInterpolator _networkInterpolator;
     private NetworkSyncTransform _networkSyncTransform;
 
@@ -23,6 +24,9 @@ public class PlayerController : NetworkBehaviour
     private Rigidbody _platform;                // 플레이어가 따라갈 플랫폼
     private GameObject _interactableOnPointer;  // 플레이어가 바라보고 있는 Interactable
     private GameObject _interactableInHand;     // 플레이어가 들고 있는 Interactable
+
+    // 서버에서 플레이어 색깔이 지정되었는지 확인하는 delegate
+    private Action<ColorType> _playerColorAssigned;
 
     // 입력 관련
     private Vector3 _moveInput;     // 방향 입력 값 (수직, 수평)
@@ -44,7 +48,7 @@ public class PlayerController : NetworkBehaviour
         get => _localPlayerCreated;
         set => _localPlayerCreated = value;
     }
-
+    
     // 플레이어 색깔
     private ColorType _playerColor;
     public ColorType PlayerColor
@@ -57,6 +61,31 @@ public class PlayerController : NetworkBehaviour
         // TEST
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 60;
+
+        _playerRenderer = GetComponent<PlayerRenderer>();
+
+        // 플레이어 색깔 지정
+        if (IsServer)
+        {
+            if (IsOwner)
+            {
+                _playerColor = ColorType.Red;
+
+                _localPlayer = this;
+                _localPlayerCreated?.Invoke();
+            }
+            else
+            {
+                _playerColor = ColorType.Blue;
+            }
+
+            _playerColorAssigned?.Invoke(_playerColor);
+            _playerRenderer.Initialize();
+        }
+        else
+        {
+            RequestPlayerColorServerRpc();
+        }
 
         if (IsOwner)
         {
@@ -83,18 +112,6 @@ public class PlayerController : NetworkBehaviour
             }
 
             Cursor.lockState = CursorLockMode.Locked;
-
-            if (IsServer)
-            {
-                _playerColor = ColorType.Red;
-            }
-            else
-            {
-                _playerColor = ColorType.Blue;
-            }
-
-            _localPlayer = this;
-            _localPlayerCreated.Invoke();
         }
         else
         {
@@ -116,6 +133,11 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private void AssignPlayerColor()
+    {
+
+    }
+
     /// <summary>
     /// X, Z 축 입력을 처리한다.
     /// </summary>
@@ -126,6 +148,7 @@ public class PlayerController : NetworkBehaviour
         rotation.z = 0;
 
         _characterController.Move((Quaternion.Euler(rotation) * _moveInput) * Time.deltaTime * _moveSpeed);
+        transform.rotation = Quaternion.Euler(rotation);
     }
 
     /// <summary>
@@ -209,6 +232,8 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
+        gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 20f))
         {
             if (_interactableOnPointer != hit.collider.gameObject)
@@ -224,6 +249,12 @@ public class PlayerController : NetworkBehaviour
                 }
             }
         }
+        else if (_interactableOnPointer)
+        {
+            _interactableOnPointer = null;
+        }
+
+        gameObject.layer = 0;
     }
 
     /// <summary>
@@ -268,7 +299,7 @@ public class PlayerController : NetworkBehaviour
         else if (_interactableOnPointer)
         {
             _interactableOnPointer.GetComponent<IInteractable>().StartInteraction(this);
-            _interactableOnPointer = null;
+            _interactableInHand = _interactableOnPointer;
         }
     }
 
@@ -280,12 +311,50 @@ public class PlayerController : NetworkBehaviour
 
     }
 
+    /// <summary>
+    /// 클라이언트 측에서 서버에게 플레이어 색깔을 묻는다.
+    /// </summary>
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestPlayerColorServerRpc()
+    {
+        if (_playerColor == 0)
+        {
+            _playerColorAssigned += SendPlayerColorClientRpc;
+        }
+        else
+        {
+            SendPlayerColorClientRpc(_playerColor);
+        }
+    }
+
+    /// <summary>
+    /// 서버 측에서 클라이언트에게 플레이어 색깔을 전달한다.
+    /// </summary>
+    /// <param name="color">플레이어 색깔</param>
+    [ClientRpc(RequireOwnership = false)]
+    private void SendPlayerColorClientRpc(ColorType color)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        _playerColor = color;
+        _playerRenderer.Initialize();
+
+        if (IsOwner)
+        {
+            _localPlayer = this;
+            _localPlayerCreated?.Invoke();
+        }
+    }
+
     private void OnGUI()
     {
-        if (!IsOwner)
+        if (IsOwner)
         {
             GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            // if (_platform) GUILayout.Label($"{_platform.gameObject.name}");
+            GUILayout.Label($"{_interactableOnPointer?.name}");
             GUILayout.EndArea();
         }
     }
