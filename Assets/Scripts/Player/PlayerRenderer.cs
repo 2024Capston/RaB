@@ -20,17 +20,7 @@ public class PlayerRenderer : MonoBehaviour
 
     public void Initialize()
     {
-        if (_networkInterpolator.VisualReference)
-        {
-            ShowPlayerRender();
-        }
-        else
-        {
-            _networkInterpolator.VisualReferenceCreated += () =>
-            {
-                ShowPlayerRender();
-            };
-        }
+        _networkInterpolator.AddVisualReferenceDependantFunction(ShowPlayerRender);
     }
 
     private void ShowPlayerRender()

@@ -7,15 +7,16 @@ using UnityEngine;
 /// </summary>
 public class NetworkInterpolatorUtil : MonoBehaviour
 {
+    // Local 수준으로 빠르게 보간하거나, Remote 수준으로 느리게 보간할 수 있다
     private const float LOCAL_LERP_SPEED = 16f;
     private const float OTHER_LERP_SPEED = 8f;
 
     private Transform _target;
 
-    private float _lerpSpeed = LOCAL_LERP_SPEED;
+    private float _lerpSpeed = LOCAL_LERP_SPEED;    // 현재 보간 속력
 
-    private bool _isParenting = false;
-    private float _parentingCooldown = 0f;
+    private bool _isParenting = false;              // Parenting 보간 중인지 여부
+    private float _parentingCooldown = 0f;          // Parenting 보간에 쓰일 시간
 
     void Update()
     {
@@ -41,6 +42,11 @@ public class NetworkInterpolatorUtil : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 보간 목표를 설정한다.
+    /// </summary>
+    /// <param name="target">목표</param>
+    /// <param name="isLocal">보간 속력</param>
     public void SetTarget(Transform target, bool isLocal)
     {
         _target = target;
@@ -55,6 +61,10 @@ public class NetworkInterpolatorUtil : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 보간 속력을 갱신한다.
+    /// </summary>
+    /// <param name="isLocal">보간 속력</param>
     public void ChangeLerpSpeed(bool isLocal)
     {
         if (isLocal)
@@ -67,6 +77,10 @@ public class NetworkInterpolatorUtil : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 일정 시간 동안 Parenting 보간을 시작한다.
+    /// </summary>
+    /// <param name="cooldown">보간 시간</param>
     public void StartParenting(float cooldown)
     {
         _isParenting = true;

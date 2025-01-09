@@ -9,8 +9,8 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class PlayerController : NetworkBehaviour
 {
-    [SerializeField] private float _moveSpeed = 10f;    // 이동 속도
-    [SerializeField] private float _jumpSpeed = 5f;     // 점프 속도
+    [SerializeField] private float _moveSpeed = 10f;    // 이동 속력
+    [SerializeField] private float _jumpSpeed = 5f;     // 점프 속력
 
     private const float GROUND_DETECTION_THRESHOLD = 0.1f;  // 접지 판정 범위
     private const float PLATFORM_DETECTION_THRESHOLD = 2f;  // 플랫폼 탐색 범위

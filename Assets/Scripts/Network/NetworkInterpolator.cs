@@ -17,6 +17,7 @@ public class NetworkInterpolator : NetworkBehaviour
     [SerializeField] private bool _alwaysLocal = false;
 
     private NetworkInterpolatorUtil _networkInterpolatorUtil;
+    private Action _visualReferenceCreated;
 
     /// <summary>
     /// 보간용 오브젝트
@@ -25,16 +26,6 @@ public class NetworkInterpolator : NetworkBehaviour
     public GameObject VisualReference
     {
         get => _visualReference;
-    }
-
-    /// <summary>
-    /// 보간용 오브젝트가 생성되었을 때 호출되는 delegate
-    /// </summary>
-    private Action _visualReferenceCreated;
-    public Action VisualReferenceCreated
-    {
-        get => _visualReferenceCreated;
-        set => _visualReferenceCreated = value;
     }
 
     public override void OnNetworkSpawn()
@@ -73,16 +64,27 @@ public class NetworkInterpolator : NetworkBehaviour
         _visualReferenceCreated?.Invoke();
     }
 
+    /// <summary>
+    /// Owner가 바뀌면 보간 속력을 조절한다.
+    /// </summary>
     protected override void OnOwnershipChanged(ulong previous, ulong current)
     {
         _networkInterpolatorUtil.ChangeLerpSpeed(_alwaysLocal | IsOwner);
     }
 
+    /// <summary>
+    /// Parenting 보간을 시작한다.
+    /// </summary>
+    /// <param name="parentingCooldown">보간할 시간</param>
     public void StartParenting(float parentingCooldown)
     {
         _networkInterpolatorUtil.StartParenting(parentingCooldown);
     }
 
+    /// <summary>
+    /// 시각용 오브젝트가 생생된 직후 호출할 함수를 등록한다.
+    /// </summary>
+    /// <param name="action">등록할 함수</param>
     public void AddVisualReferenceDependantFunction(Action action)
     {
         if (_visualReference)
