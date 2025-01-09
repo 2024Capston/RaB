@@ -6,12 +6,9 @@ using UnityEngine;
 
 public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
 {
-    private readonly string LOBBY_PATH = "Prefabs/Lobby/";
-    
+    [SerializeField] private GameObject[] _playerPrefabs = new GameObject[2];
+    [SerializeField] private Transform[] _spawnPoints = new Transform[2];
     public LobbyUIController LobbyUIController {  get; private set; }
-
-    //  TODO
-    // 퇴장할 때 처리가 필요합니다.
     
     protected override void Init()
     {
@@ -32,22 +29,26 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         }
 
         LobbyUIController.SetPlayerColorData(IsHost);
-
-        // 1. 맵을 불러온다.
-        GameObject map = Resources.Load<GameObject>(LOBBY_PATH + "Map");
-        if (map == null)
-        {
-            Logger.LogError(LOBBY_PATH + " Map has does not exist");
-            return;
-        }
-        Instantiate(map);
-
-        // 2. 자신의 Player를 Spawn한다.
-        PlayerManager.Instance.SpawnPlayerServerRpc();
+        
+        SpawnPlayerServerRpc();
         
         UIManager.Instance.CloseAllOpenUI();
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        PlayerConfig playerConfig = NetworkManager.Singleton.SpawnManager
+            .GetPlayerNetworkObject(serverRpcParams.Receive.SenderClientId).GetComponent<PlayerConfig>();
+        int isBlue = playerConfig.IsBlue ? 1 : 0;
+        GameObject player = Instantiate(_playerPrefabs[isBlue]);
+        player.transform.position = _spawnPoints[isBlue].position;
+        player.transform.rotation = _spawnPoints[isBlue].rotation;
+        
+        player.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
+        playerConfig.MyPlayer = player.GetComponent<PlayerController>();
+    }
+    
     /// <summary>
     /// InGame으로 이동하는 메소드 
     /// </summary>
