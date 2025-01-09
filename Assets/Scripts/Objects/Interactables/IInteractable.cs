@@ -4,6 +4,11 @@
 public interface IInteractable
 {
     /// <summary>
+    /// Outline 컴포넌트에 대한 레퍼런스.
+    /// </summary>
+    public Outline Outline { get; set; }
+
+    /// <summary>
     /// 플레이어와 상호작용할 수 있는지 확인한다.
     /// </summary>
     /// <param name="player">플레이어</param>

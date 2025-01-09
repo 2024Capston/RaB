@@ -23,7 +23,7 @@ public enum StageName
 public enum ColorType
 {
     None = 0,
-    Red = 1,
-    Blue = 2,
+    Blue = 1,
+    Red = 2,
     Purple = 3
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class CubeController : PlayerDependantBehaviour, IInteractable
 {
@@ -12,16 +13,30 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         set => _cubeColor = value;
     }
 
+    private Outline _outline;
+    public Outline Outline
+    {
+        get => _outline;
+        set => _outline = value;
+    }
+
     private Rigidbody _rigidbody;
     private NetworkSyncTransform _networkSyncTransform;
+    private NetworkInterpolator _networkInterpolator;
 
     private PlayerController _interactingPlayer;
-    private Rigidbody _platform;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
         _networkSyncTransform = GetComponent<NetworkSyncTransform>();
+        _networkInterpolator = GetComponent<NetworkInterpolator>();
+
+        _networkInterpolator.AddVisualReferenceDependantFunction(() =>
+        {
+            _outline = _networkInterpolator.VisualReference.GetComponent<Outline>();
+            _outline.enabled = false;
+        });
     }
 
     public override void OnPlayerInitialized()

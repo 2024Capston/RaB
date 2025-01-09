@@ -30,11 +30,11 @@ public class NetworkInterpolator : NetworkBehaviour
     /// <summary>
     /// 보간용 오브젝트가 생성되었을 때 호출되는 delegate
     /// </summary>
-    private Action _VisualReferenceCreated;
+    private Action _visualReferenceCreated;
     public Action VisualReferenceCreated
     {
-        get => _VisualReferenceCreated;
-        set => _VisualReferenceCreated = value;
+        get => _visualReferenceCreated;
+        set => _visualReferenceCreated = value;
     }
 
     public override void OnNetworkSpawn()
@@ -70,7 +70,7 @@ public class NetworkInterpolator : NetworkBehaviour
         _networkInterpolatorUtil = _visualReference.AddComponent<NetworkInterpolatorUtil>();
         _networkInterpolatorUtil.SetTarget(transform, _alwaysLocal | IsOwner);
 
-        _VisualReferenceCreated?.Invoke();
+        _visualReferenceCreated?.Invoke();
     }
 
     protected override void OnOwnershipChanged(ulong previous, ulong current)
@@ -81,5 +81,17 @@ public class NetworkInterpolator : NetworkBehaviour
     public void StartParenting(float parentingCooldown)
     {
         _networkInterpolatorUtil.StartParenting(parentingCooldown);
+    }
+
+    public void AddVisualReferenceDependantFunction(Action action)
+    {
+        if (_visualReference)
+        {
+            action.Invoke();
+        }
+        else
+        {
+            _visualReferenceCreated += action;
+        }
     }
 }

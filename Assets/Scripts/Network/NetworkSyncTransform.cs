@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     private NetworkInterpolator _networkInterpolator;   // 현재 오브젝트의 interpolator
 
     private GameObject _parent;             // 현재 오브젝트가 parent로 간주하는 오브젝트
-    private List<GameObject> _children;     // 현재 오브젝트가 자식으로 간주하는 오브젝트
+    private List<NetworkInterpolator> _children;     // 현재 오브젝트가 자식으로 간주하는 오브젝트
 
     // transform 정보 관련
     private Vector3 _lastSyncedPosition;    // 마지막으로 주고 받은 위치
@@ -24,7 +25,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     {
         _networkInterpolator = GetComponent<NetworkInterpolator>();
 
-        _children = new List<GameObject>();
+        _children = new List<NetworkInterpolator>();
 
         _lastSyncedPosition = transform.position;
         _lastSyncedRotation = transform.rotation;
@@ -106,10 +107,22 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// <param name="parent">parent</param>
     public void SetParent(GameObject parent)
     {
+        NetworkSyncTransform parentTransform;
+
         if (parent)
         {
             if (parent.TryGetComponent<NetworkObject>(out NetworkObject networkObject))
             {
+                if (_parent && _parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
+                {
+                    parentTransform.RemoveChild(gameObject);
+                }
+
+                if (parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
+                {
+                    parentTransform.AddChild(gameObject);
+                }
+
                 _parent = parent;
 
                 if (IsServer)
@@ -128,6 +141,11 @@ public class NetworkSyncTransform : NetworkBehaviour
         }
         else
         {
+            if (_parent && _parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
+            {
+                parentTransform.RemoveChild(gameObject);
+            }
+
             _parent = null;
 
             if (IsServer)
@@ -143,17 +161,19 @@ public class NetworkSyncTransform : NetworkBehaviour
 
     public void AddChild(GameObject child)
     {
-        if (!_children.Contains(child))
+        if (child.TryGetComponent<NetworkInterpolator>(out NetworkInterpolator childInterpolator) &&
+            !_children.Contains(childInterpolator))
         {
-            _children.Add(child);
+            _children.Add(childInterpolator);
         }
     }
 
     public void RemoveChild(GameObject child)
     {
-        if (!_children.Contains(child))
+        if (child.TryGetComponent<NetworkInterpolator>(out NetworkInterpolator childInterpolator) &&
+            _children.Contains(childInterpolator))
         {
-            _children.Remove(child);
+            _children.Remove(childInterpolator);
         }
     }
 
@@ -192,15 +212,27 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// <param name="parent"></param>
     private void ApplyParent(GameObject parent)
     {
+        NetworkSyncTransform parentTransform;
+
+        if (_parent && _parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
+        {
+            parentTransform.RemoveChild(gameObject);
+        }
+
+        if (parent && parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
+        {
+            parentTransform.AddChild(gameObject);
+        }
+
         _parent = parent;
 
         if (_networkInterpolator)
         {
             _networkInterpolator.StartParenting(_parentingCooldown);
 
-            foreach (GameObject child in _children)
+            foreach (NetworkInterpolator child in _children)
             {
-                child.GetComponent<NetworkInterpolator>().StartParenting(_parentingCooldown);
+                child.StartParenting(_parentingCooldown);
             }
         }
     }

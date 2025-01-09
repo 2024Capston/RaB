@@ -22,8 +22,8 @@ public class PlayerController : NetworkBehaviour
 
     private float _colliderHeight;              // 플레이어 콜라이더 높이의 절반 값 (h/2)
     private Rigidbody _platform;                // 플레이어가 따라갈 플랫폼
-    private GameObject _interactableOnPointer;  // 플레이어가 바라보고 있는 Interactable
-    private GameObject _interactableInHand;     // 플레이어가 들고 있는 Interactable
+    private IInteractable _interactableOnPointer;  // 플레이어가 바라보고 있는 Interactable
+    private IInteractable _interactableInHand;     // 플레이어가 들고 있는 Interactable
 
     // 서버에서 플레이어 색깔이 지정되었는지 확인하는 delegate
     private Action<ColorType> _playerColorAssigned;
@@ -64,19 +64,19 @@ public class PlayerController : NetworkBehaviour
 
         _playerRenderer = GetComponent<PlayerRenderer>();
 
-        // 플레이어 색깔 지정
+        // 임시: 플레이어 색깔 지정
         if (IsServer)
         {
             if (IsOwner)
             {
-                _playerColor = ColorType.Red;
+                _playerColor = ColorType.Blue;
 
                 _localPlayer = this;
                 _localPlayerCreated?.Invoke();
             }
             else
             {
-                _playerColor = ColorType.Blue;
+                _playerColor = ColorType.Red;
             }
 
             _playerColorAssigned?.Invoke(_playerColor);
@@ -97,19 +97,11 @@ public class PlayerController : NetworkBehaviour
 
             CinemachineFreeLook camera = GetComponentInChildren<CinemachineFreeLook>();
 
-            if (_networkInterpolator.VisualReference)
+            _networkInterpolator.AddVisualReferenceDependantFunction(() =>
             {
                 camera.Follow = _networkInterpolator.VisualReference.transform;
                 camera.LookAt = _networkInterpolator.VisualReference.transform;
-            }
-            else    // 보간용 플레이어 오브젝트가 아직 생성되지 않은 경우
-            {
-                _networkInterpolator.VisualReferenceCreated += () =>
-                {
-                    camera.Follow = _networkInterpolator.VisualReference.transform;
-                    camera.LookAt = _networkInterpolator.VisualReference.transform;
-                };
-            }
+            });
 
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -227,30 +219,31 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void SearchInteractables()
     {
-        if (_interactableInHand)
+        if (_interactableInHand != null)
         {
             return;
         }
 
         gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 20f))
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 20f) &&
+            hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable) &&
+            interactable.IsInteractable(this))
         {
-            if (_interactableOnPointer != hit.collider.gameObject)
+            if (_interactableOnPointer != interactable)
             {
-                if (_interactableOnPointer)
+                if (_interactableOnPointer != null)
                 {
-                    _interactableOnPointer = null;
+                    _interactableOnPointer.Outline.enabled = false;
                 }
 
-                if (hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable) && interactable.IsInteractable(this))
-                {
-                    _interactableOnPointer = hit.collider.gameObject;
-                }
+                _interactableOnPointer = interactable;
+                _interactableOnPointer.Outline.enabled = true;
             }
         }
-        else if (_interactableOnPointer)
+        else if (_interactableOnPointer != null)
         {
+            _interactableOnPointer.Outline.enabled = false;
             _interactableOnPointer = null;
         }
 
@@ -291,14 +284,16 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     void OnInteractionInput()
     {
-        if (_interactableInHand)
+        if (_interactableInHand != null)
         {
-            _interactableOnPointer.GetComponent<IInteractable>().StopInteraction(this);
+            _interactableOnPointer.StopInteraction(this);
+            _interactableOnPointer = null;
             _interactableInHand = null;
         }
-        else if (_interactableOnPointer)
+        else if (_interactableOnPointer != null)
         {
-            _interactableOnPointer.GetComponent<IInteractable>().StartInteraction(this);
+            _interactableOnPointer.StartInteraction(this);
+            _interactableOnPointer.Outline.enabled = false;
             _interactableInHand = _interactableOnPointer;
         }
     }
@@ -354,7 +349,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            GUILayout.Label($"{_interactableOnPointer?.name}");
+            GUILayout.Label($"");
             GUILayout.EndArea();
         }
     }

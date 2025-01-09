@@ -429,8 +429,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerRenderPrefab:
-  - {fileID: 2598954008640769726, guid: 0fcc6d5663fd3d84abbceeb5611c69f9, type: 3}
   - {fileID: 2598954008640769726, guid: 94bc8158e8f1e4b459c718ace409fb9f, type: 3}
+  - {fileID: 2598954008640769726, guid: 0fcc6d5663fd3d84abbceeb5611c69f9, type: 3}
 --- !u!1 &2614373802029099646
 GameObject:
   m_ObjectHideFlags: 3
