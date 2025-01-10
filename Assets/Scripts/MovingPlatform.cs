@@ -17,9 +17,9 @@ public class MovingPlatform : NetworkBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        _timer += Time.deltaTime;
+        _timer += Time.fixedDeltaTime;
 
         // 일정 시점마다 서버 측에서 동기화 RPC를 전송
         if (IsServer && _timer > Mathf.PI * 2f)
@@ -31,7 +31,7 @@ public class MovingPlatform : NetworkBehaviour
         Vector3 newPosition = transform.position;
         newPosition.y = (Mathf.Sin(_timer) * 5f) + 3f;
 
-        _rigidbody.MovePosition(Vector3.Lerp(_rigidbody.position, newPosition, Time.deltaTime * 20f));
+        _rigidbody.MovePosition(Vector3.Lerp(_rigidbody.position, newPosition, Time.fixedDeltaTime * 20f));
     }
 
     [ClientRpc]
