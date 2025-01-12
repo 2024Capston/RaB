@@ -112,20 +112,24 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         return _cubeColor == player.PlayerColor;
     }
 
-    public void StartInteraction(PlayerController player)
+    public bool StartInteraction(PlayerController player)
     {
         _interactingPlayer = player;
 
         _rigidbody.useGravity = false;
         _networkSyncTransform.SetParent(player.gameObject);
+
+        return true;
     }
 
-    public void StopInteraction(PlayerController player)
+    public bool StopInteraction(PlayerController player)
     {
         _interactingPlayer = null;
 
         _rigidbody.useGravity = true;
         _networkSyncTransform.SetParent(null);
+
+        return true;
     }
 
     /// <summary>

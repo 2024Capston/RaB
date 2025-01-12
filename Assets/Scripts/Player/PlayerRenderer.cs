@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerRenderer : MonoBehaviour
+public class PlayerRenderer : NetworkBehaviour
 {
     [SerializeField] private GameObject[] _playerRenderPrefab;
 
-    private GameObject _renderObject;
+    private MeshFilter _visualMeshFilter;
+    private MeshRenderer _visualMeshRenderer;
 
     private PlayerController _playerController;
     private NetworkInterpolator _networkInterpolator;
@@ -20,19 +21,42 @@ public class PlayerRenderer : MonoBehaviour
 
     public void Initialize()
     {
-        _networkInterpolator.AddVisualReferenceDependantFunction(ShowPlayerRender);
+        _networkInterpolator.AddVisualReferenceDependantFunction(() =>
+        {
+            if (!_visualMeshFilter)
+            {
+                _visualMeshFilter = _networkInterpolator.VisualReference.AddComponent<MeshFilter>();
+                _visualMeshRenderer = _networkInterpolator.VisualReference.AddComponent<MeshRenderer>();
+            }
+
+            int colorIndex = (int)_playerController.PlayerColor - 1;
+
+            _visualMeshFilter.sharedMesh = _playerRenderPrefab[colorIndex].GetComponent<MeshFilter>().sharedMesh;
+            _visualMeshRenderer.material = _playerRenderPrefab[colorIndex].GetComponent<MeshRenderer>().sharedMaterial;
+        });
     }
 
-    private void ShowPlayerRender()
+    [ServerRpc]
+    public void ShowPlayerRenderServerRpc()
     {
-        if (_renderObject)
-        {
-            Destroy(_renderObject);
-        }
-        int colorIndex = (int)_playerController.PlayerColor - 1;
+        ShowPlayerRenderClientRpc();
+    }
 
-        _renderObject = Instantiate(_playerRenderPrefab[colorIndex], _networkInterpolator.VisualReference.transform);
-        _renderObject.transform.localPosition = Vector3.zero;
-        _renderObject.transform.localRotation = Quaternion.identity;
+    [ClientRpc]
+    public void ShowPlayerRenderClientRpc()
+    {
+        _visualMeshRenderer.enabled = true;
+    }
+
+    [ServerRpc]
+    public void HidePlayerRenderServerRpc()
+    {
+        HidePlayerRenderClientRpc();
+    }
+
+    [ClientRpc]
+    public void HidePlayerRenderClientRpc()
+    {
+        _visualMeshRenderer.enabled = false;
     }
 }

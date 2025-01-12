@@ -19,11 +19,11 @@ public interface IInteractable
     /// 플레이어와 상호작용을 시작한다.
     /// </summary>
     /// <param name="player">플레이어</param>
-    public void StartInteraction(PlayerController player);
+    public bool StartInteraction(PlayerController player);
 
     /// <summary>
     /// 플레이어와 상호작용을 중단한다.
     /// </summary>
     /// <param name="player">플레이어</param>
-    public void StopInteraction(PlayerController player);
+    public bool StopInteraction(PlayerController player);
 }

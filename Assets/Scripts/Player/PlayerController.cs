@@ -1,6 +1,7 @@
 using Cinemachine;
 using System;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,8 +13,12 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _moveSpeed = 10f;    // 이동 속력
     [SerializeField] private float _jumpSpeed = 5f;     // 점프 속력
 
-    private const float GROUND_DETECTION_THRESHOLD = 0.1f;  // 접지 판정 범위
+    private const float JUMPABLE_DETECTION_THRESHOLD = 0.1f;  // 접지 판정 범위
     private const float PLATFORM_DETECTION_THRESHOLD = 2f;  // 플랫폼 탐색 범위
+    private const float JUMP_REMEMBER_TIME = 0.32f;
+
+    public const float INITIAL_CAPSULE_HEIGHT = 2f;
+    public const float INITIAL_CAPSULE_RADIUS = 0.5f;
 
     private CharacterController _characterController;
     private PlayerRenderer _playerRenderer;
@@ -93,7 +98,7 @@ public class PlayerController : NetworkBehaviour
             _networkInterpolator = GetComponent<NetworkInterpolator>();
             _networkSyncTransform = GetComponent<NetworkSyncTransform>();
 
-            _colliderHeight = GetComponent<CapsuleCollider>().height / 2f;
+            _colliderHeight = _characterController.height / 2f;
 
             CinemachineFreeLook camera = GetComponentInChildren<CinemachineFreeLook>();
 
@@ -150,31 +155,54 @@ public class PlayerController : NetworkBehaviour
     {
         _jumpRemember -= Time.deltaTime;
 
-        if (IsGrounded())
+        if (_characterController.isGrounded)
         {
-            // 떨어지는 중에 접지한 경우
             if (_verticalSpeed < 0f)
             {
                 _verticalSpeed = 0f;
             }
-
-            // 점프 입력이 들어온 상태에서 접지한 경우
-            if (_jumpInput)
-            {
-                // 아직 점프를 처리할 수 있는 쿨타임이 남은 경우
-                if (_jumpRemember > 0f)
-                {
-                    _verticalSpeed = _jumpSpeed;
-                }
-
-                _jumpInput = false;
-            }
         }
         else
         {
-            // 공중에서 떨어지고 있는 경우
             _verticalSpeed += Physics.gravity.y * Time.deltaTime;
         }
+
+        if (CanJump() && _jumpInput)
+        {
+            // 아직 점프를 처리할 수 있는 쿨타임이 남은 경우
+            if (_jumpRemember > 0f)
+            {
+                _verticalSpeed = _jumpSpeed;
+            }
+
+            _jumpInput = false;
+        }
+
+        //if (IsGrounded())
+        //{
+        //    // 떨어지는 중에 접지한 경우
+        //    if (_verticalSpeed < 0f)
+        //    {
+        //        _verticalSpeed = 0f;
+        //    }
+
+        //    // 점프 입력이 들어온 상태에서 접지한 경우
+        //    if (_jumpInput)
+        //    {
+        //        // 아직 점프를 처리할 수 있는 쿨타임이 남은 경우
+        //        if (_jumpRemember > 0f)
+        //        {
+        //            _verticalSpeed = _jumpSpeed;
+        //        }
+
+        //        _jumpInput = false;
+        //    }
+        //}
+        //else
+        //{
+        //    // 공중에서 떨어지고 있는 경우
+        //    _verticalSpeed += Physics.gravity.y * Time.deltaTime;
+        //}
 
         _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
     }
@@ -254,9 +282,9 @@ public class PlayerController : NetworkBehaviour
     /// 접지 여부를 판단한다.
     /// </summary>
     /// <returns>접지 여부</returns>
-    bool IsGrounded()
+    bool CanJump()
     {
-        return Physics.Raycast(transform.position, Vector3.down, _colliderHeight + GROUND_DETECTION_THRESHOLD);
+        return Physics.Raycast(transform.position, Vector3.down, _colliderHeight + JUMPABLE_DETECTION_THRESHOLD);
     }
 
     /// <summary>
@@ -276,7 +304,7 @@ public class PlayerController : NetworkBehaviour
     void OnJumpInput()
     {
         _jumpInput = true;
-        _jumpRemember = 0.16f;
+        _jumpRemember = JUMP_REMEMBER_TIME;
     }
 
     /// <summary>
@@ -286,15 +314,19 @@ public class PlayerController : NetworkBehaviour
     {
         if (_interactableInHand != null)
         {
-            _interactableOnPointer.StopInteraction(this);
-            _interactableOnPointer = null;
-            _interactableInHand = null;
+            if (_interactableOnPointer.StopInteraction(this))
+            {
+                _interactableOnPointer = null;
+                _interactableInHand = null;
+            }
         }
         else if (_interactableOnPointer != null)
         {
-            _interactableOnPointer.StartInteraction(this);
-            _interactableOnPointer.Outline.enabled = false;
-            _interactableInHand = _interactableOnPointer;
+            if (_interactableOnPointer.StartInteraction(this))
+            {
+                _interactableOnPointer.Outline.enabled = false;
+                _interactableInHand = _interactableOnPointer;
+            }
         }
     }
 
@@ -341,6 +373,24 @@ public class PlayerController : NetworkBehaviour
         {
             _localPlayer = this;
             _localPlayerCreated?.Invoke();
+        }
+    }
+
+    public void UpdateCollider(Collider collider = null)
+    {
+        if (collider == null)
+        {
+            _characterController.radius = INITIAL_CAPSULE_RADIUS;
+            _characterController.height = INITIAL_CAPSULE_HEIGHT;
+
+            _colliderHeight = INITIAL_CAPSULE_HEIGHT / 2f;
+        }
+        else if (collider is BoxCollider)
+        {
+            _characterController.radius = ((BoxCollider)collider).size.x / 2f;
+            _characterController.height = ((BoxCollider)collider).size.y;
+
+            _colliderHeight = ((BoxCollider)collider).size.y / 2f;
         }
     }
 
