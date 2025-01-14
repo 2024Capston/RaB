@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -350,12 +350,12 @@ PrefabInstance:
   m_SourcePrefab: {fileID: 100100000, guid: 7e3ba9bcd94342640b6a3e95831303dd, type: 3}
 --- !u!4 &1846888940 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 4037374990153471448, guid: 7e3ba9bcd94342640b6a3e95831303dd, type: 3}
+  m_CorrespondingSourceObject: {fileID: 4285121621040990339, guid: 7e3ba9bcd94342640b6a3e95831303dd, type: 3}
   m_PrefabInstance: {fileID: 1846888939}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &1846888941 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 1620328165098562480, guid: 7e3ba9bcd94342640b6a3e95831303dd, type: 3}
+  m_CorrespondingSourceObject: {fileID: 1740340731632160865, guid: 7e3ba9bcd94342640b6a3e95831303dd, type: 3}
   m_PrefabInstance: {fileID: 1846888939}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2434045015522482641

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -10,6 +12,9 @@ public class PlayerController : NetworkBehaviour
 
     [SerializeField]
     private float _rotateSpeed = 2f;
+
+    [SerializeField] private PostProcessResources _postProcessResources;
+    [SerializeField] private PostProcessProfile _playerPostProcessProfile;
 
     private GameObject _mainCamera;
 
@@ -29,7 +34,18 @@ public class PlayerController : NetworkBehaviour
             _mainCamera.AddComponent<Camera>().cullingMask ^= 1 << LayerMask.NameToLayer("UI");
             _mainCamera.AddComponent<AudioListener>();
             _mainCamera.tag = "MainCamera";
-
+            
+            // PostProcess Setting
+            _mainCamera.layer = LayerMask.NameToLayer("Camera");
+            PostProcessLayer postProcessLayer = _mainCamera.AddComponent<PostProcessLayer>();
+            postProcessLayer.Init(_postProcessResources);
+            postProcessLayer.volumeTrigger = _mainCamera.transform;
+            postProcessLayer.volumeLayer = 1 << LayerMask.NameToLayer("Camera");
+            
+            PostProcessVolume postProcessVolume = _mainCamera.AddComponent<PostProcessVolume>();
+            postProcessVolume.isGlobal = true;
+            postProcessVolume.profile = _playerPostProcessProfile;
+            
             Cursor.lockState = CursorLockMode.Locked;
         }
     }
