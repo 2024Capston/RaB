@@ -16,11 +16,11 @@ public interface IActivatable
     /// 물체를 활성화한다.
     /// </summary>
     /// <param name="activator">활성화 주체</param>
-    public void Activate(GameObject activator = null);
+    public bool Activate(GameObject activator = null);
 
     /// <summary>
     /// 물체를 비활성화한다.
     /// </summary>
     /// <param name="activator">비활성화 주체</param>
-    public void Deactivate(GameObject activator = null);
+    public bool Deactivate(GameObject activator = null);
 }

@@ -13,12 +13,12 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _moveSpeed = 10f;    // 이동 속력
     [SerializeField] private float _jumpSpeed = 5f;     // 점프 속력
 
-    private const float JUMPABLE_DETECTION_THRESHOLD = 0.1f;  // 접지 판정 범위
-    private const float PLATFORM_DETECTION_THRESHOLD = 2f;  // 플랫폼 탐색 범위
-    private const float JUMP_REMEMBER_TIME = 0.32f;
+    private const float JUMPABLE_DETECTION_THRESHOLD = 0.1f;    // 점프 가능 판정 범위
+    private const float PLATFORM_DETECTION_THRESHOLD = 2f;      // 플랫폼 탐색 범위
+    private const float JUMP_REMEMBER_TIME = 0.32f;             // 점프 키 입력 기억 시간
 
-    public const float INITIAL_CAPSULE_HEIGHT = 2f;
-    public const float INITIAL_CAPSULE_RADIUS = 0.5f;
+    public static float INITIAL_CAPSULE_HEIGHT = 2f;             // 최초 Capsule Collider 높이
+    public static float INITIAL_CAPSULE_RADIUS = 0.5f;           // 최초 Capsule Collider 반경 
 
     private CharacterController _characterController;
     private PlayerRenderer _playerRenderer;
@@ -128,11 +128,6 @@ public class PlayerController : NetworkBehaviour
             HandlePlatform();
             SearchInteractables();
         }
-    }
-
-    private void AssignPlayerColor()
-    {
-
     }
 
     /// <summary>
@@ -253,9 +248,9 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// 접지 여부를 판단한다.
+    /// 점프 가능 여부를 판단한다.
     /// </summary>
-    /// <returns>접지 여부</returns>
+    /// <returns>점프 가능 여부</returns>
     bool CanJump()
     {
         return Physics.Raycast(transform.position, Vector3.down, _colliderHeight + JUMPABLE_DETECTION_THRESHOLD);
@@ -350,8 +345,15 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    public void UpdateCollider(Collider collider = null)
+    /// <summary>
+    /// 플레이어의 Capsule Collider 정보를 갱신한다
+    /// </summary>
+    /// <param name="collider">반영할 Collider 정보</param>
+    /// <param name="height">Mesh Collider에서 사용할 높이</param>
+    /// <param name="radius">Mesh Collider에서 사용할 반경</param>
+    public void UpdateCollider(Collider collider = null, float height = 0f, float radius = 0f)
     {
+        // 새 Collider가 Null이면 최초 상태로 초기화한다.
         if (collider == null)
         {
             _characterController.radius = INITIAL_CAPSULE_RADIUS;

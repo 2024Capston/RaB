@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+/// <summary>
+/// 플레이어를 렌더링하는 Class
+/// </summary>
 public class PlayerRenderer : NetworkBehaviour
 {
+    /// <summary>
+    /// 렌더링에 사용할 플레이어 프리팹. (파랑, 빨강 순)
+    /// </summary>
     [SerializeField] private GameObject[] _playerRenderPrefab;
 
     private MeshFilter _visualMeshFilter;
@@ -23,11 +29,8 @@ public class PlayerRenderer : NetworkBehaviour
     {
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
         {
-            if (!_visualMeshFilter)
-            {
-                _visualMeshFilter = _networkInterpolator.VisualReference.AddComponent<MeshFilter>();
-                _visualMeshRenderer = _networkInterpolator.VisualReference.AddComponent<MeshRenderer>();
-            }
+            _visualMeshFilter = _networkInterpolator.VisualReference.AddComponent<MeshFilter>();
+            _visualMeshRenderer = _networkInterpolator.VisualReference.AddComponent<MeshRenderer>();
 
             int colorIndex = (int)_playerController.PlayerColor - 1;
 
@@ -36,6 +39,9 @@ public class PlayerRenderer : NetworkBehaviour
         });
     }
 
+    /// <summary>
+    /// 플레이어 모습을 표시한다.
+    /// </summary>
     [ServerRpc]
     public void ShowPlayerRenderServerRpc()
     {
@@ -48,6 +54,9 @@ public class PlayerRenderer : NetworkBehaviour
         _visualMeshRenderer.enabled = true;
     }
 
+    /// <summary>
+    /// 플레이어 모습을 숨긴다.
+    /// </summary>
     [ServerRpc]
     public void HidePlayerRenderServerRpc()
     {

@@ -81,6 +81,9 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         }
     }
 
+    /// <summary>
+    /// 큐브와 플랫폼의 관계를 처리한다.
+    /// </summary>
     private void HandlePlatform()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 4f))
@@ -142,13 +145,13 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         GetComponent<NetworkObject>().ChangeOwnership(clientId);
     }
 
-    private void OnGUI()
-    {
-        if (_cubeColor == ColorType.Red)
-        {
-            GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            GUILayout.Label($"{_rigidbody?.isKinematic}");
-            GUILayout.EndArea();
-        }
-    }
+    //private void OnGUI()
+    //{
+    //    if (_cubeColor == ColorType.Red)
+    //    {
+    //        GUILayout.BeginArea(new Rect(10, 10, 100, 100));
+    //        GUILayout.Label($"{_rigidbody?.isKinematic}");
+    //        GUILayout.EndArea();
+    //    }
+    //}
 }
