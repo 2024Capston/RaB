@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class DoorController : MonoBehaviour
+public class DoorController : NetworkBehaviour
 {
     private Animator _animator;
     private void Awake()
@@ -11,23 +12,25 @@ public class DoorController : MonoBehaviour
         _animator = GetComponent<Animator>();
     }
 
-    public void OpenDoor()
+    [ServerRpc(RequireOwnership = false)]
+    public void OpenDoorServerRpc()
     {
         _animator.SetBool("Open", true);
     }
-
-    public void CloseDoor()
+    
+    [ServerRpc(RequireOwnership = false)]
+    public void CloseDoorServerRpc()
     {
         _animator.SetBool("Open", false);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        OpenDoor();
+        OpenDoorServerRpc();
     }
 
     private void OnTriggerExit(Collider other)
     {
-        CloseDoor();
+        CloseDoorServerRpc();
     }
 }
