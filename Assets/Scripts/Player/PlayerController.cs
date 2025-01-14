@@ -68,6 +68,7 @@ public class PlayerController : NetworkBehaviour
         Application.targetFrameRate = 60;
 
         _playerRenderer = GetComponent<PlayerRenderer>();
+        _characterController = GetComponent<CharacterController>();
 
         // 임시: 플레이어 색깔 지정
         if (IsServer)
@@ -94,7 +95,6 @@ public class PlayerController : NetworkBehaviour
 
         if (IsOwner)
         {
-            _characterController = GetComponent<CharacterController>();
             _networkInterpolator = GetComponent<NetworkInterpolator>();
             _networkSyncTransform = GetComponent<NetworkSyncTransform>();
 
@@ -177,32 +177,6 @@ public class PlayerController : NetworkBehaviour
 
             _jumpInput = false;
         }
-
-        //if (IsGrounded())
-        //{
-        //    // 떨어지는 중에 접지한 경우
-        //    if (_verticalSpeed < 0f)
-        //    {
-        //        _verticalSpeed = 0f;
-        //    }
-
-        //    // 점프 입력이 들어온 상태에서 접지한 경우
-        //    if (_jumpInput)
-        //    {
-        //        // 아직 점프를 처리할 수 있는 쿨타임이 남은 경우
-        //        if (_jumpRemember > 0f)
-        //        {
-        //            _verticalSpeed = _jumpSpeed;
-        //        }
-
-        //        _jumpInput = false;
-        //    }
-        //}
-        //else
-        //{
-        //    // 공중에서 떨어지고 있는 경우
-        //    _verticalSpeed += Physics.gravity.y * Time.deltaTime;
-        //}
 
         _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
     }

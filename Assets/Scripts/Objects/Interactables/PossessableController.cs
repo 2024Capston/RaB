@@ -16,14 +16,20 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
 
     private Rigidbody _rigidbody;
     private BoxCollider _boxCollider;
+    private MeshFilter _meshFilter;
+    private MeshRenderer _meshRenderer;
 
     private NetworkSyncTransform _networkSyncTransform;
     private NetworkInterpolator _networkInterpolator;
 
     private PlayerController _interactingPlayer;
-    private PlayerRenderer _interactingPlayerRenderer;
+    private MeshFilter _interactingMeshFilter;
+    private MeshRenderer _interactingMeshRenderer;
     private CharacterController _characterController;
+
     private Rigidbody _platform;
+    private Mesh _originalMesh;
+    private Material _originalMaterial;
 
     private Outline _outline;
     public Outline Outline
@@ -42,11 +48,14 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
         {
+            _meshFilter = _networkInterpolator.VisualReference.GetComponent<MeshFilter>();
+            _meshRenderer = _networkInterpolator.VisualReference.GetComponent<MeshRenderer>();
+
             _outline = _networkInterpolator.VisualReference.GetComponent<Outline>();
             _outline.enabled = false;
-        });
 
-        GetComponent<MeshRenderer>().material = _materials[(int)_possessableColor - 1];
+            _meshRenderer.material = _materials[(int)_possessableColor - 1];
+        });
     }
 
     public override void OnPlayerInitialized()
@@ -152,20 +161,23 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     public bool StartInteraction(PlayerController player)
     {
         _interactingPlayer = player;
-        _interactingPlayerRenderer = player.GetComponent<PlayerRenderer>();
         _characterController = player.GetComponent<CharacterController>();
 
-        _rigidbody.isKinematic = true;
-        _boxCollider.enabled = false;
+        StartPossession(player);
 
-        player.UpdateCollider(_boxCollider);
+        if (IsServer)
+        {
+            StartPossesionClientRpc(player.gameObject);
+        }
+        else
+        {
+            StartPossessionServerRpc(player.gameObject);
+        }
 
         _characterController.enabled = false;
         _characterController.transform.position = transform.position;
         _characterController.transform.rotation = transform.rotation;
         _characterController.enabled = true;
-
-        _interactingPlayerRenderer.HidePlayerRenderServerRpc();
 
         return true;
     }
@@ -174,17 +186,19 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     {
         if (CheckDispossessionPosition())
         {
-            _interactingPlayerRenderer.ShowPlayerRenderServerRpc();
+            StopPossession(player);
+
+            if (IsServer)
+            {
+                StopPossesionClientRpc(player.gameObject);
+            }
+            else
+            {
+                StopPossessionServerRpc(player.gameObject);
+            }
 
             _interactingPlayer = null;
-            _interactingPlayerRenderer = null;
             _characterController = null;
-
-            _rigidbody.isKinematic = false;
-            _rigidbody.velocity = Vector3.zero;
-            _boxCollider.enabled = true;
-
-            player.UpdateCollider(null);
 
             return true;
         }
@@ -198,5 +212,92 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     public void RequestOwnershipServerRpc(ulong clientId)
     {
         GetComponent<NetworkObject>().ChangeOwnership(clientId);
+    }
+
+    private void StartPossession(PlayerController player)
+    {
+        NetworkInterpolator playerInterpolator = player.GetComponent<NetworkInterpolator>();
+
+        _interactingMeshFilter = playerInterpolator.VisualReference.GetComponent<MeshFilter>();
+        _interactingMeshRenderer = playerInterpolator.VisualReference.GetComponent<MeshRenderer>();
+
+        Debug.Log($"{_interactingMeshFilter == null}");
+
+        _originalMesh = _interactingMeshFilter.sharedMesh;
+        _originalMaterial = _interactingMeshRenderer.material;
+
+        _interactingMeshFilter.mesh = _meshFilter.sharedMesh;
+        _interactingMeshRenderer.material = _meshRenderer.material;
+
+        _rigidbody.isKinematic = true;
+        _boxCollider.enabled = false;
+        _meshRenderer.enabled = false;
+
+        player.UpdateCollider(_boxCollider);
+    }
+
+    private void StopPossession(PlayerController player)
+    {
+        _interactingMeshFilter.mesh = _originalMesh;
+        _interactingMeshRenderer.material = _originalMaterial;
+
+        _interactingMeshFilter = null;
+        _interactingMeshRenderer = null;
+
+        _originalMesh = null;
+        _originalMaterial = null;
+
+        _rigidbody.isKinematic = false;
+        _rigidbody.velocity = Vector3.zero;
+        _boxCollider.enabled = true;
+        _meshRenderer.enabled = true;
+
+        player.UpdateCollider(null);
+    }
+
+    [ServerRpc]
+    public void StartPossessionServerRpc(NetworkObjectReference player)
+    {
+        if (player.TryGet(out NetworkObject networkObject))
+        {
+            StartPossession(networkObject.GetComponent<PlayerController>());
+        }
+    }
+
+    [ClientRpc]
+    public void StartPossesionClientRpc(NetworkObjectReference player)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        if (player.TryGet(out NetworkObject networkObject))
+        {
+            StartPossession(networkObject.GetComponent<PlayerController>());
+        }
+    }
+
+    [ServerRpc]
+    public void StopPossessionServerRpc(NetworkObjectReference player)
+    {
+        if (player.TryGet(out NetworkObject networkObject))
+        {
+            StopPossession(networkObject.GetComponent<PlayerController>());
+        }
+    }
+
+    [ClientRpc]
+    public void StopPossesionClientRpc(NetworkObjectReference player)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        if (player.TryGet(out NetworkObject networkObject))
+        {
+            StopPossession(networkObject.GetComponent<PlayerController>());
+        }
     }
 }

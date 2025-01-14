@@ -73,6 +73,17 @@ public class NetworkInterpolator : NetworkBehaviour
     }
 
     /// <summary>
+    /// 보간 물체의 Transform을 즉시 설정한다.
+    /// </summary>
+    /// <param name="position">위치</param>
+    /// <param name="rotation">회전</param>
+    public void SetInstantTransform(Vector3 position, Quaternion rotation)
+    {
+        _networkInterpolatorUtil.transform.position = position;
+        _networkInterpolatorUtil.transform.rotation = rotation;
+    }
+
+    /// <summary>
     /// Parenting 보간을 시작한다.
     /// </summary>
     /// <param name="parentingCooldown">보간할 시간</param>
