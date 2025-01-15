@@ -21,6 +21,22 @@ public class PlayerController : NetworkBehaviour
     private float _pitchAngle;
 
     private Rigidbody _rigidbody;
+    
+    private ColorType _playerColor;
+    public ColorType PlayerColor
+    {
+        get => _playerColor;
+        set => _playerColor = value; 
+    }
+    
+    [SerializeField]
+    private IInteractable _interactableInHand = null;
+    public IInteractable InteractableInHand
+    {
+        get => _interactableInHand;
+        set => _interactableInHand = value;
+    }
+
 
     public override void OnNetworkSpawn()
     {
@@ -72,7 +88,23 @@ public class PlayerController : NetworkBehaviour
 
         CameraHandler();
         MoveHandler();
-        InputHandler();
+        
+        IInteractable it = null;
+        if (InteractableInHand == null)
+        {
+            it = FindInteractableObject();
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (it != null)
+            {
+                Logger.Log($"hit by {it}");
+                it.StartInteraction(this);
+            }
+        }
+        
+        //InputHandler();
     }
 
     private void CameraHandler()
@@ -94,6 +126,29 @@ public class PlayerController : NetworkBehaviour
 
         Vector3 moveDir = (v * transform.forward + h * transform.right).normalized * _walkSpeed;
         _rigidbody.velocity = new Vector3(moveDir.x, _rigidbody.velocity.y, moveDir.z);
+    }
+
+    private IInteractable FindInteractableObject()
+    {
+        if (_interactableInHand != null)
+        {
+            return null;
+        }
+        
+        Physics.Raycast(_mainCamera.transform.position, _mainCamera.transform.forward, out RaycastHit hit);
+        
+        if (hit.collider == null)
+        {
+            return null;
+        }
+        IInteractable interactable = hit.collider.gameObject.GetComponent<IInteractable>();
+
+        if (interactable == null)
+        {
+            return null;
+        }
+
+        return interactable;
     }
 
     private void InputHandler()

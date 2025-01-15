@@ -91,7 +91,9 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         player.transform.rotation = _spawnPoints[isBlue].rotation;
         
         player.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
-        playerConfig.MyPlayer = player.GetComponent<PlayerController>();
+        PlayerController playerController = player.GetComponent<PlayerController>();
+        playerConfig.MyPlayer = playerController;
+        playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
     }
 
     [ClientRpc]

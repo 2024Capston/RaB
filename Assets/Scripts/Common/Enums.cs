@@ -19,3 +19,11 @@ public enum StageName
     Floor1_6,
     Size
 }
+
+public enum ColorType
+{
+    None = 0,
+    Blue = 1,
+    Red = 2,
+    Purple = 3
+}
