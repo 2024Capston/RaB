@@ -9,7 +9,7 @@ public class NetworkInterpolatorUtil : MonoBehaviour
 {
     // Local 수준으로 빠르게 보간하거나, Remote 수준으로 느리게 보간할 수 있다
     private const float LOCAL_LERP_SPEED = 16f;
-    private const float OTHER_LERP_SPEED = 12f;
+    private const float OTHER_LERP_SPEED = 10f;
 
     private Transform _target;
 

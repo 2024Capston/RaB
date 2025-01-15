@@ -23,6 +23,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     private Rigidbody _rigidbody;
     private NetworkSyncTransform _networkSyncTransform;
     private NetworkInterpolator _networkInterpolator;
+    private NetworkPlatformFinder _networkPlatformFinder;
 
     private PlayerController _interactingPlayer;    // 큐브를 들고 있는 플레이어
     private Rigidbody _platform;                    // 큐브가 올라가 있는 플랫폼
@@ -40,6 +41,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
 
         _networkSyncTransform = GetComponent<NetworkSyncTransform>();
         _networkInterpolator = GetComponent<NetworkInterpolator>();
+        _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
         {
@@ -74,40 +76,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
             Vector3 target = _interactingPlayer.transform.position + _interactingPlayer.transform.forward * 2f;
             _rigidbody.velocity = (target - transform.position) * 32f;
         }
-        else
-        {
-            // 플레이어가 들고 있지 않으면 중력에 따라 움직이므로 플랫폼 처리
-            HandlePlatform();
-        }
-    }
-
-    /// <summary>
-    /// 큐브와 플랫폼의 관계를 처리한다.
-    /// </summary>
-    private void HandlePlatform()
-    {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 4f))
-        {
-            if (_platform?.gameObject != hit.collider.gameObject)
-            {
-                // 새로운 플랫폼을 발견한 경우
-                if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) &&
-                    hit.collider.gameObject.TryGetComponent<Rigidbody>(out _platform))
-                {
-                    _networkSyncTransform.SetParent(networkObject.gameObject);
-                }
-                else if (_platform != null)
-                {
-                    _networkSyncTransform.SetParent(null);
-                    _platform = null;
-                }
-            }
-        }
-        else if (_platform != null)
-        {
-            _networkSyncTransform.SetParent(null);
-            _platform = null;
-        }
     }
 
     public bool IsInteractable(PlayerController player)
@@ -120,7 +88,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         _interactingPlayer = player;
 
         _rigidbody.useGravity = false;
-        _networkSyncTransform.SetParent(player.gameObject);
 
         return true;
     }
@@ -130,7 +97,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         _interactingPlayer = null;
 
         _rigidbody.useGravity = true;
-        _networkSyncTransform.SetParent(null);
 
         return true;
     }
@@ -144,14 +110,4 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     {
         GetComponent<NetworkObject>().ChangeOwnership(clientId);
     }
-
-    //private void OnGUI()
-    //{
-    //    if (_cubeColor == ColorType.Red)
-    //    {
-    //        GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-    //        GUILayout.Label($"{_rigidbody?.isKinematic}");
-    //        GUILayout.EndArea();
-    //    }
-    //}
 }

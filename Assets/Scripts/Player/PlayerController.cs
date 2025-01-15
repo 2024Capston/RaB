@@ -14,7 +14,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _jumpSpeed = 5f;     // 점프 속력
 
     private const float JUMPABLE_DETECTION_THRESHOLD = 0.1f;    // 점프 가능 판정 범위
-    private const float PLATFORM_DETECTION_THRESHOLD = 2f;      // 플랫폼 탐색 범위
     private const float JUMP_REMEMBER_TIME = 0.32f;             // 점프 키 입력 기억 시간
 
     public static float INITIAL_CAPSULE_HEIGHT = 2f;             // 최초 Capsule Collider 높이
@@ -24,9 +23,9 @@ public class PlayerController : NetworkBehaviour
     private PlayerRenderer _playerRenderer;
     private NetworkInterpolator _networkInterpolator;
     private NetworkSyncTransform _networkSyncTransform;
+    private NetworkPlatformFinder _networkPlatformFinder;
 
     private float _colliderHeight;              // 플레이어 콜라이더 높이의 절반 값 (h/2)
-    private Rigidbody _platform;                // 플레이어가 따라갈 플랫폼
     private IInteractable _interactableOnPointer;  // 플레이어가 바라보고 있는 Interactable
     private IInteractable _interactableInHand;     // 플레이어가 들고 있는 Interactable
 
@@ -97,6 +96,7 @@ public class PlayerController : NetworkBehaviour
         {
             _networkInterpolator = GetComponent<NetworkInterpolator>();
             _networkSyncTransform = GetComponent<NetworkSyncTransform>();
+            _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
 
             _colliderHeight = _characterController.height / 2f;
 
@@ -181,47 +181,16 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandlePlatform()
     {
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, Vector3.down, _colliderHeight + PLATFORM_DETECTION_THRESHOLD);
-
-        if (hits.Length > 0)
-        {
-            bool platformFound = false;
-
-            foreach (RaycastHit hit in hits)
-            {
-                // !! 플랫폼을 따로 구별할 수 있도록 Layer나 Tag로 수정할 것 !!
-                if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) &&
-                    hit.collider.gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody) &&
-                    hit.collider.gameObject.name == "Elevator")
-                {
-                    // 새로운 플랫폼을 발견한 경우
-                    if (_platform?.gameObject != hit.collider.gameObject)
-                    {
-                        _platform = rigidbody;
-                        _networkSyncTransform.SetParent(networkObject.gameObject);
-                    }
-
-                    platformFound = true;
-                    break;
-                }
-            }
-
-            if (!platformFound && !_platform)
-            {
-                _networkSyncTransform.SetParent(null);
-                _platform = null;
-            }
-        }
-        else if (_platform != null)
-        {
-            _networkSyncTransform.SetParent(null);
-            _platform = null;
-        }
-
         // 플랫폼에 올라가 있다면 플랫폼의 이동을 플레이어에게도 적용
-        if (_platform)
+        if (_networkPlatformFinder.Platform)
         {
-            _characterController.Move(_platform.velocity * Time.deltaTime * 1.02f);
+            float velocityModifier = 1.2f;
+
+            if (_networkPlatformFinder.Platform.velocity.y < 0f)
+            {
+                velocityModifier = 0.9f;
+            }
+            _characterController.Move(_networkPlatformFinder.Platform.velocity * Time.deltaTime * velocityModifier);
         }
     }
 

@@ -28,7 +28,6 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     private MeshFilter _meshFilter;
     private MeshRenderer _meshRenderer;
 
-    private NetworkSyncTransform _networkSyncTransform;
     private NetworkInterpolator _networkInterpolator;
 
     // 빙의한 플레이어에 대한 레퍼런스
@@ -55,7 +54,6 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
         _rigidbody = GetComponent<Rigidbody>();
         _boxCollider = GetComponent<BoxCollider>();
 
-        _networkSyncTransform = GetComponent<NetworkSyncTransform>();
         _networkInterpolator = GetComponent<NetworkInterpolator>();
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
@@ -94,39 +92,6 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
         {
             transform.position = _interactingPlayer.transform.position;
             transform.rotation = _interactingPlayer.transform.rotation;
-        }
-        else
-        {
-            HandlePlatform();
-        }
-    }
-
-    /// <summary>
-    /// 물체와 플랫폼의 관계를 처리한다.
-    /// </summary>
-    private void HandlePlatform()
-    {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 4f))
-        {
-            if (_platform?.gameObject != hit.collider.gameObject)
-            {
-                // 새로운 플랫폼을 발견한 경우
-                if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) &&
-                    hit.collider.gameObject.TryGetComponent<Rigidbody>(out _platform))
-                {
-                    _networkSyncTransform.SetParent(networkObject.gameObject);
-                }
-                else if (_platform != null)
-                {
-                    _networkSyncTransform.SetParent(null);
-                    _platform = null;
-                }
-            }
-        }
-        else if (_platform != null)
-        {
-            _networkSyncTransform.SetParent(null);
-            _platform = null;
         }
     }
 
