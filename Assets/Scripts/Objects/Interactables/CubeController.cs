@@ -21,7 +21,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     }
 
     private Rigidbody _rigidbody;
-    private NetworkSyncTransform _networkSyncTransform;
     private NetworkInterpolator _networkInterpolator;
     private NetworkPlatformFinder _networkPlatformFinder;
 
@@ -39,7 +38,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     {
         _rigidbody = GetComponent<Rigidbody>();
 
-        _networkSyncTransform = GetComponent<NetworkSyncTransform>();
         _networkInterpolator = GetComponent<NetworkInterpolator>();
         _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
 
@@ -75,6 +73,10 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         {
             Vector3 target = _interactingPlayer.transform.position + _interactingPlayer.transform.forward * 2f;
             _rigidbody.velocity = (target - transform.position) * 32f;
+        }
+        else if (_networkPlatformFinder.Platform)
+        {
+            transform.position += _networkPlatformFinder.Platform.velocity * Time.deltaTime;
         }
     }
 

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class NetworkPlatformFinder : NetworkBehaviour
 {
-    [SerializeField] private float _detectionThreshold = 3f;
+    [SerializeField] private float _detectionThreshold = 10f;
 
     private NetworkSyncTransform _networkSyncTransform;
 
@@ -28,12 +28,11 @@ public class NetworkPlatformFinder : NetworkBehaviour
             return;
         }
 
+        Rigidbody newPlatform = null;
         RaycastHit[] hits = Physics.RaycastAll(transform.position, Vector3.down, _detectionThreshold);
 
         if (hits.Length > 0)
         {
-            bool platformFound = false;
-
             foreach (RaycastHit hit in hits)
             {
                 // !! 플랫폼을 따로 구별할 수 있도록 Layer나 Tag로 수정할 것 !!
@@ -41,38 +40,16 @@ public class NetworkPlatformFinder : NetworkBehaviour
                     hit.collider.gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody) &&
                     hit.collider.gameObject.name == "Elevator")
                 {
-                    // 새로운 플랫폼을 발견한 경우
-                    if (_platform?.gameObject != hit.collider.gameObject)
-                    {
-                        _platform = rigidbody;
-                        _networkSyncTransform.SetParent(networkObject.gameObject);
-                    }
-
-                    platformFound = true;
-                    break;
+                    newPlatform = rigidbody;
                 }
             }
-
-            if (!platformFound && !_platform)
-            {
-                _networkSyncTransform.SetParent(null);
-                _platform = null;
-            }
         }
-        else if (_platform != null)
-        {
-            _networkSyncTransform.SetParent(null);
-            _platform = null;
-        }
-    }
 
-    private void OnGUI()
-    {
-        if (IsOwner && gameObject.GetComponent<PlayerController>() != null)
+        // 새로운 플랫폼을 발견한 경우
+        if (_platform?.gameObject != newPlatform)
         {
-            GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            GUILayout.Label($"{_platform?.name}");
-            GUILayout.EndArea();
+            _platform = newPlatform;
+            _networkSyncTransform.SetParent(newPlatform?.gameObject);
         }
     }
 }

@@ -29,6 +29,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     private MeshRenderer _meshRenderer;
 
     private NetworkInterpolator _networkInterpolator;
+    private NetworkPlatformFinder _networkPlatformFinder;
 
     // 빙의한 플레이어에 대한 레퍼런스
     private PlayerController _interactingPlayer;
@@ -55,6 +56,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
         _boxCollider = GetComponent<BoxCollider>();
 
         _networkInterpolator = GetComponent<NetworkInterpolator>();
+        _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
         {
@@ -92,6 +94,10 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
         {
             transform.position = _interactingPlayer.transform.position;
             transform.rotation = _interactingPlayer.transform.rotation;
+        }
+        else if (_networkPlatformFinder.Platform)
+        {
+            transform.position += _networkPlatformFinder.Platform.velocity * Time.deltaTime;
         }
     }
 

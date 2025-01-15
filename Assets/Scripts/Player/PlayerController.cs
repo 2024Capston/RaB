@@ -69,6 +69,16 @@ public class PlayerController : NetworkBehaviour
         _playerRenderer = GetComponent<PlayerRenderer>();
         _characterController = GetComponent<CharacterController>();
 
+        INITIAL_CAPSULE_HEIGHT = _characterController.height;
+        INITIAL_CAPSULE_RADIUS = _characterController.radius;
+
+        if (!IsOwner)
+        {
+            _characterController.height *= 0.8f;
+        }
+
+        _colliderHeight = _characterController.height / 2f;
+
         // 임시: 플레이어 색깔 지정
         if (IsServer)
         {
@@ -97,8 +107,6 @@ public class PlayerController : NetworkBehaviour
             _networkInterpolator = GetComponent<NetworkInterpolator>();
             _networkSyncTransform = GetComponent<NetworkSyncTransform>();
             _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
-
-            _colliderHeight = _characterController.height / 2f;
 
             CinemachineFreeLook camera = GetComponentInChildren<CinemachineFreeLook>();
 
@@ -150,27 +158,27 @@ public class PlayerController : NetworkBehaviour
     {
         _jumpRemember -= Time.deltaTime;
 
-        if (_characterController.isGrounded)
+        if (CanJump())
         {
             if (_verticalSpeed < 0f)
             {
                 _verticalSpeed = 0f;
             }
+
+            if (_jumpInput)
+            {
+                // 아직 점프를 처리할 수 있는 쿨타임이 남은 경우
+                if (_jumpRemember > 0f)
+                {
+                    _verticalSpeed = _jumpSpeed;
+                }
+
+                _jumpInput = false;
+            }
         }
         else
         {
             _verticalSpeed += Physics.gravity.y * Time.deltaTime;
-        }
-
-        if (CanJump() && _jumpInput)
-        {
-            // 아직 점프를 처리할 수 있는 쿨타임이 남은 경우
-            if (_jumpRemember > 0f)
-            {
-                _verticalSpeed = _jumpSpeed;
-            }
-
-            _jumpInput = false;
         }
 
         _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
@@ -184,13 +192,7 @@ public class PlayerController : NetworkBehaviour
         // 플랫폼에 올라가 있다면 플랫폼의 이동을 플레이어에게도 적용
         if (_networkPlatformFinder.Platform)
         {
-            float velocityModifier = 1.2f;
-
-            if (_networkPlatformFinder.Platform.velocity.y < 0f)
-            {
-                velocityModifier = 0.9f;
-            }
-            _characterController.Move(_networkPlatformFinder.Platform.velocity * Time.deltaTime * velocityModifier);
+            transform.position += _networkPlatformFinder.Platform.velocity * Time.deltaTime;
         }
     }
 
@@ -236,7 +238,7 @@ public class PlayerController : NetworkBehaviour
     /// <returns>점프 가능 여부</returns>
     bool CanJump()
     {
-        return Physics.Raycast(transform.position, Vector3.down, _colliderHeight + JUMPABLE_DETECTION_THRESHOLD);
+        return Physics.Raycast(transform.position, Vector3.down, _colliderHeight + JUMPABLE_DETECTION_THRESHOLD) || _characterController.isGrounded;
     }
 
     /// <summary>
@@ -342,12 +344,22 @@ public class PlayerController : NetworkBehaviour
             _characterController.radius = INITIAL_CAPSULE_RADIUS;
             _characterController.height = INITIAL_CAPSULE_HEIGHT;
 
+            if (!IsOwner)
+            {
+                _characterController.height *= 0.9f;
+            }
+
             _colliderHeight = INITIAL_CAPSULE_HEIGHT / 2f;
         }
         else if (collider is BoxCollider)
         {
             _characterController.radius = ((BoxCollider)collider).size.x / 2f;
             _characterController.height = ((BoxCollider)collider).size.y;
+
+            if (!IsOwner)
+            {
+                _characterController.height *= 0.9f;
+            }
 
             _colliderHeight = ((BoxCollider)collider).size.y / 2f;
         }
@@ -358,7 +370,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            GUILayout.Label($"");
+            GUILayout.Label($"{_networkPlatformFinder.Platform?.velocity.y}");
             GUILayout.EndArea();
         }
     }
