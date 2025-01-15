@@ -1,7 +1,6 @@
 using Cinemachine;
 using System;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -22,7 +21,6 @@ public class PlayerController : NetworkBehaviour
     private CharacterController _characterController;
     private PlayerRenderer _playerRenderer;
     private NetworkInterpolator _networkInterpolator;
-    private NetworkSyncTransform _networkSyncTransform;
     private NetworkPlatformFinder _networkPlatformFinder;
 
     private float _colliderHeight;              // 플레이어 콜라이더 높이의 절반 값 (h/2)
@@ -105,7 +103,6 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             _networkInterpolator = GetComponent<NetworkInterpolator>();
-            _networkSyncTransform = GetComponent<NetworkSyncTransform>();
             _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
 
             CinemachineFreeLook camera = GetComponentInChildren<CinemachineFreeLook>();

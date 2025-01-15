@@ -1,9 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.VFX;
 
 /// <summary>
 /// 큐브를 조작하는 Class.
@@ -73,10 +69,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         {
             Vector3 target = _interactingPlayer.transform.position + _interactingPlayer.transform.forward * 2f;
             _rigidbody.velocity = (target - transform.position) * 32f;
-        }
-        else if (_networkPlatformFinder.Platform)
-        {
-            transform.position += _networkPlatformFinder.Platform.velocity * Time.deltaTime;
         }
     }
 

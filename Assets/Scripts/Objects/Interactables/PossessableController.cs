@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -94,10 +92,6 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
         {
             transform.position = _interactingPlayer.transform.position;
             transform.rotation = _interactingPlayer.transform.rotation;
-        }
-        else if (_networkPlatformFinder.Platform)
-        {
-            transform.position += _networkPlatformFinder.Platform.velocity * Time.deltaTime;
         }
     }
 

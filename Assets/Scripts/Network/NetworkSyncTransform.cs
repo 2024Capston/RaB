@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,7 +9,7 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkInterpolator))]
 public class NetworkSyncTransform : NetworkBehaviour
 {
-    [SerializeField] private float _sendThreshold = 0.01f;      // transform 값을 전송하는 기준 값
+    [SerializeField] private float _sendThreshold = 0.001f;      // transform 값을 전송하는 기준 값
     [SerializeField] private float _parentingCooldown = 0.5f;   // parenting 보간에 걸리는 시간
 
     private NetworkInterpolator _networkInterpolator;   // 현재 오브젝트의 interpolator

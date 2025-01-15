@@ -1,11 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Unity.Netcode;
 using UnityEngine;
 
+/// <summary>
+/// 물체 아래에 있는 플랫폼을 탐색하는 Class
+/// </summary>
 public class NetworkPlatformFinder : NetworkBehaviour
 {
+    /// <summary>
+    /// 탐색 범위
+    /// </summary>
     [SerializeField] private float _detectionThreshold = 10f;
 
     private NetworkSyncTransform _networkSyncTransform;
