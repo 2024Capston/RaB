@@ -186,6 +186,10 @@ PrefabInstance:
       propertyPath: _cubeColor
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6712980485580516779, guid: ce08a997eae0e7b4084f91d5ec9d5ba0, type: 3}
+      propertyPath: _alwaysLocal
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1266,6 +1270,10 @@ PrefabInstance:
       propertyPath: _cubeColor
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6712980485580516779, guid: ce08a997eae0e7b4084f91d5ec9d5ba0, type: 3}
+      propertyPath: _alwaysLocal
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1333,6 +1341,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6375358415561104450, guid: ce08a997eae0e7b4084f91d5ec9d5ba0, type: 3}
       propertyPath: _cubeColor
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6712980485580516779, guid: ce08a997eae0e7b4084f91d5ec9d5ba0, type: 3}
+      propertyPath: _alwaysLocal
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1523,6 +1535,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6375358415561104450, guid: ce08a997eae0e7b4084f91d5ec9d5ba0, type: 3}
       propertyPath: _cubeColor
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6712980485580516779, guid: ce08a997eae0e7b4084f91d5ec9d5ba0, type: 3}
+      propertyPath: _alwaysLocal
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []

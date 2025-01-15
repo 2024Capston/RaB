@@ -9,12 +9,14 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkInterpolator))]
 public class NetworkSyncTransform : NetworkBehaviour
 {
-    [SerializeField] private float _sendThreshold = 0.001f;      // transform 값을 전송하는 기준 값
-    [SerializeField] private float _parentingCooldown = 0.5f;   // parenting 보간에 걸리는 시간
+    [SerializeField] private bool _parentUnderVisualReference = true;   // 부모의 시각용 오브젝트에 parenting할지 여부
+    [SerializeField] private float _sendThreshold = 0.001f;             // transform 값을 전송하는 기준 값
+    [SerializeField] private float _parentingCooldown = 0.5f;           // parenting 보간에 걸리는 시간
 
     private NetworkInterpolator _networkInterpolator;   // 현재 오브젝트의 interpolator
 
-    private GameObject _parent;                     // 현재 오브젝트가 parent로 간주하는 오브젝트
+    private GameObject _parent;                     // 현재 오브젝트가 부모로 간주하는 오브젝트
+    private GameObject _parentVisualReference;
     private List<NetworkInterpolator> _children;    // 현재 오브젝트가 자식으로 간주하는 오브젝트
 
     // transform 정보 관련
@@ -56,7 +58,11 @@ public class NetworkSyncTransform : NetworkBehaviour
         Vector3 positionToSend = transform.position;
 
         // parent가 있는 있는 경우, 상대(relative) 위치를 전송.
-        if (_parent)
+        if (_parentVisualReference)
+        {
+            positionToSend -= _parentVisualReference.transform.position;
+        }
+        else if (_parent)
         {
             positionToSend -= _parent.transform.position;
         }
@@ -89,7 +95,12 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// </summary>
     private void UpdateFetchedTransform()
     {
-        if (_parent)
+        if (_parentVisualReference)
+        {
+            transform.position = _lastSyncedPosition + _parentVisualReference.transform.position;
+            transform.rotation = _lastSyncedRotation;
+        }
+        else if (_parent)
         {
             transform.position = _lastSyncedPosition + _parent.transform.position;
             transform.rotation = _lastSyncedRotation;
@@ -120,6 +131,13 @@ public class NetworkSyncTransform : NetworkBehaviour
         }
 
         _parent = parent;
+        _parentVisualReference = null;
+
+        if (_parentUnderVisualReference && _parent)
+        {
+            _parent.TryGetComponent<NetworkInterpolator>(out NetworkInterpolator parentInterpolator);
+            _parentVisualReference = parentInterpolator?.VisualReference;
+        }
 
         if (_networkInterpolator)
         {
@@ -264,6 +282,13 @@ public class NetworkSyncTransform : NetworkBehaviour
                 }
 
                 _parent = parent;
+                _parentVisualReference = null;
+
+                if (_parentUnderVisualReference && _parent)
+                {
+                    _parent.TryGetComponent<NetworkInterpolator>(out NetworkInterpolator parentInterpolator);
+                    _parentVisualReference = parentInterpolator?.VisualReference;
+                }
 
                 if (IsServer)
                 {
@@ -287,6 +312,7 @@ public class NetworkSyncTransform : NetworkBehaviour
             }
 
             _parent = null;
+            _parentVisualReference = null;
 
             if (IsServer)
             {

@@ -105,7 +105,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
         origin.y -= _boxCollider.size.y;
         origin.y += PlayerController.INITIAL_CAPSULE_HEIGHT;
 
-        Vector3 verticalPad = Vector3.up * PlayerController.INITIAL_CAPSULE_HEIGHT / 2f;
+        Vector3 offset = Vector3.up * (PlayerController.INITIAL_CAPSULE_HEIGHT / 2f - PlayerController.INITIAL_CAPSULE_RADIUS);
         float radius = (_boxCollider.size.x / 2f + PlayerController.INITIAL_CAPSULE_RADIUS) * 1.2f;
 
         // 물체를 중심으로, 주변을 원으로 탐색한다.
@@ -116,7 +116,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
             // 정면으로부터 0~180도 회전
             newPoint = origin + Quaternion.Euler(0, i * 20, 0) * transform.forward * radius;
 
-            if (Physics.OverlapCapsule(newPoint + verticalPad, newPoint - verticalPad, PlayerController.INITIAL_CAPSULE_RADIUS).Length == 0)
+            if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS).Length == 0)
             {
                 _characterController.enabled = false;
                 _characterController.transform.position = newPoint;
@@ -128,7 +128,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
             // 정면으로부터 -180~0도 회전
             newPoint = origin + Quaternion.Euler(0, -i * 20, 0) * transform.forward * radius;
 
-            if (Physics.OverlapCapsule(newPoint + verticalPad, newPoint - verticalPad, PlayerController.INITIAL_CAPSULE_RADIUS).Length == 0)
+            if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS).Length == 0)
             {
                 _characterController.enabled = false;
                 _characterController.transform.position = newPoint;

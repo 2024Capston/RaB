@@ -18,7 +18,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
 
     private Rigidbody _rigidbody;
     private NetworkInterpolator _networkInterpolator;
-    private NetworkPlatformFinder _networkPlatformFinder;
 
     private PlayerController _interactingPlayer;    // 큐브를 들고 있는 플레이어
     private Rigidbody _platform;                    // 큐브가 올라가 있는 플랫폼
@@ -35,7 +34,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         _rigidbody = GetComponent<Rigidbody>();
 
         _networkInterpolator = GetComponent<NetworkInterpolator>();
-        _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
         {

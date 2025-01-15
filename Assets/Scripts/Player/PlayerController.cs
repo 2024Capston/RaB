@@ -12,7 +12,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _moveSpeed = 10f;    // 이동 속력
     [SerializeField] private float _jumpSpeed = 5f;     // 점프 속력
 
-    private const float JUMPABLE_DETECTION_THRESHOLD = 0.1f;    // 점프 가능 판정 범위
+    private const float GROUND_DETECTION_THRESHOLD = 0.1f;      // 접지 판정 범위
     private const float JUMP_REMEMBER_TIME = 0.32f;             // 점프 키 입력 기억 시간
 
     public static float INITIAL_CAPSULE_HEIGHT = 2f;             // 최초 Capsule Collider 높이
@@ -155,7 +155,7 @@ public class PlayerController : NetworkBehaviour
     {
         _jumpRemember -= Time.deltaTime;
 
-        if (CanJump())
+        if (IsGrounded())
         {
             if (_verticalSpeed < 0f)
             {
@@ -173,7 +173,7 @@ public class PlayerController : NetworkBehaviour
                 _jumpInput = false;
             }
         }
-        else
+        else if (!_networkPlatformFinder.Platform || !IsGrounded())
         {
             _verticalSpeed += Physics.gravity.y * Time.deltaTime;
         }
@@ -189,7 +189,7 @@ public class PlayerController : NetworkBehaviour
         // 플랫폼에 올라가 있다면 플랫폼의 이동을 플레이어에게도 적용
         if (_networkPlatformFinder.Platform)
         {
-            transform.position += _networkPlatformFinder.Platform.velocity * Time.deltaTime;
+            transform.position += _networkPlatformFinder.Velocity * Time.deltaTime;
         }
     }
 
@@ -230,12 +230,13 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// 점프 가능 여부를 판단한다.
+    /// 접지 여부를 판단한다.
     /// </summary>
-    /// <returns>점프 가능 여부</returns>
-    bool CanJump()
+    /// <returns>접지 여부</returns>
+    bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, _colliderHeight + JUMPABLE_DETECTION_THRESHOLD) || _characterController.isGrounded;
+        Vector3 offset = Vector3.up * (_colliderHeight - _characterController.radius);
+        return Physics.CapsuleCast(transform.position + offset, transform.position - offset, _characterController.radius, Vector3.down, GROUND_DETECTION_THRESHOLD);
     }
 
     /// <summary>
