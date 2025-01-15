@@ -181,21 +181,35 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandlePlatform()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _colliderHeight + PLATFORM_DETECTION_THRESHOLD))
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, Vector3.down, _colliderHeight + PLATFORM_DETECTION_THRESHOLD);
+
+        if (hits.Length > 0)
         {
-            if (_platform?.gameObject != hit.collider.gameObject)
+            bool platformFound = false;
+
+            foreach (RaycastHit hit in hits)
             {
-                // 새로운 플랫폼을 발견한 경우
+                // !! 플랫폼을 따로 구별할 수 있도록 Layer나 Tag로 수정할 것 !!
                 if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) &&
-                    hit.collider.gameObject.TryGetComponent<Rigidbody>(out _platform))
+                    hit.collider.gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody) &&
+                    hit.collider.gameObject.name == "Elevator")
                 {
-                    _networkSyncTransform.SetParent(networkObject.gameObject);
+                    // 새로운 플랫폼을 발견한 경우
+                    if (_platform?.gameObject != hit.collider.gameObject)
+                    {
+                        _platform = rigidbody;
+                        _networkSyncTransform.SetParent(networkObject.gameObject);
+                    }
+
+                    platformFound = true;
+                    break;
                 }
-                else if (_platform != null)
-                {
-                    _networkSyncTransform.SetParent(null);
-                    _platform = null;
-                }
+            }
+
+            if (!platformFound && !_platform)
+            {
+                _networkSyncTransform.SetParent(null);
+                _platform = null;
             }
         }
         else if (_platform != null)

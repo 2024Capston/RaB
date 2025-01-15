@@ -318,6 +318,11 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     [ClientRpc]
     public void StartPossesionClientRpc(NetworkObjectReference player)
     {
+        if (IsServer)
+        {
+            return;
+        }
+
         if (player.TryGet(out NetworkObject networkObject))
         {
             StartPossession(networkObject.GetComponent<PlayerController>());
@@ -344,6 +349,11 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     [ClientRpc]
     public void StopPossesionClientRpc(NetworkObjectReference player)
     {
+        if (IsServer)
+        {
+            return;
+        }
+
         if (player.TryGet(out NetworkObject networkObject))
         {
             StopPossession(networkObject.GetComponent<PlayerController>());
