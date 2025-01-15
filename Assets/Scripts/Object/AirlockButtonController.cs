@@ -1,17 +1,20 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class AirlockButtonController : MonoBehaviour, IInteractable
+public class AirlockButtonController : NetworkBehaviour, IInteractable
 {
     [SerializeField] private AirlockController _airlockController;
     [SerializeField] private bool _isInButton;
     [SerializeField] private ColorType _buttonColor;
-    
+
     public Outline Outline { get; set; }
 
     public bool IsInteractable(PlayerController player)
     {
+        return true;
         return player.PlayerColor == _buttonColor;
     }
 
@@ -19,7 +22,7 @@ public class AirlockButtonController : MonoBehaviour, IInteractable
     {
         if (IsInteractable(player))
         {
-            _airlockController.OnClickAirlockButtonServerRpc(player.PlayerColor, _isInButton);
+            _airlockController.OnClickAirlockButtonServerRpc(_buttonColor, _isInButton);
             return true;
         }
         return false;

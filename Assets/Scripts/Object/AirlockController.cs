@@ -73,24 +73,36 @@ public class AirlockController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void OnClickAirlockButtonServerRpc(ColorType colorType, bool isInButton)
     {
-        Logger.Log($"Colortype {colorType}, isIn ? {isInButton}");
+        Logger.Log($"Colortype {colorType}, is in : {isInButton}");
+        SetButtonMaterialClientRpc(colorType, isInButton);
         if (colorType == ColorType.Blue)
         {
             _isBlueOpened = isInButton;
-            _blueInOutMaterials[isInButton ? 0 : 1].material = _inoutMaterials[1];
-            _blueInOutMaterials[isInButton ? 1 : 0].material = _inoutMaterials[0];
         }
         else if (colorType == ColorType.Red)
         {
             _isRedOpened = isInButton;
-            _redInOutMaterials[isInButton ? 0 : 1].material = _inoutMaterials[2];
-            _redInOutMaterials[isInButton ? 1 : 0].material = _inoutMaterials[0];
         }
 
         // 일치하면 문 개방 방향이 변경된다.
         if (_isBlueOpened == _isRedOpened)
         {
             IsInOpened = _isBlueOpened;
+        }
+    }
+
+    [ClientRpc]
+    private void SetButtonMaterialClientRpc(ColorType colorType, bool isInButton)
+    {
+        if (colorType == ColorType.Blue)
+        {
+            _blueInOutMaterials[isInButton ? 0 : 1].material = _inoutMaterials[1];
+            _blueInOutMaterials[isInButton ? 1 : 0].material = _inoutMaterials[0];
+        }
+        else
+        {
+            _redInOutMaterials[isInButton ? 0 : 1].material = _inoutMaterials[2];
+            _redInOutMaterials[isInButton ? 1 : 0].material = _inoutMaterials[0];
         }
     }
 }
