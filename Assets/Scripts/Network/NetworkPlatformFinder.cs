@@ -33,46 +33,49 @@ public class NetworkPlatformFinder : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner)
+        if (IsOwner)
         {
-            return;
-        }
+            RaycastHit[] hits = new RaycastHit[0];
 
-        Rigidbody newPlatform = null;
-        RaycastHit[] hits = new RaycastHit[0];
+            Rigidbody newPlatform = null;
+            float minDistance = _detectionThreshold + 1f;
 
-        if (_characterController && false)
-        {
-            Vector3 offset = Vector3.up * (_characterController.height / 2f - _characterController.radius);
-            hits = Physics.CapsuleCastAll(transform.position + offset, transform.position - offset, _characterController.radius, Vector3.down, _detectionThreshold);
-        }
-        else
-        {
-            hits = Physics.RaycastAll(transform.position, Vector3.down, _detectionThreshold);
-        }
-
-        if (hits.Length > 0)
-        {
-            foreach (RaycastHit hit in hits)
+            if (_characterController && false)
             {
-                if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) &&
-                    hit.collider.gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+                Vector3 offset = Vector3.up * (_characterController.height / 2f - _characterController.radius);
+                hits = Physics.CapsuleCastAll(transform.position + offset, transform.position - offset, _characterController.radius, Vector3.down, _detectionThreshold);
+            }
+            else
+            {
+                hits = Physics.RaycastAll(transform.position, Vector3.down, _detectionThreshold);
+            }
+
+            if (hits.Length > 0)
+            {
+                foreach (RaycastHit hit in hits)
                 {
-                    newPlatform = rigidbody;
+                    if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) &&
+                        hit.collider.gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+                    {
+                        if (hit.distance < minDistance)
+                        {
+                            newPlatform = rigidbody;
+                            minDistance = hit.distance;
+                        }
+                    }
                 }
             }
-        }
 
-        // 새로운 플랫폼을 발견한 경우
-        if (_platform != newPlatform)
-        {
-            Debug.Log("Changed Platform");
-            _platform = newPlatform;
-            _networkSyncTransform.SetParent(newPlatform?.gameObject);
-
-            if (_platform)
+            // 새로운 플랫폼을 발견한 경우
+            if (_platform != newPlatform)
             {
-                _lastPosition = _platform.position;
+                _platform = newPlatform;
+                _networkSyncTransform.SetParent(newPlatform?.gameObject);
+
+                if (_platform)
+                {
+                    _lastPosition = _platform.position;
+                }
             }
         }
 

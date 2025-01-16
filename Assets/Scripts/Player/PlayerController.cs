@@ -368,7 +368,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            GUILayout.Label($"{_networkPlatformFinder.Platform?.velocity.y}");
+            if (_networkPlatformFinder?.Platform) GUILayout.Label($"{_networkPlatformFinder.Velocity.y}");
             GUILayout.EndArea();
         }
     }
