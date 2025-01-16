@@ -51,8 +51,7 @@ public class AirlockController : NetworkBehaviour
             _isInOpened = value;
             _doorIn.IsOpened = _isInOpened && IsAirlockOpened;
             _doorOut.IsOpened = !_isInOpened && IsAirlockOpened;
-            _doorLightMeshRenderers[0].material = _doorLightMaterials[_doorIn.IsOpened ? 1 : 0];
-            _doorLightMeshRenderers[1].material = _doorLightMaterials[_doorOut.IsOpened ? 1 : 0];
+            SetDoorLightClientRpc();
         }
     }
 
@@ -68,8 +67,7 @@ public class AirlockController : NetworkBehaviour
             _isAirlockOpened = value;
             _doorIn.IsOpened = _isAirlockOpened && _isInOpened;
             _doorOut.IsOpened = _isAirlockOpened && !_isInOpened;
-            _doorLightMeshRenderers[0].material = _doorLightMaterials[_doorIn.IsOpened ? 1 : 0];
-            _doorLightMeshRenderers[1].material = _doorLightMaterials[_doorOut.IsOpened ? 1 : 0];
+            SetDoorLightClientRpc();
         }
     }
     public StageName StageName { get; set; }
@@ -124,5 +122,12 @@ public class AirlockController : NetworkBehaviour
             _redInOutMeshRenderers[isInButton ? 0 : 1].material = _inoutMaterials[2];
             _redInOutMeshRenderers[isInButton ? 1 : 0].material = _inoutMaterials[0];
         }
+    }
+
+    [ClientRpc]
+    private void SetDoorLightClientRpc()
+    {
+        _doorLightMeshRenderers[0].material = _doorLightMaterials[_doorIn.IsOpened ? 1 : 0];
+        _doorLightMeshRenderers[1].material = _doorLightMaterials[_doorOut.IsOpened ? 1 : 0];
     }
 }

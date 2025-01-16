@@ -127,6 +127,8 @@ public class PlayerController : NetworkBehaviour
             HandleJump();
             HandlePlatform();
             SearchInteractables();
+            
+            Debug.Log($"interactable {_interactableOnPointer}");
         }
     }
 
@@ -199,8 +201,8 @@ public class PlayerController : NetworkBehaviour
         }
 
         gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 20f) &&
+        
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 200f) &&
             hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable) &&
             interactable.IsInteractable(this))
         {
