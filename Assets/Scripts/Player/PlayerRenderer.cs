@@ -13,11 +13,10 @@ public class PlayerRenderer : NetworkBehaviour
     /// </summary>
     [SerializeField] private GameObject[] _playerRenderPrefab;
 
-    private MeshFilter _visualMeshFilter;
-    private MeshRenderer _visualMeshRenderer;
-
     private PlayerController _playerController;
     private NetworkInterpolator _networkInterpolator;
+
+    private GameObject _playerRender;
 
     private void Awake()
     {
@@ -29,13 +28,14 @@ public class PlayerRenderer : NetworkBehaviour
     {
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
         {
-            _visualMeshFilter = _networkInterpolator.VisualReference.AddComponent<MeshFilter>();
-            _visualMeshRenderer = _networkInterpolator.VisualReference.AddComponent<MeshRenderer>();
-
             int colorIndex = (int)_playerController.PlayerColor - 1;
 
-            _visualMeshFilter.sharedMesh = _playerRenderPrefab[colorIndex].GetComponent<MeshFilter>().sharedMesh;
-            _visualMeshRenderer.material = _playerRenderPrefab[colorIndex].GetComponent<MeshRenderer>().sharedMaterial;
+            _playerRender = Instantiate(_playerRenderPrefab[colorIndex]);
+            _playerRender.transform.SetParent(_networkInterpolator.VisualReference.transform);
+
+            _playerRender.transform.localPosition = Vector3.zero;
+            _playerRender.transform.localRotation = Quaternion.identity;
+            _playerRender.transform.localScale = Vector3.one;
         });
     }
 
@@ -51,7 +51,7 @@ public class PlayerRenderer : NetworkBehaviour
     [ClientRpc]
     public void ShowPlayerRenderClientRpc()
     {
-        _visualMeshRenderer.enabled = true;
+        _playerRender.SetActive(true);
     }
 
     /// <summary>
@@ -66,6 +66,6 @@ public class PlayerRenderer : NetworkBehaviour
     [ClientRpc]
     public void HidePlayerRenderClientRpc()
     {
-        _visualMeshRenderer.enabled = false;
+        _playerRender.SetActive(false);
     }
 }

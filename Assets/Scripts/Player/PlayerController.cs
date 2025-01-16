@@ -9,10 +9,10 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class PlayerController : NetworkBehaviour
 {
-    [SerializeField] private float _moveSpeed = 10f;    // 이동 속력
-    [SerializeField] private float _jumpSpeed = 5f;     // 점프 속력
+    [SerializeField] private float _moveSpeed;    // 이동 속력
+    [SerializeField] private float _jumpSpeed;     // 점프 속력
 
-    private const float GROUND_DETECTION_THRESHOLD = 0.1f;      // 접지 판정 범위
+    private const float GROUND_DETECTION_THRESHOLD = 1f;      // 접지 판정 범위
     private const float JUMP_REMEMBER_TIME = 0.32f;             // 점프 키 입력 기억 시간
 
     public static float INITIAL_CAPSULE_HEIGHT = 2f;             // 최초 Capsule Collider 높이
@@ -70,7 +70,7 @@ public class PlayerController : NetworkBehaviour
         INITIAL_CAPSULE_HEIGHT = _characterController.height;
         INITIAL_CAPSULE_RADIUS = _characterController.radius;
 
-        _colliderHeight = _characterController.height / 2f;
+        _colliderHeight = _characterController.height * transform.localScale.y / 2f;
 
         // 임시: 플레이어 색깔 지정
         if (IsServer)
@@ -170,7 +170,7 @@ public class PlayerController : NetworkBehaviour
         }
         else if (!_networkPlatformFinder.Platform || !IsGrounded())
         {
-            _verticalSpeed += Physics.gravity.y * Time.deltaTime;
+            _verticalSpeed += Physics.gravity.y * Time.deltaTime * 10f;
         }
 
         _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
@@ -212,12 +212,20 @@ public class PlayerController : NetworkBehaviour
                 }
 
                 _interactableOnPointer = interactable;
-                _interactableOnPointer.Outline.enabled = true;
+
+                if (_interactableOnPointer.Outline)
+                {
+                    _interactableOnPointer.Outline.enabled = true;
+                }
             }
         }
         else if (_interactableOnPointer != null)
         {
-            _interactableOnPointer.Outline.enabled = false;
+            if (_interactableOnPointer.Outline)
+            {
+                _interactableOnPointer.Outline.enabled = false;
+            }
+
             _interactableOnPointer = null;
         }
 
@@ -230,8 +238,8 @@ public class PlayerController : NetworkBehaviour
     /// <returns>접지 여부</returns>
     bool IsGrounded()
     {
-        Vector3 offset = Vector3.up * (_colliderHeight - _characterController.radius);
-        return Physics.CapsuleCast(transform.position + offset, transform.position - offset, _characterController.radius, Vector3.down, GROUND_DETECTION_THRESHOLD);
+        Vector3 offset = Vector3.up * (_colliderHeight - _characterController.radius * transform.localScale.x);
+        return Physics.CapsuleCast(transform.position + offset, transform.position - offset, _characterController.radius * transform.localScale.x, Vector3.down, GROUND_DETECTION_THRESHOLD);
     }
 
     /// <summary>
@@ -261,7 +269,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (_interactableInHand != null)
         {
-            if (_interactableOnPointer.StopInteraction(this))
+            if (_interactableInHand.StopInteraction(this))
             {
                 _interactableOnPointer = null;
                 _interactableInHand = null;
@@ -337,14 +345,26 @@ public class PlayerController : NetworkBehaviour
             _characterController.radius = INITIAL_CAPSULE_RADIUS;
             _characterController.height = INITIAL_CAPSULE_HEIGHT;
 
-            _colliderHeight = INITIAL_CAPSULE_HEIGHT / 2f;
+            _colliderHeight = INITIAL_CAPSULE_HEIGHT * transform.localScale.y / 2f;
         }
         else if (collider is BoxCollider)
         {
             _characterController.radius = ((BoxCollider)collider).size.x / 2f;
             _characterController.height = ((BoxCollider)collider).size.y;
 
-            _colliderHeight = ((BoxCollider)collider).size.y / 2f;
+            _colliderHeight = ((BoxCollider)collider).size.y * transform.localScale.y / 2f;
+        }
+    }
+
+    public void ForceStopInteraction()
+    {
+        if (_interactableInHand != null)
+        {
+            if (_interactableInHand.StopInteraction(this))
+            {
+                _interactableOnPointer = null;
+                _interactableInHand = null;
+            }
         }
     }
 }
