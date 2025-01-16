@@ -70,11 +70,6 @@ public class PlayerController : NetworkBehaviour
         INITIAL_CAPSULE_HEIGHT = _characterController.height;
         INITIAL_CAPSULE_RADIUS = _characterController.radius;
 
-        if (!IsOwner)
-        {
-            _characterController.height *= 0.8f;
-        }
-
         _colliderHeight = _characterController.height / 2f;
 
         // 임시: 플레이어 색깔 지정
@@ -342,11 +337,6 @@ public class PlayerController : NetworkBehaviour
             _characterController.radius = INITIAL_CAPSULE_RADIUS;
             _characterController.height = INITIAL_CAPSULE_HEIGHT;
 
-            if (!IsOwner)
-            {
-                _characterController.height *= 0.9f;
-            }
-
             _colliderHeight = INITIAL_CAPSULE_HEIGHT / 2f;
         }
         else if (collider is BoxCollider)
@@ -354,22 +344,7 @@ public class PlayerController : NetworkBehaviour
             _characterController.radius = ((BoxCollider)collider).size.x / 2f;
             _characterController.height = ((BoxCollider)collider).size.y;
 
-            if (!IsOwner)
-            {
-                _characterController.height *= 0.9f;
-            }
-
             _colliderHeight = ((BoxCollider)collider).size.y / 2f;
-        }
-    }
-
-    private void OnGUI()
-    {
-        if (IsOwner)
-        {
-            GUILayout.BeginArea(new Rect(10, 10, 100, 100));
-            if (_networkPlatformFinder?.Platform) GUILayout.Label($"{_networkPlatformFinder.Velocity.y}");
-            GUILayout.EndArea();
         }
     }
 }
