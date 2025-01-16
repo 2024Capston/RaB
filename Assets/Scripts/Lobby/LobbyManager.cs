@@ -93,7 +93,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         player.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
         PlayerController playerController = player.GetComponent<PlayerController>();
         playerConfig.MyPlayer = playerController;
-        playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
+        //playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
     }
 
     [ClientRpc]
