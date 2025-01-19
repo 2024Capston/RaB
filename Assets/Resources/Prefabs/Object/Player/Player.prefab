@@ -138,7 +138,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 6.4573464, z: -72.31487}
+  m_FollowOffset: {x: 0, y: 4.8697534, z: -64.50715}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -195,8 +195,8 @@ MonoBehaviour:
   m_LookaheadTime: 0
   m_LookaheadSmoothing: 0
   m_LookaheadIgnoreY: 0
-  m_HorizontalDamping: 0.5
-  m_VerticalDamping: 0.5
+  m_HorizontalDamping: 0
+  m_VerticalDamping: 0
   m_ScreenX: 0.5
   m_ScreenY: 0.5
   m_DeadZoneWidth: 0
@@ -215,7 +215,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6728143175718813628}
-  - component: {fileID: -1949792986154470707}
+  - component: {fileID: 2010376411511047493}
   - component: {fileID: -3061813936034661368}
   - component: {fileID: 1076297442845328188}
   - component: {fileID: -2161484111408225323}
@@ -248,8 +248,8 @@ Transform:
   - {fileID: 4458724968195589480}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!143 &-1949792986154470707
-CharacterController:
+--- !u!136 &2010376411511047493
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -266,13 +266,10 @@ CharacterController:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
+  serializedVersion: 2
   m_Radius: 0.5
-  m_SlopeLimit: 180
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
+  m_Height: 2
+  m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &-3061813936034661368
 Rigidbody:
@@ -284,7 +281,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 100
+  m_AngularDrag: 10
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -296,8 +293,8 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 1
@@ -362,7 +359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2c9d0cb91f12354ca6d04f26662f3c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _detectionThreshold: 10
+  _detectionThreshold: 100
 --- !u!114 &7651059345379365957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,8 +403,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00734148f83239f4fbfbc2f1d10031f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 100
-  _jumpSpeed: 50
+  _walkSpeed: 100
+  _jumpForce: 50
 --- !u!114 &-5098741523928834209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -532,8 +529,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3100783602383196205}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.1, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.1, y: 0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -910,7 +907,7 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_YAxis:
-    Value: 0.092249766
+    Value: 0.036850553
     m_SpeedMode: 0
     m_MaxSpeed: 5
     m_AccelTime: 0.1
@@ -1095,7 +1092,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 6.4573464, z: -72.31487}
+  m_FollowOffset: {x: 0, y: 4.8697534, z: -64.50715}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -1222,7 +1219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 6.4573464, z: -72.31487}
+  m_FollowOffset: {x: 0, y: 4.8697534, z: -64.50715}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -1282,7 +1279,7 @@ MonoBehaviour:
   m_HorizontalDamping: 0
   m_VerticalDamping: 0
   m_ScreenX: 0.5
-  m_ScreenY: 0.55
+  m_ScreenY: 0.5
   m_DeadZoneWidth: 0
   m_DeadZoneHeight: 0
   m_SoftZoneWidth: 0.8

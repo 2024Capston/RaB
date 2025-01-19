@@ -9,21 +9,20 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class PlayerController : NetworkBehaviour
 {
-    [SerializeField] private float _moveSpeed;    // 이동 속력
-    [SerializeField] private float _jumpSpeed;     // 점프 속력
+    [SerializeField] private float _walkSpeed;    // 이동 속력
+    [SerializeField] private float _jumpForce;     // 점프 속력
 
-    private const float GROUND_DETECTION_THRESHOLD = 1f;      // 접지 판정 범위
-    private const float JUMP_REMEMBER_TIME = 0.32f;             // 점프 키 입력 기억 시간
+    private const float GROUND_DETECTION_THRESHOLD = 1f;        // 접지 판정 범위
+    private const float JUMP_REMEMBER_TIME = 0.64f;             // 점프 키 입력 기억 시간
 
     public static float INITIAL_CAPSULE_HEIGHT = 2f;             // 최초 Capsule Collider 높이
     public static float INITIAL_CAPSULE_RADIUS = 0.5f;           // 최초 Capsule Collider 반경 
 
-    private CharacterController _characterController;
+    private Rigidbody _rigidbody;
+    private Collider _collider;
     private PlayerRenderer _playerRenderer;
     private NetworkInterpolator _networkInterpolator;
-    private NetworkPlatformFinder _networkPlatformFinder;
 
-    private float _colliderHeight;              // 플레이어 콜라이더 높이의 절반 값 (h/2)
     private IInteractable _interactableOnPointer;  // 플레이어가 바라보고 있는 Interactable
     private IInteractable _interactableInHand;     // 플레이어가 들고 있는 Interactable
 
@@ -34,7 +33,6 @@ public class PlayerController : NetworkBehaviour
     private Vector3 _moveInput;     // 방향 입력 값 (수직, 수평)
     private bool _jumpInput;        // 점프 입력 여부
     private float _jumpRemember;    // 입력된 점프를 처리할 수 있는 쿨타임
-    private float _verticalSpeed;   // 현재 수직 속력
 
     // 로컬 플레이어를 나타내는 static 변수
     private static PlayerController _localPlayer;
@@ -64,13 +62,8 @@ public class PlayerController : NetworkBehaviour
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 60;
 
+        _collider = GetComponent<Collider>();
         _playerRenderer = GetComponent<PlayerRenderer>();
-        _characterController = GetComponent<CharacterController>();
-
-        INITIAL_CAPSULE_HEIGHT = _characterController.height;
-        INITIAL_CAPSULE_RADIUS = _characterController.radius;
-
-        _colliderHeight = _characterController.height * transform.localScale.y / 2f;
 
         // 임시: 플레이어 색깔 지정
         if (IsServer)
@@ -97,13 +90,12 @@ public class PlayerController : NetworkBehaviour
 
         if (IsOwner)
         {
+            _rigidbody = GetComponent<Rigidbody>();
             _networkInterpolator = GetComponent<NetworkInterpolator>();
-            _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
-
-            CinemachineFreeLook camera = GetComponentInChildren<CinemachineFreeLook>();
 
             _networkInterpolator.AddVisualReferenceDependantFunction(() =>
             {
+                CinemachineFreeLook camera = GetComponentInChildren<CinemachineFreeLook>();
                 camera.Follow = _networkInterpolator.VisualReference.transform;
                 camera.LookAt = _networkInterpolator.VisualReference.transform;
             });
@@ -113,6 +105,7 @@ public class PlayerController : NetworkBehaviour
         else
         {
             GetComponent<PlayerInput>().enabled = false;
+            GetComponent<Rigidbody>().isKinematic = true;
 
             Destroy(GetComponentInChildren<CinemachineFreeLook>().gameObject);
             Destroy(GetComponentInChildren<Camera>().gameObject);
@@ -125,10 +118,7 @@ public class PlayerController : NetworkBehaviour
         {
             HandleMovement();
             HandleJump();
-            HandlePlatform();
             SearchInteractables();
-            
-            Debug.Log($"interactable {_interactableOnPointer}");
         }
     }
 
@@ -137,12 +127,16 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleMovement()
     {
-        Vector3 rotation = Camera.main.transform.rotation.eulerAngles;
-        rotation.x = 0;
-        rotation.z = 0;
+        Quaternion rotation = Quaternion.Euler(0, Camera.main.transform.rotation.eulerAngles.y, 0);
 
-        _characterController.Move((Quaternion.Euler(rotation) * _moveInput) * Time.deltaTime * _moveSpeed);
-        transform.rotation = Quaternion.Euler(rotation);
+        Vector3 newVelocity = (rotation * _moveInput) * _walkSpeed;
+        newVelocity.y = _rigidbody.velocity.y;
+        _rigidbody.velocity = newVelocity;
+
+        if (_moveInput.magnitude > 0f)
+        {
+            _rigidbody.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 32f));
+        }
     }
 
     /// <summary>
@@ -152,41 +146,14 @@ public class PlayerController : NetworkBehaviour
     {
         _jumpRemember -= Time.deltaTime;
 
-        if (IsGrounded())
+        if (IsGrounded() && _jumpInput)
         {
-            if (_verticalSpeed < 0f)
+            if (_jumpRemember > 0f)
             {
-                _verticalSpeed = 0f;
+                _rigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
             }
 
-            if (_jumpInput)
-            {
-                // 아직 점프를 처리할 수 있는 쿨타임이 남은 경우
-                if (_jumpRemember > 0f)
-                {
-                    _verticalSpeed = _jumpSpeed;
-                }
-
-                _jumpInput = false;
-            }
-        }
-        else if (!_networkPlatformFinder.Platform || !IsGrounded())
-        {
-            _verticalSpeed += Physics.gravity.y * Time.deltaTime * 10f;
-        }
-
-        _characterController.Move(new Vector3(0, _verticalSpeed * Time.deltaTime, 0));
-    }
-
-    /// <summary>
-    /// 플레이어와 플랫폼의 관계를 처리한다.
-    /// </summary>
-    private void HandlePlatform()
-    {
-        // 플랫폼에 올라가 있다면 플랫폼의 이동을 플레이어에게도 적용
-        if (_networkPlatformFinder.Platform)
-        {
-            transform.position += _networkPlatformFinder.Velocity * Time.deltaTime;
+            _jumpInput = false;
         }
     }
 
@@ -240,8 +207,7 @@ public class PlayerController : NetworkBehaviour
     /// <returns>접지 여부</returns>
     bool IsGrounded()
     {
-        Vector3 offset = Vector3.up * (_colliderHeight - _characterController.radius * transform.localScale.x);
-        return Physics.CapsuleCast(transform.position + offset, transform.position - offset, _characterController.radius * transform.localScale.x, Vector3.down, GROUND_DETECTION_THRESHOLD);
+        return Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _collider.bounds.extents.y + GROUND_DETECTION_THRESHOLD);
     }
 
     /// <summary>
@@ -334,30 +300,59 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// 플레이어의 Capsule Collider 정보를 갱신한다
+    /// 플레이어의 Collider 정보를 갱신한다.
     /// </summary>
-    /// <param name="collider">반영할 Collider 정보</param>
-    /// <param name="height">Mesh Collider에서 사용할 높이</param>
-    /// <param name="radius">Mesh Collider에서 사용할 반경</param>
-    public void UpdateCollider(Collider collider = null, float height = 0f, float radius = 0f)
+    /// <param name="newCollider">새로운 Collider</param>
+    /// <param name="colliderScale">새로운 Collider의 Local Scale</param>
+    public void UpdateCollider(Collider newCollider, Vector3 colliderScale)
     {
-        // 새 Collider가 Null이면 최초 상태로 초기화한다.
-        if (collider == null)
-        {
-            _characterController.radius = INITIAL_CAPSULE_RADIUS;
-            _characterController.height = INITIAL_CAPSULE_HEIGHT;
+        Destroy(_collider);
 
-            _colliderHeight = INITIAL_CAPSULE_HEIGHT * transform.localScale.y / 2f;
+        if (newCollider == null)
+        {
+            _collider = gameObject.AddComponent<CapsuleCollider>();
+            (_collider as CapsuleCollider).height = INITIAL_CAPSULE_HEIGHT;
+            (_collider as CapsuleCollider).radius = INITIAL_CAPSULE_RADIUS;
         }
-        else if (collider is BoxCollider)
+        else if (newCollider is BoxCollider)
         {
-            _characterController.radius = ((BoxCollider)collider).size.x / 2f;
-            _characterController.height = ((BoxCollider)collider).size.y;
+            Vector3 newSize = (newCollider as BoxCollider).size;
+            newSize.x = newSize.x * colliderScale.x / transform.localScale.x;
+            newSize.y = newSize.y * colliderScale.y / transform.localScale.y;
+            newSize.z = newSize.z * colliderScale.z / transform.localScale.z;
 
-            _colliderHeight = ((BoxCollider)collider).size.y * transform.localScale.y / 2f;
+            _collider = gameObject.AddComponent<BoxCollider>();
+            (_collider as BoxCollider).size = newSize;
+        }
+        else if (newCollider is MeshCollider)
+        {
+            Mesh mesh = new Mesh
+            {
+                vertices = (newCollider as MeshCollider).sharedMesh.vertices,
+                normals = (newCollider as MeshCollider).sharedMesh.normals,
+                triangles = (newCollider as MeshCollider).sharedMesh.triangles
+            };
+
+            Vector3[] vertices = mesh.vertices;
+
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                vertices[i].x = vertices[i].x * colliderScale.x / transform.localScale.x;
+                vertices[i].y = vertices[i].y * colliderScale.y / transform.localScale.y;
+                vertices[i].z = vertices[i].z * colliderScale.z / transform.localScale.z;
+            }
+
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+
+            _collider = gameObject.AddComponent<MeshCollider>();
+            (_collider as MeshCollider).sharedMesh = mesh;
         }
     }
 
+    /// <summary>
+    /// 현재 플레이어와 물체의 상호 작용을 강제 중단한다.
+    /// </summary>
     public void ForceStopInteraction()
     {
         if (_interactableInHand != null)

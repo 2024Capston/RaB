@@ -28,7 +28,7 @@ public class MovingPlatform : NetworkBehaviour
 
         Vector3 newPosition = transform.position;
         //newPosition.y = (Mathf.PingPong(_timer, Mathf.PI) * 5f) - 3f;
-        newPosition.y = (Mathf.Sin(_timer) * 5f) + 3f;
+        newPosition.y = (Mathf.Sin(_timer) * 35f) + 40f;
 
         _rigidbody.MovePosition(Vector3.Lerp(_rigidbody.position, newPosition, Time.fixedDeltaTime * 20f));
     }
