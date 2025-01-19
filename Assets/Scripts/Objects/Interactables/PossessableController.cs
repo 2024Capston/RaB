@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using Unity.VisualScripting;
 
 /// <summary>
 /// 빙의 가능한 물체를 조작하는 Class
@@ -22,18 +23,15 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     [SerializeField] private Material[] _materials;
 
     private Rigidbody _rigidbody;
-    private BoxCollider _boxCollider;
+    private Collider _collider;
     private MeshFilter _meshFilter;
     private MeshRenderer _meshRenderer;
 
     private NetworkInterpolator _networkInterpolator;
-    private NetworkPlatformFinder _networkPlatformFinder;
 
     // 빙의한 플레이어에 대한 레퍼런스
     private PlayerController _interactingPlayer;
-    private MeshFilter _interactingMeshFilter;
-    private MeshRenderer _interactingMeshRenderer;
-    private CharacterController _characterController;
+    private PlayerRenderer _interactingPlayerRenderer;
 
     // 빙의한 플레이어가 원래 가지고 있던 Mesh, Material
     private Mesh _originalMesh;
@@ -51,10 +49,8 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        _boxCollider = GetComponent<BoxCollider>();
-
+        _collider = GetComponent<Collider>();
         _networkInterpolator = GetComponent<NetworkInterpolator>();
-        _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
         {
@@ -99,14 +95,15 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     /// 빙의를 해제할 때 플레이어가 들어갈 자리가 있는지 파악하고, 있다면 그곳으로 이동시킨다.
     /// </summary>
     /// <returns>빙의 해제 가능 여부</returns>
-    private bool CheckDispossessionPosition()
+    private bool CheckDispossessionPosition(PlayerController player)
     {
-        Vector3 origin = _characterController.transform.position;
-        origin.y -= _boxCollider.size.y;
-        origin.y += PlayerController.INITIAL_CAPSULE_HEIGHT;
+        Vector3 origin = player.transform.position;
+
+        origin.y -= _collider.bounds.extents.y;
+        origin.y += PlayerController.INITIAL_CAPSULE_HEIGHT / 2f * player.transform.localScale.y;
 
         Vector3 offset = Vector3.up * (PlayerController.INITIAL_CAPSULE_HEIGHT / 2f - PlayerController.INITIAL_CAPSULE_RADIUS);
-        float radius = (_boxCollider.size.x / 2f + PlayerController.INITIAL_CAPSULE_RADIUS) * 1.2f;
+        float radius = (_collider.bounds.size.x + PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x) * 2f;
 
         // 물체를 중심으로, 주변을 원으로 탐색한다.
         for (int i = 0; i < 9; i++)
@@ -116,11 +113,9 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
             // 정면으로부터 0~180도 회전
             newPoint = origin + Quaternion.Euler(0, i * 20, 0) * transform.forward * radius;
 
-            if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS).Length == 0)
+            if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x).Length == 0)
             {
-                _characterController.enabled = false;
-                _characterController.transform.position = newPoint;
-                _characterController.enabled = true;
+                player.transform.position = newPoint;
 
                 return true;
             }
@@ -128,11 +123,9 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
             // 정면으로부터 -180~0도 회전
             newPoint = origin + Quaternion.Euler(0, -i * 20, 0) * transform.forward * radius;
 
-            if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS).Length == 0)
+            if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x).Length == 0)
             {
-                _characterController.enabled = false;
-                _characterController.transform.position = newPoint;
-                _characterController.enabled = true;
+                player.transform.position = newPoint;
 
                 return true;
             }
@@ -149,7 +142,6 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     public bool StartInteraction(PlayerController player)
     {
         _interactingPlayer = player;
-        _characterController = player.GetComponent<CharacterController>();
 
         // Local 환경과 Remote 환경에서 상태를 갱신한다.
         StartPossession(player);
@@ -163,10 +155,8 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
             StartPossessionServerRpc(player.gameObject);
         }
 
-        _characterController.enabled = false;
-        _characterController.transform.position = transform.position;
-        _characterController.transform.rotation = transform.rotation;
-        _characterController.enabled = true;
+        player.transform.position = transform.position;
+        player.transform.rotation = transform.rotation;
 
         return true;
     }
@@ -174,7 +164,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     public bool StopInteraction(PlayerController player)
     {
         // 빙의 해제 후 들어갈 여유 공간이 있다면
-        if (CheckDispossessionPosition())
+        if (CheckDispossessionPosition(player))
         {
             // Local 환경과 Remote 환경에서 상태를 갱신한다.
             StopPossession(player);
@@ -189,7 +179,6 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
             }
 
             _interactingPlayer = null;
-            _characterController = null;
 
             return true;
         }
@@ -204,7 +193,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     /// </summary>
     /// <param name="clientId">요청하는 플레이어 ID</param>
     [ServerRpc(RequireOwnership = false)]
-    public void RequestOwnershipServerRpc(ulong clientId)
+    private void RequestOwnershipServerRpc(ulong clientId)
     {
         GetComponent<NetworkObject>().ChangeOwnership(clientId);
     }
@@ -215,26 +204,17 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     /// <param name="player">빙의할 플레이어</param>
     private void StartPossession(PlayerController player)
     {
-        NetworkInterpolator playerInterpolator = player.GetComponent<NetworkInterpolator>();
+        _interactingPlayerRenderer = player.GetComponent<PlayerRenderer>();
 
-        _interactingMeshFilter = playerInterpolator.VisualReference.GetComponent<MeshFilter>();
-        _interactingMeshRenderer = playerInterpolator.VisualReference.GetComponent<MeshRenderer>();
-
-        // 플레이어의 기존 Mesh, Material 저장
-        _originalMesh = _interactingMeshFilter.sharedMesh;
-        _originalMaterial = _interactingMeshRenderer.material;
-
-        // 플레이어의 Mesh, Materil 갱신
-        _interactingMeshFilter.mesh = _meshFilter.sharedMesh;
-        _interactingMeshRenderer.material = _meshRenderer.material;
+        // 플레이어의 Mesh, Material 갱신
+        _interactingPlayerRenderer.HidePlayerRender();
 
         // 물체는 일시적으로 비활성화
         _rigidbody.isKinematic = true;
-        _boxCollider.enabled = false;
-        _meshRenderer.enabled = false;
+        _collider.enabled = false;
 
         // 플레이어의 Collider 정보 갱신
-        player.UpdateCollider(_boxCollider);
+        player.UpdateCollider(_collider, transform.localScale);
     }
 
     /// <summary>
@@ -244,23 +224,17 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     private void StopPossession(PlayerController player)
     {
         // 플레이어의 Mesh, Material 복구
-        _interactingMeshFilter.mesh = _originalMesh;
-        _interactingMeshRenderer.material = _originalMaterial;
-
-        _interactingMeshFilter = null;
-        _interactingMeshRenderer = null;
-
-        _originalMesh = null;
-        _originalMaterial = null;
+        _interactingPlayerRenderer.ShowPlayerRender();
 
         // 물체 다시 활성화
         _rigidbody.isKinematic = false;
         _rigidbody.velocity = Vector3.zero;
-        _boxCollider.enabled = true;
-        _meshRenderer.enabled = true;
+        _collider.enabled = true;
 
         // 플레이어의 Collider 정보 갱신
-        player.UpdateCollider(null);
+        player.UpdateCollider(null, Vector3.one);
+
+        _interactingPlayerRenderer = null;
     }
 
     /// <summary>

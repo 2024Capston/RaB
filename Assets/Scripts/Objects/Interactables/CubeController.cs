@@ -16,11 +16,13 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         set => _cubeColor = value;
     }
 
+    private const float DISTANCE_FROM_PLAYER = 20f;
+    private const float CUBE_SPEED = 32f;
+
     private Rigidbody _rigidbody;
     private NetworkInterpolator _networkInterpolator;
 
     private PlayerController _interactingPlayer;    // 큐브를 들고 있는 플레이어
-    private Rigidbody _platform;                    // 큐브가 올라가 있는 플랫폼
 
     private Outline _outline;
     public Outline Outline
@@ -32,7 +34,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-
         _networkInterpolator = GetComponent<NetworkInterpolator>();
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
@@ -51,7 +52,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         }
         else
         {
-            // 그렇지 않으면 kinematic으로 지정해 움직일 수 없게 (...?)
             _rigidbody.isKinematic = true;
         }
     }
@@ -65,8 +65,8 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
 
         if (_interactingPlayer)
         {
-            Vector3 target = _interactingPlayer.transform.position + _interactingPlayer.transform.forward * 2f;
-            _rigidbody.velocity = (target - transform.position) * 32f;
+            Vector3 target = _interactingPlayer.transform.position + _interactingPlayer.transform.forward * DISTANCE_FROM_PLAYER;
+            _rigidbody.velocity = (target - transform.position) * CUBE_SPEED;
         }
     }
 
@@ -78,7 +78,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     public bool StartInteraction(PlayerController player)
     {
         _interactingPlayer = player;
-
         _rigidbody.useGravity = false;
 
         return true;
@@ -87,7 +86,6 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     public bool StopInteraction(PlayerController player)
     {
         _interactingPlayer = null;
-
         _rigidbody.useGravity = true;
 
         return true;
@@ -98,7 +96,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     /// </summary>
     /// <param name="clientId">요청하는 플레이어 ID</param>
     [ServerRpc(RequireOwnership = false)]
-    public void RequestOwnershipServerRpc(ulong clientId)
+    private void RequestOwnershipServerRpc(ulong clientId)
     {
         GetComponent<NetworkObject>().ChangeOwnership(clientId);
     }

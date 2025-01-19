@@ -84,15 +84,6 @@ public class NetworkInterpolator : NetworkBehaviour
     }
 
     /// <summary>
-    /// Parenting 보간을 시작한다.
-    /// </summary>
-    /// <param name="parentingCooldown">보간할 시간</param>
-    public void StartParenting(float parentingCooldown)
-    {
-        _networkInterpolatorUtil.StartParenting(parentingCooldown);
-    }
-
-    /// <summary>
     /// 시각용 오브젝트가 생생된 직후 호출할 함수를 등록한다.
     /// </summary>
     /// <param name="action">등록할 함수</param>

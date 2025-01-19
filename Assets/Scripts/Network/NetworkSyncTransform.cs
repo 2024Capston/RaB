@@ -13,21 +13,21 @@ public class NetworkSyncTransform : NetworkBehaviour
     [SerializeField] private float _sendThreshold = 0.001f;             // transform 값을 전송하는 기준 값
     [SerializeField] private float _parentingCooldown = 0.5f;           // parenting 보간에 걸리는 시간
 
-    private NetworkInterpolator _networkInterpolator;   // 현재 오브젝트의 interpolator
-
-    private GameObject _parent;                     // 현재 오브젝트가 부모로 간주하는 오브젝트
-    private GameObject _parentVisualReference;
-    private List<NetworkInterpolator> _children;    // 현재 오브젝트가 자식으로 간주하는 오브젝트
+    private GameObject _parent;                      // 현재 오브젝트가 부모로 간주하는 오브젝트
+    private GameObject _parentVisualReference;       // 현재 오브젝트가 부모로 간주하는 시각용 오브젝트
+    private List<NetworkSyncTransform> _children;    // 현재 오브젝트가 자식으로 간주하는 오브젝트
 
     // transform 정보 관련
     private Vector3 _lastSyncedPosition;    // 마지막으로 주고 받은 위치
     private Quaternion _lastSyncedRotation; // 마지막으로 주고 받은 회전
 
+    // parenting 보간 관련
+    private bool _isParenting;              // parenting 보간 중인지 여부              
+    private float _parentingTime;           // parenting 보간에 쓰이는 타이머
+
     public override void OnNetworkSpawn()
     {
-        _networkInterpolator = GetComponent<NetworkInterpolator>();
-
-        _children = new List<NetworkInterpolator>();
+        _children = new List<NetworkSyncTransform>();
 
         _lastSyncedPosition = transform.position;
         _lastSyncedRotation = transform.rotation;
@@ -38,6 +38,16 @@ public class NetworkSyncTransform : NetworkBehaviour
         if (!IsServer && !IsClient)
         {
             return;
+        }
+
+        if (_isParenting)
+        {
+            _parentingTime -= Time.deltaTime;
+            
+            if (_parentingTime < 0f)
+            {
+                _isParenting = false;
+            }
         }
 
         if (IsOwner)
@@ -95,6 +105,8 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// </summary>
     private void UpdateFetchedTransform()
     {
+        Vector3 lastPosition = transform.position;
+
         if (_parentVisualReference)
         {
             transform.position = _lastSyncedPosition + _parentVisualReference.transform.position;
@@ -110,6 +122,12 @@ public class NetworkSyncTransform : NetworkBehaviour
             transform.position = _lastSyncedPosition;
             transform.rotation = _lastSyncedRotation;
         }
+
+        // parenting 중이라면 transform이 튀는 것을 방지
+        if (_isParenting && Vector3.Distance(transform.position, lastPosition) > 100f)
+        {
+            transform.position = lastPosition;
+        }
     }
 
     /// <summary>
@@ -122,12 +140,12 @@ public class NetworkSyncTransform : NetworkBehaviour
 
         if (_parent && _parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
         {
-            parentTransform.RemoveChild(gameObject);
+            parentTransform.RemoveChild(this);
         }
 
         if (parent && parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
         {
-            parentTransform.AddChild(gameObject);
+            parentTransform.AddChild(this);
         }
 
         _parent = parent;
@@ -139,14 +157,11 @@ public class NetworkSyncTransform : NetworkBehaviour
             _parentVisualReference = parentInterpolator?.VisualReference;
         }
 
-        if (_networkInterpolator)
-        {
-            _networkInterpolator.StartParenting(_parentingCooldown);
+        StartParenting(_parentingCooldown);
 
-            foreach (NetworkInterpolator child in _children)
-            {
-                child.StartParenting(_parentingCooldown);
-            }
+        foreach (NetworkSyncTransform child in _children)
+        {
+            child.StartParenting(_parentingCooldown);
         }
     }
 
@@ -154,12 +169,11 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// 현재 오브젝트에 자식으로 간주할 오브젝트를 추가한다.
     /// </summary>
     /// <param name="child">자식으로 간주할 오브젝트</param>
-    internal void AddChild(GameObject child)
+    internal void AddChild(NetworkSyncTransform child)
     {
-        if (child.TryGetComponent<NetworkInterpolator>(out NetworkInterpolator childInterpolator) &&
-            !_children.Contains(childInterpolator))
+        if (!_children.Contains(child))
         {
-            _children.Add(childInterpolator);
+            _children.Add(child);
         }
     }
 
@@ -167,12 +181,11 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// 현재 오브젝트에서 자식으로 간주할 오브젝트를 삭제한다.
     /// </summary>
     /// <param name="child">자식으로 간주할 오브젝트</param>
-    internal void RemoveChild(GameObject child)
+    internal void RemoveChild(NetworkSyncTransform child)
     {
-        if (child.TryGetComponent<NetworkInterpolator>(out NetworkInterpolator childInterpolator) &&
-            _children.Contains(childInterpolator))
+        if (_children.Contains(child))
         {
-            _children.Remove(childInterpolator);
+            _children.Remove(child);
         }
     }
 
@@ -182,7 +195,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// <param name="position">위치</param>
     /// <param name="rotation">회전</param>
     [ServerRpc]
-    public void SendTransformServerRpc(Vector3 position, Quaternion rotation)
+    private void SendTransformServerRpc(Vector3 position, Quaternion rotation)
     {
         _lastSyncedPosition = position;
         _lastSyncedRotation = rotation;
@@ -194,7 +207,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// <param name="position">위치</param>
     /// <param name="rotation">회전</param>
     [ClientRpc]
-    public void SendTransformClientRpc(Vector3 position, Quaternion rotation)
+    private void SendTransformClientRpc(Vector3 position, Quaternion rotation)
     {
         if (IsServer)
         {
@@ -210,7 +223,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// </summary>
     /// <param name="parent">parent</param>
     [ServerRpc]
-    public void SetParentServerRpc(NetworkObjectReference parent)
+    private void SetParentServerRpc(NetworkObjectReference parent)
     {
         if (parent.TryGet(out NetworkObject networkObject))
         {
@@ -223,7 +236,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// </summary>
     /// <param name="parent">parent</param>
     [ClientRpc]
-    public void SetParentClientRpc(NetworkObjectReference parent)
+    private void SetParentClientRpc(NetworkObjectReference parent)
     {
         if (IsServer)
         {
@@ -240,7 +253,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// 클라이언트에서 서버로 parent 초기화를 요청한다.
     /// </summary>
     [ServerRpc]
-    public void ResetParentServerRpc()
+    private void ResetParentServerRpc()
     {
         UpdateFetchedParent(null);
     }
@@ -249,7 +262,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// 서버에서 클라이언트로 parent 초기화를 요청한다.
     /// </summary>
     [ClientRpc]
-    public void ResetParentClientRpc()
+    private void ResetParentClientRpc()
     {
         if (IsServer)
         {
@@ -257,6 +270,16 @@ public class NetworkSyncTransform : NetworkBehaviour
         }
 
         UpdateFetchedParent(null);
+    }
+
+    /// <summary>
+    /// parenting 보간을 시작한다.
+    /// </summary>
+    /// <param name="parentingCooldown"></param>
+    internal void StartParenting(float parentingCooldown)
+    {
+        _isParenting = true;
+        _parentingTime = parentingCooldown;
     }
 
     /// <summary>
@@ -273,12 +296,12 @@ public class NetworkSyncTransform : NetworkBehaviour
             {
                 if (_parent && _parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
                 {
-                    parentTransform.RemoveChild(gameObject);
+                    parentTransform.RemoveChild(this);
                 }
 
                 if (parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
                 {
-                    parentTransform.AddChild(gameObject);
+                    parentTransform.AddChild(this);
                 }
 
                 _parent = parent;
@@ -308,7 +331,7 @@ public class NetworkSyncTransform : NetworkBehaviour
         {
             if (_parent && _parent.TryGetComponent<NetworkSyncTransform>(out parentTransform))
             {
-                parentTransform.RemoveChild(gameObject);
+                parentTransform.RemoveChild(this);
             }
 
             _parent = null;
