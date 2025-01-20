@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -27,8 +28,12 @@ public class PlayerController : NetworkBehaviour
             _mainCamera.transform.parent = transform;
             _mainCamera.transform.localPosition = new Vector3(0, 20, 0);
             _mainCamera.AddComponent<Camera>().cullingMask ^= 1 << LayerMask.NameToLayer("UI");
+            _mainCamera.GetComponent<Camera>().depth = 7;
             _mainCamera.AddComponent<AudioListener>();
+    
             _mainCamera.tag = "MainCamera";
+
+  
 
             Cursor.lockState = CursorLockMode.Locked;
         }
