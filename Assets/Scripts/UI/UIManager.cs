@@ -23,7 +23,9 @@ public class UIManager : SingletonBehavior<UIManager>
     /// 화면에서 보이고 있지 않은 UI Dictionary
     /// </summary>
     private Dictionary<System.Type, GameObject> _closedUIPool = new Dictionary<System.Type, GameObject>();
-
+    
+    public Camera UICamara;
+    
     protected override void Init()
     {
         base.Init();

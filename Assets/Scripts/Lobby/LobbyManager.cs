@@ -87,8 +87,8 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
             .GetPlayerNetworkObject(serverRpcParams.Receive.SenderClientId).GetComponent<PlayerConfig>();
         int isBlue = playerConfig.IsBlue ? 1 : 0;
         GameObject player = Instantiate(_playerPrefabs[isBlue]);
-        player.transform.position = _spawnPoints[isBlue].position;
-        player.transform.rotation = _spawnPoints[isBlue].rotation;
+    /*    player.transform.position = _spawnPoints[isBlue].position;
+        player.transform.rotation = _spawnPoints[isBlue].rotation;*/
         
         player.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
         PlayerController playerController = player.GetComponent<PlayerController>();
