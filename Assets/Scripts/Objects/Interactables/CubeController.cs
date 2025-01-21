@@ -20,9 +20,17 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     private const float CUBE_SPEED = 32f;
 
     private Rigidbody _rigidbody;
+    private CubeRenderer _cubeRenderer;
     private NetworkInterpolator _networkInterpolator;
 
     private PlayerController _interactingPlayer;    // 큐브를 들고 있는 플레이어
+    private bool _isActive = true;
+
+    private bool _isTaken;
+    public bool IsTaken
+    {
+        get => _isTaken;
+    }
 
     private Outline _outline;
     public Outline Outline
@@ -34,6 +42,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _cubeRenderer = GetComponent<CubeRenderer>();
         _networkInterpolator = GetComponent<NetworkInterpolator>();
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
@@ -72,13 +81,15 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
 
     public bool IsInteractable(PlayerController player)
     {
-        return _cubeColor == player.PlayerColor;
+        return _cubeColor == player.PlayerColor && _isActive;
     }
 
     public bool StartInteraction(PlayerController player)
     {
         _interactingPlayer = player;
         _rigidbody.useGravity = false;
+
+        SetTakenServerRpc(true);
 
         return true;
     }
@@ -87,6 +98,8 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     {
         _interactingPlayer = null;
         _rigidbody.useGravity = true;
+
+        SetTakenServerRpc(false);
 
         return true;
     }
@@ -99,5 +112,86 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     private void RequestOwnershipServerRpc(ulong clientId)
     {
         GetComponent<NetworkObject>().ChangeOwnership(clientId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetTakenServerRpc(bool isTaken)
+    {
+        SetTakenClientRpc(isTaken);
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void SetTakenClientRpc(bool isTaken)
+    {
+        _isTaken = isTaken;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ChangeColorServerRpc(ColorType color, bool updateRender)
+    {
+        ChangeColorClientRpc(color, updateRender);
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ChangeColorClientRpc(ColorType color, bool updateRender)
+    {
+        _cubeColor = color;
+
+        if (_cubeColor == PlayerController.LocalPlayer.PlayerColor)
+        {
+            RequestOwnershipServerRpc(NetworkManager.LocalClientId);
+            _rigidbody.isKinematic = false;
+        }
+        else
+        {
+            _rigidbody.isKinematic = true;
+        }
+
+        if (updateRender)
+        {
+            _cubeRenderer.UpdateColor();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetActiveServerRpc(bool isActive)
+    {
+        SetActiveClientRpc(isActive);
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void SetActiveClientRpc(bool isActive)
+    {
+        _isActive = isActive;
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ForceStopInteractionClientRpc()
+    {
+        if (!IsOwner || !_interactingPlayer)
+        {
+            return;
+        }
+
+        _interactingPlayer.ForceStopInteraction();
+    }
+
+    /// <summary>
+    /// 큐브의 색깔 정보를 서버와 클라이언트 
+    /// </summary>
+    /// <param name="color">새 색깔</param>
+    public void ChangeColor(ColorType color, bool updateRender = true)
+    {
+        ChangeColorServerRpc(color, updateRender);
+    }
+
+    public void SetActive(bool isActive)
+    {
+        SetActiveServerRpc(isActive);
+    }
+
+    public void ForceStopInteraction()
+    {
+        ForceStopInteractionClientRpc();
     }
 }
