@@ -51,7 +51,7 @@ public class AirlockController : NetworkBehaviour
             _isInOpened = value;
             _doorIn.IsOpened = _isInOpened && IsAirlockOpened;
             _doorOut.IsOpened = !_isInOpened && IsAirlockOpened;
-            SetDoorLightClientRpc();
+            SetDoorLightClientRpc(_doorIn.IsOpened);
         }
     }
 
@@ -67,9 +67,10 @@ public class AirlockController : NetworkBehaviour
             _isAirlockOpened = value;
             _doorIn.IsOpened = _isAirlockOpened && _isInOpened;
             _doorOut.IsOpened = _isAirlockOpened && !_isInOpened;
-            SetDoorLightClientRpc();
+            SetDoorLightClientRpc(_doorIn.IsOpened);
         }
     }
+    [field: SerializeField]
     public StageName StageName { get; set; }
     
     public override void OnNetworkSpawn()
@@ -102,10 +103,10 @@ public class AirlockController : NetworkBehaviour
             IsInOpened = _isBlueOpened;
             
             // TODO 둘 다 true가 되었을 때 Stage 이동이 필요
-            /*if (!_isBlueOpened)
+            if (!_isBlueOpened)
             {
-                LobbyManager.Instance.RequestPlayStageServerRpc(StageName);
-            }*/
+                LobbyManager.Instance.RequestPlayStage(StageName);
+            }
         }
     }
 
@@ -125,9 +126,9 @@ public class AirlockController : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void SetDoorLightClientRpc()
+    private void SetDoorLightClientRpc(bool doorInOpened)
     {
-        _doorLightMeshRenderers[0].material = _doorLightMaterials[_doorIn.IsOpened ? 1 : 0];
-        _doorLightMeshRenderers[1].material = _doorLightMaterials[_doorOut.IsOpened ? 1 : 0];
+        _doorLightMeshRenderers[0].material = _doorLightMaterials[doorInOpened ? 1 : 0];
+        _doorLightMeshRenderers[1].material = _doorLightMaterials[doorInOpened ? 0 : 1];
     }
 }

@@ -9,6 +9,13 @@ public class CameraStackHelper : MonoBehaviour
 {
     private void Start()
     {
+        StartCoroutine(CoSetCamera());
+    }
+
+    private IEnumerator CoSetCamera()
+    {
+        yield return new WaitUntil(() => Camera.main != null);
+        
         var mainCamera = Camera.main;
         var mainCameraData = mainCamera.GetUniversalAdditionalCameraData();
         mainCameraData.renderType = CameraRenderType.Base;

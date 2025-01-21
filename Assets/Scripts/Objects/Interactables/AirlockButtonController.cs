@@ -10,7 +10,18 @@ public class AirlockButtonController : NetworkBehaviour, IInteractable
     [SerializeField] private bool _isInButton;
     [SerializeField] private ColorType _buttonColor;
 
-    public Outline Outline { get; set; }
+    private Outline _outline;
+    public Outline Outline
+    {
+        get => _outline;
+        set => _outline = value;
+    }
+
+    private void Start()
+    {
+        _outline = GetComponent<Outline>();
+        _outline.enabled = false;
+    }
 
     public bool IsInteractable(PlayerController player)
     {

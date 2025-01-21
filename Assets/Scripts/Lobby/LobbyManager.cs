@@ -1,13 +1,16 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Steamworks;
 using Unity.Netcode;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
 {
     [SerializeField] private GameObject[] _playerPrefabs = new GameObject[2];
     [SerializeField] private Transform[] _spawnPoints = new Transform[2];
+    [SerializeField] private AirlockController[] _airlockControllers = new AirlockController[6];
     public LobbyUIController LobbyUIController {  get; private set; }
     
     protected override void Init()
@@ -29,10 +32,13 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         }
 
         LobbyUIController.SetPlayerColorData(IsHost);
-        
-        SpawnPlayerServerRpc();
+    }
 
-        
+    private void Start()
+    {
+        Logger.Log($"{GetType()}::Start");
+        SetMapData();
+        SpawnPlayerServerRpc();
         UIManager.Instance.CloseAllOpenUI();
     }
 
@@ -65,11 +71,10 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     }
     
     /// <summary>
-    /// InGame으로 이동하는 메소드 
+    /// InGame으로 이동하는 메소드 OnClickAirlockButtonServerRpc에서 호출되므로 Server에서 실행된다.
     /// </summary>
     /// <param name="stageName"></param>
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestPlayStageServerRpc(StageName stageName)
+    public void RequestPlayStage(StageName stageName)
     {
         // InGame Scene으로 이동하면 ConnectionManager에 있는 SelectStage로 Loader를 불러온다.
         SessionManager.Instance.SelectedStage = stageName;
@@ -96,9 +101,17 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         //playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
     }
 
-    [ClientRpc]
-    private void SetMapDataClientRpc()
+    private void SetMapData()
     {
-        
+        PlayData data = SessionManager.Instance.SelectedData;
+        for (int i = 0; i < 6; i++)
+        {
+            // 해당 스테이지를 클리어 했다면 문을 연다.
+            _airlockControllers[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].IsAirlockOpened =
+                data.MapInfoList[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].ClearFlag != 0;
+            
+            _airlockControllers[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].StageName = (StageName)((SessionManager.Instance.CurrentFloor - 1) * 6 + i);
+        }
     }
 }
+

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,6 +10,9 @@ public class UserDataManager : SingletonBehavior<UserDataManager>
 {
     private List<IUserData> _userDataList = new List<IUserData>();
 
+    public List<IUserData> UserDataList => _userDataList;  
+
+    
     /// <summary>
     /// 저장된 User Data가 있는지 확인하는 Bool Property
     /// </summary>

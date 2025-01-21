@@ -33,10 +33,12 @@ public class MapInfoListWrapper
     public List<MapInfo> MapInfoList;
 }
 
+[Serializable]
 public class PlayData
 {
     public bool HasData { get; set; }
-    public List<MapInfo> MapInfoList { get; set; }
+    
+    [field: SerializeField] public List<MapInfo> MapInfoList { get; set; }
     public int StageCount { get; set; }
     public int StageClearCount { get; set; }
 
@@ -62,9 +64,12 @@ public class PlayData
 /// <summary>
 /// Player의 game 진행 정보를 담고 있는 Class
 /// </summary>
+[Serializable]
 public class UserGameData : IUserData
 {
     private readonly string MAP_DATA_PATH = "Json/";
+    
+    [field: SerializeField]
     public List<PlayData> PlayDatas { get; private set; }
     
     public void SetDefaultData()

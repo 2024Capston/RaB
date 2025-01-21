@@ -12,6 +12,7 @@ public class SessionManager : NetworkSingletonBehaviour<SessionManager>
     
     public PlayData SelectedData { get; private set; }
     public StageName SelectedStage { get; set; }
+    public int CurrentFloor { get; set; }
 
     /// <summary>
     /// 방에 입장할 때 Host에서 새 Session을 만든다.
@@ -21,6 +22,7 @@ public class SessionManager : NetworkSingletonBehaviour<SessionManager>
         _userGameData = UserDataManager.Instance.GetUserData<UserGameData>();
         _selectedDataIndex = selectedDataIndex;
         SelectedData = _userGameData.PlayDatas[_selectedDataIndex];
+        CurrentFloor = 1;
     }
     
     /// <summary>
