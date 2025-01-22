@@ -2,8 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(NetworkAnimator))]
+[RequireComponent(typeof(SphereCollider))]
 public class DoorController : NetworkBehaviour
 {
     private Animator _animator;
@@ -11,9 +15,8 @@ public class DoorController : NetworkBehaviour
     /// <summary>
     /// 문이 열리기 위해선 Host에서 IsOpened가 true 상태이어야 함.
     /// </summary>
+    [field: SerializeField]
     public bool IsOpened { get; set; } = false;
-    
-    // TODO IsOpened의 값에 따라 DoorLight의 매터리얼 값을 바꾸어야 한다.
     
     private void Awake()
     {

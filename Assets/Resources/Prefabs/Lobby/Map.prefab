@@ -41,6 +41,10 @@ GameObject:
   m_Component:
   - component: {fileID: 9157693523465476085}
   - component: {fileID: 5143643711986770660}
+  - component: {fileID: 879433109235274421}
+  - component: {fileID: 4009264273103215621}
+  - component: {fileID: 8762538242589933695}
+  - component: {fileID: 8540418516937485669}
   m_Layer: 0
   m_Name: Elevator
   m_TagString: Untagged
@@ -77,7 +81,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 4000292850
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -86,6 +90,75 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!95 &879433109235274421
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448181136472199978}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: fb94d5de1eaa45945baad0ea098953e3, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4009264273103215621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448181136472199978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ef553543feb05e4892d102c6788700d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <IsOpened>k__BackingField: 1
+--- !u!135 &8762538242589933695
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448181136472199978}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 2
+  m_Center: {x: 0, y: 1.5, z: 3.15}
+--- !u!114 &8540418516937485669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448181136472199978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 879433109235274421}
 --- !u!1 &730345664949600483
 GameObject:
   m_ObjectHideFlags: 0
@@ -4320,7 +4393,7 @@ PrefabInstance:
     - target: {fileID: 4867970995525982764, guid: 10852dbaae331464680e426ead754074,
         type: 3}
       propertyPath: m_Name
-      value: Elevator_Door1
+      value: LeftDoor
       objectReference: {fileID: 0}
     - target: {fileID: 5243686920060092566, guid: 10852dbaae331464680e426ead754074,
         type: 3}
@@ -10821,7 +10894,7 @@ PrefabInstance:
     - target: {fileID: 6223328295318933686, guid: 3e9958f06279f8f4ba30a3cbe5b4dd99,
         type: 3}
       propertyPath: m_Name
-      value: Elevator_Door2
+      value: RightDoor
       objectReference: {fileID: 0}
     - target: {fileID: 6707659402925509132, guid: 3e9958f06279f8f4ba30a3cbe5b4dd99,
         type: 3}

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class AirlockButtonController : NetworkBehaviour, IInteractable
+public class AirlockButtonController : MonoBehaviour, IInteractable
 {
     [SerializeField] private AirlockController _airlockController;
     [SerializeField] private bool _isInButton;
@@ -31,11 +31,7 @@ public class AirlockButtonController : NetworkBehaviour, IInteractable
 
     public bool StartInteraction(PlayerController player)
     {
-        if (IsInteractable(player))
-        {
-            _airlockController.OnClickAirlockButtonServerRpc(_buttonColor, _isInButton);
-            return true;
-        }
+        _airlockController.OnClickAirlockButtonServerRpc(_buttonColor, _isInButton);
         return false;
     }
 

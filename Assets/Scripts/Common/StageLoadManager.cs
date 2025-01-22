@@ -20,7 +20,6 @@ public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
         for (int i = 0; i < (int)StageName.Size; i++)
         {
             string stageLoaderName = ((StageName)i).ToString() + "Loader";
-            Logger.Log(stageLoaderName);
             _stageLoaderData.Add((StageName)i, stageLoaderName);
         }
     }

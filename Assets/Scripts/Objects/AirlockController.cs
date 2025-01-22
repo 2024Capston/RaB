@@ -101,12 +101,6 @@ public class AirlockController : NetworkBehaviour
         if (_isBlueOpened == _isRedOpened)
         {
             IsInOpened = _isBlueOpened;
-            
-            // TODO 둘 다 true가 되었을 때 Stage 이동이 필요
-            if (!_isBlueOpened)
-            {
-                LobbyManager.Instance.RequestPlayStage(StageName);
-            }
         }
     }
 

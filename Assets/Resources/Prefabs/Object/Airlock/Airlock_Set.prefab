@@ -97,6 +97,7 @@ MonoBehaviour:
   _redInOutMeshRenderers:
   - {fileID: 1304719090241321494}
   - {fileID: 5111970744540753290}
+  <StageName>k__BackingField: 0
 --- !u!1 &4947390429414268918
 GameObject:
   m_ObjectHideFlags: 0
@@ -642,6 +643,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5620678480180434851}
     m_Modifications:
+    - target: {fileID: 2646394133316094579, guid: d3cb3274eb9dc8e45b9b6342ed023810,
+        type: 3}
+      propertyPath: _airlockController
+      value: 
+      objectReference: {fileID: 1648787343556151636}
     - target: {fileID: 7468188909078469257, guid: d3cb3274eb9dc8e45b9b6342ed023810,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -697,14 +703,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: Out_RButton
       objectReference: {fileID: 0}
+    - target: {fileID: 8340472721945368864, guid: d3cb3274eb9dc8e45b9b6342ed023810,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 719109256
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7849640638152835123, guid: d3cb3274eb9dc8e45b9b6342ed023810,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 63268937107753172}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d3cb3274eb9dc8e45b9b6342ed023810, type: 3}
 --- !u!4 &8103550035242946783 stripped
 Transform:
@@ -712,27 +719,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1716366153290402390}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &8880614121929886309 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7849640638152835123, guid: d3cb3274eb9dc8e45b9b6342ed023810,
-    type: 3}
-  m_PrefabInstance: {fileID: 1716366153290402390}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &63268937107753172
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8880614121929886309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68b7417cd734dc842ab6f908740f5508, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _airlockController: {fileID: 1648787343556151636}
-  _isInButton: 0
-  _buttonColor: 2
 --- !u!1001 &2872075856729843765
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1100,11 +1086,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5620678480180434851}
     m_Modifications:
+    - target: {fileID: -6132116633352352673, guid: 67753dd337051464eb28f70933f67fa7,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 719109256
+      objectReference: {fileID: 0}
     - target: {fileID: 6092244323813302906, guid: 67753dd337051464eb28f70933f67fa7,
         type: 3}
       propertyPath: m_Name
       value: In_BButton
       objectReference: {fileID: 0}
+    - target: {fileID: 6316042066113555296, guid: 67753dd337051464eb28f70933f67fa7,
+        type: 3}
+      propertyPath: _airlockController
+      value: 
+      objectReference: {fileID: 1648787343556151636}
     - target: {fileID: 6899566596884822208, guid: 67753dd337051464eb28f70933f67fa7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1158,33 +1154,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6092244323813302906, guid: 67753dd337051464eb28f70933f67fa7,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4930617082053017527}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67753dd337051464eb28f70933f67fa7, type: 3}
---- !u!1 &1416053375541906220 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6092244323813302906, guid: 67753dd337051464eb28f70933f67fa7,
-    type: 3}
-  m_PrefabInstance: {fileID: 5128802717269174614}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &4930617082053017527
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416053375541906220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68b7417cd734dc842ab6f908740f5508, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _airlockController: {fileID: 1648787343556151636}
-  _isInButton: 1
-  _buttonColor: 1
 --- !u!4 &1796098038970405270 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6899566596884822208, guid: 67753dd337051464eb28f70933f67fa7,
@@ -1199,6 +1170,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5620678480180434851}
     m_Modifications:
+    - target: {fileID: -244638800344430849, guid: 96b20e9b573038e48a73fca3ef5a0648,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 719109256
+      objectReference: {fileID: 0}
+    - target: {fileID: 3677649883598253515, guid: 96b20e9b573038e48a73fca3ef5a0648,
+        type: 3}
+      propertyPath: _airlockController
+      value: 
+      objectReference: {fileID: 1648787343556151636}
     - target: {fileID: 3925307808915938613, guid: 96b20e9b573038e48a73fca3ef5a0648,
         type: 3}
       propertyPath: m_Name
@@ -1257,11 +1238,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3925307808915938613, guid: 96b20e9b573038e48a73fca3ef5a0648,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5545677002248777335}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 96b20e9b573038e48a73fca3ef5a0648, type: 3}
 --- !u!4 &8521656811187120227 stripped
 Transform:
@@ -1269,27 +1246,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 5436319410470563820}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &9009680941641691865 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3925307808915938613, guid: 96b20e9b573038e48a73fca3ef5a0648,
-    type: 3}
-  m_PrefabInstance: {fileID: 5436319410470563820}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &5545677002248777335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9009680941641691865}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68b7417cd734dc842ab6f908740f5508, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _airlockController: {fileID: 1648787343556151636}
-  _isInButton: 0
-  _buttonColor: 1
 --- !u!1001 &5958172609759214959
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1668,6 +1624,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5620678480180434851}
     m_Modifications:
+    - target: {fileID: -4815599475957792116, guid: 275a12806ba340e42879a7cb16395d41,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 719109256
+      objectReference: {fileID: 0}
     - target: {fileID: 3660176660264201237, guid: 275a12806ba340e42879a7cb16395d41,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1723,36 +1684,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: In_RButton
       objectReference: {fileID: 0}
+    - target: {fileID: 7296186974505939926, guid: 275a12806ba340e42879a7cb16395d41,
+        type: 3}
+      propertyPath: _airlockController
+      value: 
+      objectReference: {fileID: 1648787343556151636}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4143417120782907055, guid: 275a12806ba340e42879a7cb16395d41,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1585122871223988259}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 275a12806ba340e42879a7cb16395d41, type: 3}
---- !u!1 &4820452247699236931 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4143417120782907055, guid: 275a12806ba340e42879a7cb16395d41,
-    type: 3}
-  m_PrefabInstance: {fileID: 8891777113771859692}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1585122871223988259
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4820452247699236931}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68b7417cd734dc842ab6f908740f5508, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _airlockController: {fileID: 1648787343556151636}
-  _isInButton: 1
-  _buttonColor: 2
 --- !u!4 &5309321108563489529 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3660176660264201237, guid: 275a12806ba340e42879a7cb16395d41,
