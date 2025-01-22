@@ -119,7 +119,15 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    private void Update()
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        
+        BaseUIData baseUIData = new BaseUIData();
+        UIManager.Instance.OpenUI<LoadingUI>(baseUIData);
+    }
+
+    private void Update()   
     {
         if (IsOwner)
         {

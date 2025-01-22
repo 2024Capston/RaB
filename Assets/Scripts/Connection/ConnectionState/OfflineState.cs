@@ -28,7 +28,11 @@ namespace RaB.Connection
         public override void Exit() { }
 
         public override void StartServer()
-    {   
+        {
+
+            BaseUIData baseUIData = new BaseUIData();
+            UIManager.Instance.OpenUI<LoadingUI>(baseUIData);
+            
             // Server를 시작하면 StartingHost State로 전환
             ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.StartingHost);
         }
@@ -41,6 +45,9 @@ namespace RaB.Connection
             
             if (result == Result.OK)
             {
+                BaseUIData baseUIData = new BaseUIData();
+                UIManager.Instance.OpenUI<LoadingUI>(baseUIData);
+                
                 ConnectionManager.Instance.CurrentLobby = lobby;
                 ConnectionManager.Instance.ChangeState(ConnectionManager.Instance.ClientConnecting);
             }

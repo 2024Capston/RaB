@@ -65,7 +65,7 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
     /// </summary>
     private void StageLoadFailed()
     {
-        Logger.Log($"Scene Transition {SceneManager.GetActiveScene()} to {SceneType.Lobby}");
+        Logger.Log($"Scene Transition {SceneManager.GetActiveScene().name} to {SceneType.Lobby}");
         SceneLoaderWrapper.Instance.LoadScene(SceneType.Lobby.ToString(), true);
     }
 }

@@ -12,10 +12,9 @@ namespace RaB.Connection
         public override void Enter()
         {
             SceneLoaderWrapper.Instance.LoadScene(SceneType.Lobby.ToString(), useNetworkSceneManager: true);
-            UIManager.Instance.CloseAllOpenUI();
         }
 
-        public override void Exit() { }
+        public override void Exit() { } 
 
         public override void OnClientDisconnect()
         {
