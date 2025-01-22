@@ -23,6 +23,9 @@ public class DoorController : NetworkBehaviour
         _animator = GetComponent<Animator>();
     }
 
+    /// <summary>
+    /// IsOpened = true라면 문을 엽니다.
+    /// </summary>
     [ServerRpc(RequireOwnership = false)]
     public void OpenDoorServerRpc()
     {
@@ -33,6 +36,9 @@ public class DoorController : NetworkBehaviour
         
     }
     
+    /// <summary>
+    /// 문을 닫습니다.
+    /// </summary>
     [ServerRpc(RequireOwnership = false)]
     public void CloseDoorServerRpc()
     {

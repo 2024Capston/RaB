@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Steamworks;
+using Unity.Multiplayer.Samples.Utilities;
 using Unity.Netcode;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -43,26 +44,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     }
 
     /// <summary>
-    /// Stage 문을 열때 호출하는 메소드
-    /// </summary>
-    /// <param name="stageName"></param>
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestOpenDoorServerRpc(StageName stageName)
-    {
-        
-    }
-
-    /// <summary>
-    /// Elevator 문을 열때 호출하는 메소드
-    /// </summary>
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestOpenElevatorServerRpc()
-    {
-        
-    }
-
-    /// <summary>
-    /// 엘리베이터에서 층을 이동할 때 호출하는 메소드
+    /// 엘리베이터에서 층을 이동할 때 호출됩니다.
     /// </summary>
     [ServerRpc(RequireOwnership = false)]
     public void RequestMoveFloorServerRpc(int floor)
@@ -71,18 +53,18 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     }
     
     /// <summary>
-    /// InGame으로 이동하는 메소드 OnClickAirlockButtonServerRpc에서 호출되므로 Server에서 실행된다.
+    /// 현재 선택한 Stage를 저장하고 InGame Scene으로 이동합니다.
     /// </summary>
     /// <param name="stageName"></param>
-    public void RequestPlayStage(StageName stageName)
+    public void RequestTrasitionInGameScene(StageName stageName)
     {
         // InGame Scene으로 이동하면 ConnectionManager에 있는 SelectStage로 Loader를 불러온다.
         SessionManager.Instance.SelectedStage = stageName;
-        NetworkManager.SceneManager.LoadScene(SceneType.InGame.ToString(), UnityEngine.SceneManagement.LoadSceneMode.Single);
+        SceneLoaderWrapper.Instance.LoadScene(SceneType.InGame.ToString(), true);
     }
     
     /// <summary>
-    /// PlayerConfig를 참고하여 
+    /// PlayerConfig를 참고하여 Player를 스폰합니다.
     /// </summary>
     /// <param name="serverRpcParams"></param>
     [ServerRpc(RequireOwnership = false)]
@@ -101,6 +83,9 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         //playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
     }
 
+    /// <summary>
+    /// 각 Airlock에 Stage를 할당하고, 해당 Stage Data에 맞게 Airlock 문을 개방합니다.
+    /// </summary>
     private void SetMapData()
     {
         PlayData data = SessionManager.Instance.SelectedData;

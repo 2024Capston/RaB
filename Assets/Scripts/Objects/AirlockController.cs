@@ -1,11 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class AirlockController : NetworkBehaviour
 {
+    private enum AirlockState
+    {
+        Idle, SceneTransition
+    }
+
+    private AirlockState _airlockState;
+    
     [SerializeField] private DoorController _doorIn;
     [SerializeField] private DoorController _doorOut;
 
@@ -78,7 +82,8 @@ public class AirlockController : NetworkBehaviour
         StageName = StageName.Size;
         IsAirlockOpened = true;
         IsInOpened = true;
-
+        _airlockState = AirlockState.Idle;
+        
         // Init
         OnClickAirlockButtonServerRpc(ColorType.Blue, true);
         OnClickAirlockButtonServerRpc(ColorType.Red, true);
@@ -124,5 +129,26 @@ public class AirlockController : NetworkBehaviour
     {
         _doorLightMeshRenderers[0].material = _doorLightMaterials[doorInOpened ? 1 : 0];
         _doorLightMeshRenderers[1].material = _doorLightMaterials[doorInOpened ? 0 : 1];
+    }
+
+    /// <summary>
+    /// InGame Scene으로 넘어갈 수 있는 경우 LobbyManager에 InGame Scene으로 전환을 요청합니다.
+    /// </summary>
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestTrasitionInGameSceneServerRpc()
+    {
+        // 아직 개방되지 않은 스테이지이거나, 아직 문이 열리지 않았거나, 이미 전환 중일때는 처리하지 않는다.
+        if (!IsAirlockOpened || IsInOpened || _airlockState == AirlockState.SceneTransition)
+        {
+            return;
+        }
+
+        _airlockState = AirlockState.SceneTransition;
+        LobbyManager.Instance.RequestTrasitionInGameScene(StageName);
+    }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        RequestTrasitionInGameSceneServerRpc();
     }
 }

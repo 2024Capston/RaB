@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5620678480180434851}
   - component: {fileID: 2829361031322962103}
   - component: {fileID: 1648787343556151636}
+  - component: {fileID: 4077239098258679054}
   m_Layer: 0
   m_Name: Airlock_Set
   m_TagString: Untagged
@@ -98,6 +99,27 @@ MonoBehaviour:
   - {fileID: 1304719090241321494}
   - {fileID: 5111970744540753290}
   <StageName>k__BackingField: 0
+--- !u!65 &4077239098258679054
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1641517074416542233}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 2.5, z: 0.5}
+  m_Center: {x: 0, y: 1.5, z: -8}
 --- !u!1 &4947390429414268918
 GameObject:
   m_ObjectHideFlags: 0
@@ -172,6 +194,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ef553543feb05e4892d102c6788700d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <IsOpened>k__BackingField: 0
 --- !u!95 &5017732461582134471
 Animator:
   serializedVersion: 5

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -32,23 +33,22 @@ public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
     {
         if (!_stageLoaderData.TryGetValue(stageName, out string stageLoaderName))
         {
-            Logger.LogError($"{stageName} does not exist in the dictionary");
-            return;
+            throw new Exception($"{stageName} does not exist in the dictionary");
         }
 
-        GameObject loaderObject = Instantiate(Resources.Load<GameObject>(STAGELOADER_PATH + stageLoaderName));
-        if (!loaderObject)
+        GameObject loaderPrefab = Resources.Load<GameObject>(STAGELOADER_PATH + stageLoaderName);
+        if (!loaderPrefab)
         {
-            Logger.LogError($"Cannot find the path {STAGELOADER_PATH + stageLoaderName}");
-            return;
+            throw new Exception($"Cannot find the path {STAGELOADER_PATH + stageLoaderName}");
         }
+
+        GameObject loaderObject = Instantiate(loaderPrefab);
         loaderObject.GetComponent<NetworkObject>().Spawn();
         
         StageLoader stageLoader = loaderObject.GetComponent<StageLoader>();
         if (!stageLoader)
         {
-            Logger.LogError("StageLoader does not exist");
-            return;
+            throw new Exception("StageLoader Component does not exist");
         }
 
         stageLoader.LoadStage();
