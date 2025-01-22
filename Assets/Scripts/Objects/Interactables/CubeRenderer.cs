@@ -47,7 +47,7 @@ public class CubeRenderer : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void UpdateColorClientRpc()
     {
-        int childCount = _networkInterpolator.VisualReference.transform.childCount;
+        int childCount = _piecesTransforms.Length;
 
         for (int i = 0; i < childCount; i++)
         {

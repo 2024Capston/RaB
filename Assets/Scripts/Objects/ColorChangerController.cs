@@ -1,81 +1,67 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections;
+using Unity.VisualScripting;
 
 public class ColorChangerController : NetworkBehaviour
 {
     [SerializeField] private float _changeTime;
 
-    [SerializeField] private GameObject ColorChangerUtilPrefab;
+    [SerializeField] private GameObject _colorChangerUtilPrefab;
 
-    private CubeController _cubeControllerOnChanger;
-    private CubeRenderer _cubeRendererOnChanger;
-
-    void Start()
-    {
-        
-    }
+    private CubeController _cubeOnChanger;
+    private NetworkInterpolator _cubeInterpolator;
+    private ColorChangerUtil _utilObject;
 
     void Update()
     {
-        if (_cubeControllerOnChanger && _cubeControllerOnChanger.IsOwner)
-        {
-            if (_cubeControllerOnChanger.IsTaken)
-            {
-                _cubeControllerOnChanger.GetComponentInChildren<ColorChangerUtil>().StartTimer();
-
-                _cubeControllerOnChanger = null;
-                _cubeRendererOnChanger = null;
-            }
-            else
-            {
-                _cubeControllerOnChanger.transform.position = transform.position;
-                _cubeControllerOnChanger.transform.rotation = transform.rotation;
-            }
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (!IsServer)
-        {
+        if (!IsServer) {
             return;
         }
 
-        if (!_cubeControllerOnChanger && other.gameObject.TryGetComponent<CubeController>(out CubeController cubeController))
-        {
-            if (cubeController.IsTaken && cubeController.GetComponentInChildren<ColorChangerUtil>() == null)
-            {
-                Debug.Log("Entered");
-                _cubeControllerOnChanger = cubeController;
-                _cubeRendererOnChanger = other.gameObject.GetComponent<CubeRenderer>();
+        if (_cubeOnChanger && _cubeOnChanger.IsTaken) {
+            RevertChangingColorClientRpc();
+        }
+    }
 
-                _cubeControllerOnChanger.ForceStopInteraction();
-                _cubeControllerOnChanger.SetActive(false);
+    private void OnTriggerStay(Collider other) {
+        if (!IsServer) {
+            return;
+        }
+        if (other.gameObject.TryGetComponent<CubeController>(out CubeController cubeController) &&
+            cubeController.GetComponent<NetworkInterpolator>().VisualReference.GetComponentInChildren<ColorChangerUtil>() == null) {
+            if (!_cubeOnChanger) {
+                StartChangingColorClientRpc(cubeController.gameObject);
 
-                StartCoroutine("DoAnimation");
-
-                GameObject colorChangerUtilObject = Instantiate(ColorChangerUtilPrefab);
-                ColorChangerUtil colorChangerUtil = colorChangerUtilObject.GetComponent<ColorChangerUtil>();
-                NetworkObject networkObject = colorChangerUtilObject.GetComponent<NetworkObject>();
-
-                networkObject.Spawn();
-                networkObject.TrySetParent(cubeController.gameObject);
-
-                colorChangerUtilObject.transform.localPosition = Vector3.zero;
-                colorChangerUtilObject.transform.localScale = Vector3.one;
-
-                colorChangerUtil.Initialize(_changeTime);
+                ColorType newColor = 3 - cubeController.CubeColor;
+                cubeController.ChangeColor(newColor);
             }
         }
     }
 
-    private IEnumerator DoAnimation()
-    {
-        yield return new WaitForSeconds(3f);
+    [ClientRpc]
+    private void StartChangingColorClientRpc(NetworkObjectReference cube) {
+        if (cube.TryGet(out NetworkObject networkObject)) {
+            _cubeOnChanger = networkObject.GetComponent<CubeController>();
+            _cubeInterpolator = networkObject.GetComponent<NetworkInterpolator>();
+            _cubeOnChanger.ForceStopInteraction();
 
-        _cubeControllerOnChanger.SetActive(true);
-        _cubeRendererOnChanger.UpdateColor();
+            _utilObject = Instantiate(_colorChangerUtilPrefab).GetComponent<ColorChangerUtil>();
+
+            _utilObject.transform.SetParent(_cubeInterpolator.VisualReference.transform);
+            _utilObject.transform.localPosition = Vector3.zero;
+            _utilObject.transform.localRotation = Quaternion.identity;
+            _utilObject.transform.localScale = new Vector3(1f / _cubeOnChanger.transform.localScale.x, 1f / _cubeOnChanger.transform.localScale.y, 1f / _cubeOnChanger.transform.localScale.z);
+
+            _utilObject.Initialize(_cubeOnChanger, _changeTime);
+        }
+    }
+
+    [ClientRpc]
+    private void RevertChangingColorClientRpc() {
+        _utilObject.StartTimer();
+
+        _utilObject = null;
+        _cubeOnChanger = null;
     }
 }
