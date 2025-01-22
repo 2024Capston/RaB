@@ -127,15 +127,19 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void ChangeColorServerRpc(ColorType color, bool updateRender)
+    private void ChangeColorServerRpc(ColorType color)
     {
-        ChangeColorClientRpc(color, updateRender);
+        ChangeColorClientRpc(color);
     }
 
     [ClientRpc(RequireOwnership = false)]
-    private void ChangeColorClientRpc(ColorType color, bool updateRender)
+    private void ChangeColorClientRpc(ColorType color)
     {
         _cubeColor = color;
+
+        if (IsOwner && _interactingPlayer) {
+            _interactingPlayer.ForceStopInteraction();
+        }
 
         if (_cubeColor == PlayerController.LocalPlayer.PlayerColor)
         {
@@ -147,10 +151,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
             _rigidbody.isKinematic = true;
         }
 
-        if (updateRender)
-        {
-            _cubeRenderer.UpdateColor();
-        }
+        _cubeRenderer.UpdateColor();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -168,21 +169,21 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     [ClientRpc(RequireOwnership = false)]
     private void ForceStopInteractionClientRpc()
     {
-        if (!IsOwner || !_interactingPlayer)
-        {
-            return;
-        }
+        _isTaken = false;
 
-        _interactingPlayer.ForceStopInteraction();
+        if (_interactingPlayer)
+        {
+            _interactingPlayer.ForceStopInteraction();
+        }
     }
 
     /// <summary>
     /// 큐브의 색깔 정보를 서버와 클라이언트 
     /// </summary>
     /// <param name="color">새 색깔</param>
-    public void ChangeColor(ColorType color, bool updateRender = true)
+    public void ChangeColor(ColorType color)
     {
-        ChangeColorServerRpc(color, updateRender);
+        ChangeColorServerRpc(color);
     }
 
     public void SetActive(bool isActive)

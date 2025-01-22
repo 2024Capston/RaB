@@ -194,7 +194,7 @@ public class NetworkSyncTransform : NetworkBehaviour
     /// </summary>
     /// <param name="position">위치</param>
     /// <param name="rotation">회전</param>
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void SendTransformServerRpc(Vector3 position, Quaternion rotation)
     {
         _lastSyncedPosition = position;
