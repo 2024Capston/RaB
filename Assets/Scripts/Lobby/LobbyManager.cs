@@ -37,8 +37,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
 
     private void Start()
     {
-        Logger.Log($"{GetType()}::Start");
-        SetMapData();
+        SetMapDataServerRpc();
         SpawnPlayerServerRpc();
         UIManager.Instance.CloseAllOpenUI();
     }
@@ -90,21 +89,36 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         playerConfig.MyPlayer = playerController;
         //playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
     }
-
+    
     /// <summary>
     /// 각 Airlock에 Stage를 할당하고, 해당 Stage Data에 맞게 Airlock 문을 개방합니다.
     /// </summary>
-    private void SetMapData()
+    [ServerRpc(RequireOwnership = false)]
+    private void SetMapDataServerRpc(ServerRpcParams serverRpcParams = default)
     {
         PlayData data = SessionManager.Instance.SelectedData;
+
+        ClientRpcParams clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId }
+            }
+        };
+        
         for (int i = 0; i < 6; i++)
         {
-            // 해당 스테이지를 클리어 했다면 문을 연다.
-            _airlockControllers[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].IsAirlockOpened =
-                data.MapInfoList[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].ClearFlag != 0;
+            int index = (SessionManager.Instance.CurrentFloor - 1) * 6 + i;
             
-            _airlockControllers[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].StageName = (StageName)((SessionManager.Instance.CurrentFloor - 1) * 6 + i);
+            SetAirlockDataClientRpc(i, (StageName)index, data.MapInfoList[index].ClearFlag != 0, clientRpcParams);
         }
+    }
+
+    [ClientRpc]
+    private void SetAirlockDataClientRpc(int index, StageName stageName, bool isAirlockOpened, ClientRpcParams clientRpcParams = default)
+    {
+        _airlockControllers[index].StageName = stageName;
+        _airlockControllers[index].IsAirlockOpened = isAirlockOpened;
     }
 }
 
