@@ -56,7 +56,7 @@ public class NetworkPlatformFinder : NetworkBehaviour
                 {
                     if (hit.collider.gameObject.TryGetComponent<NetworkObject>(out NetworkObject networkObject) &&
                         hit.collider.gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody) &&
-                        hit.collider.name == "Elevator")
+                        hit.collider.tag == "Platform")
                     {
                         if (hit.distance < minDistance)
                         {

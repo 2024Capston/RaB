@@ -9,15 +9,15 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     /// <summary>
     /// 큐브 색깔
     /// </summary>
-    [SerializeField] private ColorType _cubeColor;
-    public ColorType CubeColor
+    [SerializeField] private ColorType _color;
+    public ColorType Color
     {
-        get => _cubeColor;
-        set => _cubeColor = value;
+        get => _color;
+        set => _color = value;
     }
 
-    private const float DISTANCE_FROM_PLAYER = 20f;
-    private const float CUBE_SPEED = 32f;
+    private const float DISTANCE_FROM_PLAYER = 20f;     // 플레이어와 큐브 사이의 거리
+    private const float CUBE_SPEED = 32f;               // 큐브의 이동 속력
 
     private Rigidbody _rigidbody;
     private CubeRenderer _cubeRenderer;
@@ -26,6 +26,9 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     private PlayerController _interactingPlayer;    // 큐브를 들고 있는 플레이어
     private bool _isActive = true;
 
+    /// <summary>
+    /// 상호작용 여부
+    /// </summary>
     private bool _isTaken;
     public bool IsTaken
     {
@@ -54,7 +57,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
 
     public override void OnPlayerInitialized()
     {
-        if (_cubeColor == PlayerController.LocalPlayer.PlayerColor && IsClient)
+        if (_color == PlayerController.LocalPlayer.Color && IsClient)
         {
             // 플레이어와 색깔이 같으면 Ownership 요청
             RequestOwnershipServerRpc(NetworkManager.LocalClientId);
@@ -81,7 +84,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
 
     public bool IsInteractable(PlayerController player)
     {
-        return _cubeColor == player.PlayerColor && _isActive;
+        return _color == player.Color && _isActive;
     }
 
     public bool StartInteraction(PlayerController player)
@@ -135,13 +138,13 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     [ClientRpc(RequireOwnership = false)]
     private void ChangeColorClientRpc(ColorType color)
     {
-        _cubeColor = color;
+        _color = color;
 
         if (IsOwner && _interactingPlayer) {
             _interactingPlayer.ForceStopInteraction();
         }
 
-        if (_cubeColor == PlayerController.LocalPlayer.PlayerColor)
+        if (_color == PlayerController.LocalPlayer.Color)
         {
             RequestOwnershipServerRpc(NetworkManager.LocalClientId);
             _rigidbody.isKinematic = false;
@@ -150,6 +153,8 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         {
             _rigidbody.isKinematic = true;
         }
+        
+        _rigidbody.useGravity = true;
 
         _cubeRenderer.UpdateColor();
     }
@@ -178,7 +183,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     }
 
     /// <summary>
-    /// 큐브의 색깔 정보를 서버와 클라이언트 
+    /// 큐브의 색깔 정보를 서버와 클라이언트에서 변경한다.
     /// </summary>
     /// <param name="color">새 색깔</param>
     public void ChangeColor(ColorType color)
@@ -186,11 +191,18 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         ChangeColorServerRpc(color);
     }
 
+    /// <summary>
+    /// 큐브의 활성화 여부를 서버와 클라이언트에서 변경한다.
+    /// </summary>
+    /// <param name="isActive">활성화 여부</param>
     public void SetActive(bool isActive)
     {
         SetActiveServerRpc(isActive);
     }
 
+    /// <summary>
+    /// 큐브와 상호작용 중인 플레이어가 있다면 강제 중단한다.
+    /// </summary>
     public void ForceStopInteraction()
     {
         ForceStopInteractionClientRpc();

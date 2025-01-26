@@ -8,16 +8,6 @@ using UnityEngine.Events;
 using System.Runtime.CompilerServices;
 
 /// <summary>
-/// 버튼 작동 방식
-/// </summary>
-internal enum ButtonType
-{
-    Persistent, // 한 번 누르면 계속 활성화 상태 유지
-    Toggle,     // 활성/비활성 토글
-    Temporary   // 누르고 일정 시간이 지나면 비활성화
-}
-
-/// <summary>
 /// 버튼을 조작하는 Class
 /// </summary>
 public class ButtonController : NetworkBehaviour, IInteractable
@@ -92,7 +82,7 @@ public class ButtonController : NetworkBehaviour, IInteractable
 
             if (_temporaryTime < 0f)
             {
-                _isPressed = false;
+                SetButtonPressStateClientRpc(false);
                 DeactivateObjects();
             }
         }
@@ -135,13 +125,17 @@ public class ButtonController : NetworkBehaviour, IInteractable
         // 플레이어 둘이 주변에 있어야 하는 경우
         else if (_requiresBoth)
         {
-            // !! 두 플레이어 거리 체크하는 메커니즘 추가할 것
-            return true;
+            PlayerController[] playerControllers = FindObjectsOfType<PlayerController>();
+
+            foreach (PlayerController playerController in playerControllers)
+            {
+                if (Vector3.Distance(transform.position, playerController.transform.position) > _detectionRadius) {
+                    return false;
+                }
+            }
         }
-        else
-        {
-            return _buttonColor == player.PlayerColor;
-        }
+        
+        return (_buttonColor == ColorType.Purple || _buttonColor == player.Color) && (_buttonType == ButtonType.Toggle || !_isPressed);
     }
 
     public bool StartInteraction(PlayerController player)
@@ -165,14 +159,14 @@ public class ButtonController : NetworkBehaviour, IInteractable
         // 버튼 타입: Persistent
         if (_buttonType == ButtonType.Persistent && !_isPressed)
         {
-            _isPressed = true;
+            SetButtonPressStateClientRpc(true);
 
             ActivateObjects();
         }
         // 버튼 타입: Toggle
         else if (_buttonType == ButtonType.Toggle)
         {
-            _isPressed = !_isPressed;
+            SetButtonPressStateClientRpc(!_isPressed);
 
             if (_isPressed)
             {
@@ -188,7 +182,7 @@ public class ButtonController : NetworkBehaviour, IInteractable
         {
             if (!_isPressed)
             {
-                _isPressed = true;
+                SetButtonPressStateClientRpc(true);
                 _temporaryTime = _temporaryCooldown;
 
                 ActivateObjects();
@@ -206,6 +200,12 @@ public class ButtonController : NetworkBehaviour, IInteractable
     private void SetButtonStateClientRpc(bool isEnabled)
     {
         _isEnabled = isEnabled;
+    }
+
+    [ClientRpc]
+    private void SetButtonPressStateClientRpc(bool isPressed)
+    {
+        _isPressed = isPressed;
     }
 
     /// <summary>
