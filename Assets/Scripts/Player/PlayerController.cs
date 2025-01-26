@@ -1,6 +1,7 @@
 using Cinemachine;
 using System;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -21,7 +22,7 @@ public class PlayerController : NetworkBehaviour
     private Rigidbody _rigidbody;
     private Collider _collider;
     private PlayerRenderer _playerRenderer;
-    private NetworkInterpolator _networkInterpolator;
+    private NetworkPlatformFinder _networkPlatformFinder;
 
     private IInteractable _interactableOnPointer;  // 플레이어가 바라보고 있는 Interactable
     private IInteractable _interactableInHand;     // 플레이어가 들고 있는 Interactable
@@ -50,10 +51,10 @@ public class PlayerController : NetworkBehaviour
     }
     
     // 플레이어 색깔
-    private ColorType _playerColor;
-    public ColorType PlayerColor
+    private ColorType _color;
+    public ColorType Color
     {
-        get => _playerColor;
+        get => _color;
     }
 
     public override void OnNetworkSpawn()
@@ -70,17 +71,17 @@ public class PlayerController : NetworkBehaviour
         {
             if (IsOwner)
             {
-                _playerColor = ColorType.Blue;
+                _color = ColorType.Blue;
 
                 _localPlayer = this;
                 _localPlayerCreated?.Invoke();
             }
             else
             {
-                _playerColor = ColorType.Red;
+                _color = ColorType.Red;
             }
 
-            _playerColorAssigned?.Invoke(_playerColor);
+            _playerColorAssigned?.Invoke(_color);
             _playerRenderer.Initialize();
         }
         else
@@ -91,24 +92,12 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             _rigidbody = GetComponent<Rigidbody>();
-            _networkInterpolator = GetComponent<NetworkInterpolator>();
-
-            _networkInterpolator.AddVisualReferenceDependantFunction(() =>
-            {
-                CinemachineFreeLook camera = GetComponentInChildren<CinemachineFreeLook>();
-                camera.Follow = _networkInterpolator.VisualReference.transform;
-                camera.LookAt = _networkInterpolator.VisualReference.transform;
-            });
-
-            Cursor.lockState = CursorLockMode.Locked;
+            _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
         }
         else
         {
             GetComponent<PlayerInput>().enabled = false;
             GetComponent<Rigidbody>().isKinematic = true;
-
-            Destroy(GetComponentInChildren<CinemachineFreeLook>().gameObject);
-            Destroy(GetComponentInChildren<Camera>().gameObject);
         }
     }
 
@@ -129,6 +118,7 @@ public class PlayerController : NetworkBehaviour
             HandleMovement();
             HandleJump();
             SearchInteractables();
+            HandlePlatform();
         }
     }
 
@@ -212,12 +202,32 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
+    /// 플레이어가 올라가 있는 플랫폼을 처리한다.
+    /// </summary>
+    private void HandlePlatform()
+    {
+        if (_networkPlatformFinder.Platform)
+        {
+                Vector3 positionDiff = _networkPlatformFinder.Velocity * Time.deltaTime;
+                positionDiff.y = 0f;
+
+                transform.position += positionDiff;
+        }
+    }
+
+    /// <summary>
     /// 접지 여부를 판단한다.
     /// </summary>
     /// <returns>접지 여부</returns>
     bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _collider.bounds.extents.y + GROUND_DETECTION_THRESHOLD);
+        if (_collider is CapsuleCollider) {
+            Vector3 offset = Vector3.up * (_collider.bounds.extents.y - _collider.bounds.extents.x) * 0.9f;
+            return Physics.CapsuleCast(transform.position + offset, transform.position - offset, _collider.bounds.extents.x, Vector3.down, GROUND_DETECTION_THRESHOLD);
+        }
+        else {
+            return Physics.BoxCast(transform.position, _collider.bounds.extents * 0.9f, Vector3.down, transform.rotation, GROUND_DETECTION_THRESHOLD);
+        }
     }
 
     /// <summary>
@@ -259,6 +269,7 @@ public class PlayerController : NetworkBehaviour
             {
                 _interactableOnPointer.Outline.enabled = false;
                 _interactableInHand = _interactableOnPointer;
+                _interactableOnPointer = null;
             }
         }
     }
@@ -277,13 +288,13 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void RequestPlayerColorServerRpc()
     {
-        if (_playerColor == 0)
+        if (_color == 0)
         {
             _playerColorAssigned += SendPlayerColorClientRpc;
         }
         else
         {
-            SendPlayerColorClientRpc(_playerColor);
+            SendPlayerColorClientRpc(_color);
         }
     }
 
@@ -299,7 +310,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        _playerColor = color;
+        _color = color;
         _playerRenderer.Initialize();
 
         if (IsOwner)

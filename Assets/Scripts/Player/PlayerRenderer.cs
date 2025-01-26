@@ -48,7 +48,7 @@ public class PlayerRenderer : NetworkBehaviour
             _meshFilter = _networkInterpolator.VisualReference.AddComponent<MeshFilter>();
             _meshRenderer = _networkInterpolator.VisualReference.AddComponent<MeshRenderer>();
 
-            int colorIndex = (int)_playerController.PlayerColor - 1;
+            int colorIndex = (int)_playerController.Color - 1;
 
             _playerRender = Instantiate(_playerRenderPrefab[colorIndex]);
             _playerRender.transform.SetParent(_networkInterpolator.VisualReference.transform);

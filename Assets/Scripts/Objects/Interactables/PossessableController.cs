@@ -10,11 +10,11 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     /// <summary>
     /// 물체의 색깔
     /// </summary>
-    [SerializeField] private ColorType _possessableColor;
-    public ColorType PossessableColor
+    [SerializeField] private ColorType _color;
+    public ColorType Color
     {
-        get => _possessableColor;
-        set => _possessableColor = value;
+        get => _color;
+        set => _color = value;
     }
 
     /// <summary>
@@ -60,13 +60,13 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
             _outline = _networkInterpolator.VisualReference.GetComponent<Outline>();
             _outline.enabled = false;
 
-            _meshRenderer.material = _materials[(int)_possessableColor - 1];
+            _meshRenderer.material = _materials[(int)_color - 1];
         });
     }
 
     public override void OnPlayerInitialized()
     {
-        if (_possessableColor == PlayerController.LocalPlayer.PlayerColor && IsClient)
+        if (_color == PlayerController.LocalPlayer.Color && IsClient)
         {
             RequestOwnershipServerRpc(NetworkManager.LocalClientId);
         }
@@ -97,13 +97,16 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     /// <returns>빙의 해제 가능 여부</returns>
     private bool CheckDispossessionPosition(PlayerController player)
     {
+        // 콜라이더 값을 사용하기 위해 잠시 활성화
+        _collider.enabled = true;
+
         Vector3 origin = player.transform.position;
 
         origin.y -= _collider.bounds.extents.y;
         origin.y += PlayerController.INITIAL_CAPSULE_HEIGHT / 2f * player.transform.localScale.y;
 
-        Vector3 offset = Vector3.up * (PlayerController.INITIAL_CAPSULE_HEIGHT / 2f - PlayerController.INITIAL_CAPSULE_RADIUS);
-        float radius = (_collider.bounds.size.x + PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x) * 2f;
+        Vector3 offset = Vector3.up * (PlayerController.INITIAL_CAPSULE_HEIGHT / 2f * player.transform.localScale.y - PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x) * 0.9f;
+        float radius = _collider.bounds.size.x + PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x;
 
         // 물체를 중심으로, 주변을 원으로 탐색한다.
         for (int i = 0; i < 9; i++)
@@ -115,9 +118,12 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
 
             if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x).Length == 0)
             {
-                player.transform.position = newPoint;
+                if (!Physics.Raycast(transform.position, newPoint - transform.position, (newPoint - transform.position).magnitude)) {
+                    player.transform.position = newPoint;
+                    _collider.enabled = false;
 
-                return true;
+                    return true;
+                }
             }
 
             // 정면으로부터 -180~0도 회전
@@ -125,18 +131,22 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
 
             if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x).Length == 0)
             {
-                player.transform.position = newPoint;
+                if (!Physics.Raycast(transform.position, newPoint - transform.position, (newPoint - transform.position).magnitude)) {
+                    player.transform.position = newPoint;
+                    _collider.enabled = false;
 
-                return true;
+                    return true;
+                }
             }
         }
 
+        _collider.enabled = false;
         return false;
     }
 
     public bool IsInteractable(PlayerController player)
     {
-        return _possessableColor == player.PlayerColor;
+        return _color == player.Color;
     }
 
     public bool StartInteraction(PlayerController player)
