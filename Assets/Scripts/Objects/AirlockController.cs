@@ -76,9 +76,11 @@ public class AirlockController : NetworkBehaviour
     }
     [field: SerializeField]
     public StageName StageName { get; set; }
-    
+
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         StageName = StageName.Size;
         IsAirlockOpened = true;
         IsInOpened = true;
