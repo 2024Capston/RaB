@@ -241,6 +241,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82d6c1f23db4dcf41a8fe8870a95b97e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerPrefabs:
+  - {fileID: 2598954008640769726, guid: 9112b26c7ee804740bfdde79a4ac69ee, type: 3}
+  - {fileID: 2598954008640769726, guid: 9112b26c7ee804740bfdde79a4ac69ee, type: 3}
 --- !u!4 &718010002
 Transform:
   m_ObjectHideFlags: 0

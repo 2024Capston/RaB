@@ -59,8 +59,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     {
         // InGame Scene으로 이동하면 ConnectionManager에 있는 SelectStage로 Loader를 불러온다.
         SessionManager.Instance.SelectedStage = stageName;
-
-
+        
         foreach (ulong playerId in NetworkManager.Singleton.ConnectedClientsIds)
         {
             PlayerConfig playerConfig = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(playerId).GetComponent<PlayerConfig>();

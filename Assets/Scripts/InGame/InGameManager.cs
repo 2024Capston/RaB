@@ -63,15 +63,16 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
             {
                 SpawnPlayer(clientId);
             }
-            
-            
         }
         catch (Exception e)
         {
+            DestoryAllObjects();
             StageLoadFailed(e);
         }
         UIManager.Instance.CloseAllOpenUI();
         // StageManager.Instance.StartGame();
+
+        StartCoroutine(CoTest());
     }
 
     private void FindSpawnPoint()
@@ -100,6 +101,12 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
         playerConfig.MyPlayer = playerController;
         //playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
     }
+
+    private IEnumerator CoTest()
+    {
+        yield return new WaitForSeconds(5f);
+        EndGameServerRpc();
+    }
     
     /// <summary>
     /// 게임이 종료되었으면 LobbyScene으로 되돌아간다.
@@ -107,8 +114,22 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
     [ServerRpc]
     public void EndGameServerRpc()
     {
-        // TODO Clear 했을 때만 해당 함수를 호출하거나 인수를 통해 클리어 여부를 받을 수 있게 변경해야합니다.
-        SessionManager.Instance.SaveGameData();
+        // TODO Clear 했을 때 GameData를 업데이트 해야 한다.
+        
+        DestoryAllObjects();
+        SceneLoaderWrapper.Instance.LoadScene(SceneType.Lobby.ToString(), true);
+    }
+
+    private void DestoryAllObjects()
+    {
+        foreach (ulong playerId in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            PlayerConfig playerConfig = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(playerId).GetComponent<PlayerConfig>();
+            playerConfig.MyPlayer.GetComponent<NetworkObject>().Despawn();
+        }
+        
+        StageLoader.DestoryStage();
+        StageLoader.GetComponent<NetworkObject>().Despawn();
     }
 
     /// <summary>

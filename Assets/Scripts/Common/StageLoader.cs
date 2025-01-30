@@ -39,8 +39,6 @@ public class StageLoader : NetworkBehaviour
     /// </summary>
     public void DestoryStage()
     {   
-        Init();
-        
         DestroyAllNetworkObject();
         DestoryAllLocalObjectClientRpc();
     }
@@ -102,7 +100,7 @@ public class StageLoader : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void CompleteLoadAllLocalObjectServerRpc()
     {
-        if (++_clientLoadCount == 2)
+        if (++_clientLoadCount == 1)
         {
             // Client의 Loading이 모두 완료되었으므로 게임 시작
             InGameManager.Instance.StartGame();
@@ -124,7 +122,7 @@ public class StageLoader : NetworkBehaviour
         foreach (NetworkObject networkObject in _instantiatedNetworkObjects)
         {
             networkObject.Despawn();
-            Destroy(networkObject);
+            // Destroy(networkObject);
         }
         _instantiatedNetworkObjects.Clear();
     }
@@ -143,18 +141,8 @@ public class StageLoader : NetworkBehaviour
             }
             _instantiatedLocalObjects.Clear();
         }
-
-        CompleteDestoryAllLocalObjectServerRpc();
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void CompleteDestoryAllLocalObjectServerRpc()
-    {
-        if (++_clientLoadCount == 2)
-        {
-            // 모든 Object의 파괴가 완료되었으니 다시 생성
-            LoadStage();
-        }
-    }
+
 }
  
