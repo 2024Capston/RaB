@@ -66,6 +66,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3269885e930f0c544927bd1745655329, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _networkObjects: []
-  _localObjects:
+  _networkObjects:
   - {fileID: 2987878429939592881, guid: 7e3ba9bcd94342640b6a3e95831303dd, type: 3}
+  _localObjects: []

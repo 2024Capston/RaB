@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4285121621040990339}
   m_Layer: 0
   m_Name: Blue Spawn Point
-  m_TagString: Untagged
+  m_TagString: BlueSpawnPoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -777,7 +777,7 @@ GameObject:
   - component: {fileID: 1740340731632160865}
   m_Layer: 0
   m_Name: 'Red Spawn Point '
-  m_TagString: Untagged
+  m_TagString: RedSpawnPoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

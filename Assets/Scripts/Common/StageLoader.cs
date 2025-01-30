@@ -87,21 +87,19 @@ public class StageLoader : NetworkBehaviour
     [ClientRpc]
     private void LoadAllLocalObjectClientRpc()
     {
-        if (_localObjects.Count == 0)
+        if (_localObjects.Count != 0)
         {
-            return;
-        }
-        
-        foreach (GameObject localObject in _localObjects)
-        {
-            GameObject instantiateLocalObject = Instantiate(localObject);
-            _instantiatedLocalObjects.Add(instantiateLocalObject);
+            foreach (GameObject localObject in _localObjects)
+            {
+                GameObject instantiateLocalObject = Instantiate(localObject);
+                _instantiatedLocalObjects.Add(instantiateLocalObject);
+            }
         }
         
         CompleteLoadAllLocalObjectServerRpc();
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void CompleteLoadAllLocalObjectServerRpc()
     {
         if (++_clientLoadCount == 2)
@@ -118,6 +116,11 @@ public class StageLoader : NetworkBehaviour
     /// </summary>
     private void DestroyAllNetworkObject()
     {
+        if (_instantiatedNetworkObjects.Count == 0)
+        {
+            return;
+        }
+        
         foreach (NetworkObject networkObject in _instantiatedNetworkObjects)
         {
             networkObject.Despawn();
@@ -132,16 +135,19 @@ public class StageLoader : NetworkBehaviour
     [ClientRpc]
     private void DestoryAllLocalObjectClientRpc()
     {
-        foreach (GameObject localObject in _instantiatedLocalObjects)
+        if (_instantiatedLocalObjects.Count != 0)
         {
-            Destroy(localObject);
+            foreach (GameObject localObject in _instantiatedLocalObjects)
+            {
+                Destroy(localObject);
+            }
+            _instantiatedLocalObjects.Clear();
         }
-        _instantiatedLocalObjects.Clear();
-        
+
         CompleteDestoryAllLocalObjectServerRpc();
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void CompleteDestoryAllLocalObjectServerRpc()
     {
         if (++_clientLoadCount == 2)
