@@ -48,6 +48,8 @@ public class StageLoader : NetworkBehaviour
     private void Init()
     {
         _clientLoadCount = 0;
+        _instantiatedLocalObjects = new List<GameObject>();
+        _instantiatedNetworkObjects = new List<NetworkObject>();
     }
 
     /// <summary>
@@ -55,6 +57,11 @@ public class StageLoader : NetworkBehaviour
     /// </summary>
     private void LoadAllNetworkObjects()
     {
+        if (_networkObjects.Count == 0)
+        {
+            return;
+        }
+        
         foreach (GameObject networkObject in _networkObjects)
         {
             NetworkObject instantiatedNetworkObject = Instantiate(networkObject).GetComponent<NetworkObject>();
@@ -80,6 +87,10 @@ public class StageLoader : NetworkBehaviour
     [ClientRpc]
     private void LoadAllLocalObjectClientRpc()
     {
+        if (_localObjects.Count == 0)
+        {
+            return;
+        }
         
         foreach (GameObject localObject in _localObjects)
         {

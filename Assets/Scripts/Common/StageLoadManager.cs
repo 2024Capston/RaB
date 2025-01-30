@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
 {
-    private readonly string STAGELOADER_PATH = "Prefabs/Stage/StageLoader";
+    private readonly string STAGELOADER_PATH = "Prefabs/Stage/StageLoader/";
     
     private Dictionary<StageName, string> _stageLoaderData;
     
