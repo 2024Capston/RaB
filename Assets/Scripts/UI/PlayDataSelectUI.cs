@@ -43,9 +43,6 @@ public class PlayDataSelectUI : BaseUI
     /// <param name="index"></param>
     public void OnClickSelectButton(int index)
     {
-        // TODO : 다른 객체가 현재 선택한 것을 들고 있을 것!
-        //GameManager.Instance.SelectedIndex = index;
-
         string descText;
         if (!_playDataSelectUIData.UserGameData.PlayDatas[index].HasData)
         {
@@ -82,8 +79,6 @@ public class PlayDataSelectUI : BaseUI
 
     public void OnClickUndoButton()
     {
-        // TODO : 다른 객체가 현재 선택한 것을 들고 있을 것!
-        //GameManager.Instance.SelectedIndex = -1;
         CloseUI();
     }
 }

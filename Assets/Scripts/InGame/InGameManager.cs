@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Multiplayer.Samples.Utilities;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 
 public class InGameManager : NetworkSingletonBehaviour<InGameManager>
@@ -77,8 +78,9 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
 
     private void FindSpawnPoint()
     {
-        _blueSpawnPoint = GameObject.FindGameObjectWithTag("BlueSpawnPoint").transform;
-        _redSpawnPoint = GameObject.FindGameObjectWithTag("RedSpawnPoint").transform;
+        _blueSpawnPoint = GameObject.Find("BlueSpawnPoint").transform;
+        _redSpawnPoint = GameObject.Find("RedSpawnPoint").transform;
+        
         if (!_blueSpawnPoint)
         {
             throw new Exception("BlueSpawnPoint has not exist");
@@ -89,14 +91,14 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
         }
     }
     
-    private void SpawnPlayer(ulong clinetId)
+    private void SpawnPlayer(ulong clientId)
     {
         PlayerConfig playerConfig = NetworkManager.Singleton.SpawnManager
-            .GetPlayerNetworkObject(clinetId).GetComponent<PlayerConfig>();
+            .GetPlayerNetworkObject(clientId).GetComponent<PlayerConfig>();
         int isBlue = playerConfig.IsBlue ? 1 : 0;
         GameObject player = Instantiate(_playerPrefabs[isBlue]);
         
-        player.GetComponent<NetworkObject>().SpawnWithOwnership(clinetId);
+        player.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
         PlayerController playerController = player.GetComponent<PlayerController>();
         playerConfig.MyPlayer = playerController;
         //playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
@@ -104,7 +106,7 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
 
     private IEnumerator CoTest()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(60f);
         EndGameServerRpc();
     }
     
@@ -115,6 +117,7 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
     public void EndGameServerRpc()
     {
         // TODO Clear 했을 때 GameData를 업데이트 해야 한다.
+        // 이미 종료 상태일 땐 밑 로직 처리되지 않게 하기
         
         DestoryAllObjects();
         SceneLoaderWrapper.Instance.LoadScene(SceneType.Lobby.ToString(), true);

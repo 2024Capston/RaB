@@ -15,7 +15,6 @@ public class HomeManager : SingletonBehavior<HomeManager>
 
     private void Start()
     {
-        // TODO : GameManager로 위임한다.
         _userGameData = UserDataManager.Instance.GetUserData<UserGameData>();
     }
 

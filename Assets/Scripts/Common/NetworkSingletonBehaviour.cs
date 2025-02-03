@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class NetworkSingletonBehaviour<T> : NetworkBehaviour where T : NetworkSingletonBehaviour<T>
@@ -22,7 +23,7 @@ public class NetworkSingletonBehaviour<T> : NetworkBehaviour where T : NetworkSi
         Init();
     }
 
-    protected virtual void OnDestory()
+    public override void OnDestroy()
     {
         Dispose();
     }
