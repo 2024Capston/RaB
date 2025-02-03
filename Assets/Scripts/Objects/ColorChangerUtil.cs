@@ -10,7 +10,7 @@ public class ColorChangerUtil : MonoBehaviour
 {
     private const float TRANSITION_TIME = 2f;
     private CubeController _cubeController;
-    private Image _timerImage;
+    private SpriteRenderer _spriteRenderer;
 
     private bool _timerStarted;
     private bool _timerEnded;
@@ -21,12 +21,13 @@ public class ColorChangerUtil : MonoBehaviour
     {
         transform.LookAt(Camera.main.transform.position);
 
-        if (!_timerStarted || _timerEnded) {
+        if (!_timerStarted || _timerEnded)
+        {
             return;
         }
 
         _timer += Time.deltaTime;
-        _timerImage.fillAmount = _timer / _changeCooldown;
+        _spriteRenderer.material.SetFloat("_Arc2", (1f - _timer / _changeCooldown) * 360f);
 
         // 일정 시간이 지나면 색깔을 되돌린다.
         if (_timer > _changeCooldown)
@@ -34,10 +35,11 @@ public class ColorChangerUtil : MonoBehaviour
             _cubeController.ForceStopInteraction();
             _cubeController.GetComponent<CubeRenderer>().PlayTransitionAnimation(TRANSITION_TIME);
 
-            _timerImage.enabled = false;
+            _spriteRenderer.enabled = false;
             _timerEnded = true;
 
-            if (NetworkManager.Singleton.IsServer) {
+            if (NetworkManager.Singleton.IsServer)
+            {
                 StartCoroutine("CoChangeCubeColor", _cubeController);
             }
         }
@@ -46,7 +48,7 @@ public class ColorChangerUtil : MonoBehaviour
     private IEnumerator CoChangeCubeColor(CubeController cubeController)
     {
         cubeController.SetActive(false);
-        
+
         yield return new WaitForSeconds(TRANSITION_TIME);
 
         cubeController.SetActive(true);
@@ -66,13 +68,16 @@ public class ColorChangerUtil : MonoBehaviour
         _changeCooldown = changeTime;
 
         _cubeController = cubeController;
-        _timerImage = GetComponentInChildren<Image>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _spriteRenderer.enabled = false;
     }
 
     /// <summary>
     /// 색깔 변환 메커니즘을 시작한다.
     /// </summary>
-    public void StartTimer() {
+    public void StartTimer()
+    {
         _timerStarted = true;
+        _spriteRenderer.enabled = true;
     }
 }

@@ -16,8 +16,9 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         set => _color = value;
     }
 
-    private const float DISTANCE_FROM_PLAYER = 20f;     // 플레이어와 큐브 사이의 거리
-    private const float CUBE_SPEED = 32f;               // 큐브의 이동 속력
+    private const float DISTANCE_FROM_PLAYER = 32f;         // 플레이어와 큐브 사이의 거리
+    private const float MAXIMUM_DISTANCE_FROM_PLAYER = 64f; // 플레이어와 큐브가 멀어질 수 있는 최대 거리
+    private const float CUBE_SPEED = 32f;                   // 큐브의 이동 속력
 
     private Rigidbody _rigidbody;
     private CubeRenderer _cubeRenderer;
@@ -79,6 +80,11 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         {
             Vector3 target = _interactingPlayer.transform.position + _interactingPlayer.transform.forward * DISTANCE_FROM_PLAYER;
             _rigidbody.velocity = (target - transform.position) * CUBE_SPEED;
+
+            if (Vector3.Distance(transform.position, _interactingPlayer.transform.position) > MAXIMUM_DISTANCE_FROM_PLAYER)
+            {
+                ForceStopInteraction();
+            }
         }
     }
 
@@ -140,7 +146,8 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
     {
         _color = color;
 
-        if (IsOwner && _interactingPlayer) {
+        if (IsOwner && _interactingPlayer)
+        {
             _interactingPlayer.ForceStopInteraction();
         }
 
@@ -153,7 +160,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         {
             _rigidbody.isKinematic = true;
         }
-        
+
         _rigidbody.useGravity = true;
 
         _cubeRenderer.UpdateColor();

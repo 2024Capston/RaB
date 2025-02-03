@@ -18,6 +18,9 @@ public class ColorChangerController : NetworkBehaviour
     /// </summary>
     [SerializeField] private GameObject _colorChangerUtilPrefab;
 
+    [SerializeField] private MeshRenderer _gaugeMeshRenderer;
+    [SerializeField] private Material[] _materials;
+
     private const float TRANSITION_TIME = 2f;
 
     private CubeController _cubeOnChanger;
@@ -29,17 +32,20 @@ public class ColorChangerController : NetworkBehaviour
     void Update()
     {
         // 색깔 변환 중인 큐브가 있는 경우
-        if (_cubeOnChanger) {
+        if (_cubeOnChanger)
+        {
             // 큐브의 Owner가 큐브의 위치를 고정한다
-            if (_cubeOnChanger.IsOwner && !_cubeOnChanger.IsTaken) {
+            if (_cubeOnChanger.IsOwner && !_cubeOnChanger.IsTaken)
+            {
                 _timer += Time.deltaTime;
 
                 _cubeRigidbody.MovePosition(Vector3.Lerp(_cubeRigidbody.position, transform.position + Vector3.up * Mathf.Sin(_timer) * 3f, Time.deltaTime * 10f));
-                _cubeRigidbody.MoveRotation(Quaternion.Slerp(_cubeRigidbody.rotation, Quaternion.Euler(_timer * 30f, _timer * 30f, 0) , Time.deltaTime * 10f));
+                _cubeRigidbody.MoveRotation(Quaternion.Slerp(_cubeRigidbody.rotation, Quaternion.Euler(_timer * 30f, _timer * 30f, 0), Time.deltaTime * 10f));
             }
 
             // 플레이어가 큐브를 회수하면 색깔 변환 타이머를 시작한다
-            if (IsServer && _cubeOnChanger.IsTaken) {
+            if (IsServer && _cubeOnChanger.IsTaken)
+            {
                 RevertChangingColorClientRpc();
             }
         }
@@ -55,8 +61,9 @@ public class ColorChangerController : NetworkBehaviour
         // 변환기 범위 안에 적당한 큐브가 있으면 작동
         if (other.gameObject.TryGetComponent<CubeController>(out CubeController cubeController) &&
             cubeController.GetComponent<NetworkInterpolator>().VisualReference.GetComponentInChildren<ColorChangerUtil>() == null)
+        {
+            if (!_cubeOnChanger)
             {
-            if (!_cubeOnChanger) {
                 StartChangingColorClientRpc(cubeController.gameObject);
                 StartCoroutine("CoChangeCubeColor", cubeController);
             }
@@ -86,10 +93,9 @@ public class ColorChangerController : NetworkBehaviour
 
             _utilObject.transform.SetParent(_cubeOnChanger.GetComponent<NetworkInterpolator>().VisualReference.transform);
             _utilObject.transform.localPosition = Vector3.zero;
-            _utilObject.transform.localRotation = Quaternion.identity;
-            _utilObject.transform.localScale = new Vector3(1f / _cubeOnChanger.transform.localScale.x, 1f / _cubeOnChanger.transform.localScale.y, 1f / _cubeOnChanger.transform.localScale.z);
 
             _utilObject.Initialize(_cubeOnChanger, _changeTime);
+            StartCoroutine("CoUpdateGaugeColor", _cubeOnChanger);
         }
     }
 
@@ -101,7 +107,8 @@ public class ColorChangerController : NetworkBehaviour
     {
         _utilObject.StartTimer();
 
-        if (_cubeOnChanger.IsOwner) {
+        if (_cubeOnChanger.IsOwner)
+        {
             _cubeRigidbody.isKinematic = false;
         }
 
@@ -128,7 +135,7 @@ public class ColorChangerController : NetworkBehaviour
     private IEnumerator CoChangeCubeColor(CubeController cubeController)
     {
         cubeController.SetActive(false);
-        
+
         yield return new WaitForSeconds(TRANSITION_TIME);
 
         cubeController.SetActive(true);
@@ -137,5 +144,45 @@ public class ColorChangerController : NetworkBehaviour
         cubeController.ChangeColor(3 - cubeController.Color);
 
         FixCubeClientRpc();
+    }
+
+    private IEnumerator CoUpdateGaugeColor(CubeController cubeController)
+    {
+        float preparationTime = TRANSITION_TIME * 0.2f;
+        float fillTime = TRANSITION_TIME * 0.8f;
+
+        Color initialColor = _gaugeMeshRenderer.material.GetColor("_FillColor");
+        Color originalColor = _materials[(int)cubeController.Color - 1].color;
+        Color newColor = _materials[2 - (int)cubeController.Color].color;
+
+        _gaugeMeshRenderer.material.SetColor("_BackgroundColor", originalColor);
+
+        float timer = 0f;
+        float lastTime = Time.realtimeSinceStartup;
+
+        while (timer < preparationTime)
+        {
+            _gaugeMeshRenderer.material.SetColor("_FillColor", Color.Lerp(initialColor, originalColor, timer / preparationTime));
+
+            yield return new WaitForSeconds(0.01f);
+
+            timer += Time.realtimeSinceStartup - lastTime;
+            lastTime = Time.realtimeSinceStartup;
+        }
+
+        _gaugeMeshRenderer.material.SetFloat("_FillAmount", 0f);
+        _gaugeMeshRenderer.material.SetColor("_FillColor", newColor);
+
+        timer -= preparationTime;
+
+        while (timer < fillTime)
+        {
+            _gaugeMeshRenderer.material.SetFloat("_FillAmount", timer / fillTime);
+
+            yield return new WaitForSeconds(0.01f);
+
+            timer += Time.realtimeSinceStartup - lastTime;
+            lastTime = Time.realtimeSinceStartup;
+        }
     }
 }
