@@ -24,14 +24,15 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
 
     private Rigidbody _rigidbody;
     private Collider _collider;
-    private MeshFilter _meshFilter;
     private MeshRenderer _meshRenderer;
 
     private NetworkInterpolator _networkInterpolator;
 
     // 빙의한 플레이어에 대한 레퍼런스
     private PlayerController _interactingPlayer;
+    private Rigidbody _interactingRigidbody;
     private PlayerRenderer _interactingPlayerRenderer;
+    private CameraController _interactingCameraController;
 
     // 빙의한 플레이어가 원래 가지고 있던 Mesh, Material
     private Mesh _originalMesh;
@@ -54,7 +55,6 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
 
         _networkInterpolator.AddVisualReferenceDependantFunction(() =>
         {
-            _meshFilter = _networkInterpolator.VisualReference.GetComponent<MeshFilter>();
             _meshRenderer = _networkInterpolator.VisualReference.GetComponent<MeshRenderer>();
 
             _outline = _networkInterpolator.VisualReference.GetComponent<Outline>();
@@ -118,8 +118,9 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
 
             if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x).Length == 0)
             {
-                if (!Physics.Raycast(transform.position, newPoint - transform.position, (newPoint - transform.position).magnitude)) {
-                    player.transform.position = newPoint;
+                if (!Physics.Raycast(transform.position, newPoint - transform.position, (newPoint - transform.position).magnitude))
+                {
+                    _interactingRigidbody.MovePosition(newPoint);
                     _collider.enabled = false;
 
                     return true;
@@ -131,8 +132,9 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
 
             if (Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x).Length == 0)
             {
-                if (!Physics.Raycast(transform.position, newPoint - transform.position, (newPoint - transform.position).magnitude)) {
-                    player.transform.position = newPoint;
+                if (!Physics.Raycast(transform.position, newPoint - transform.position, (newPoint - transform.position).magnitude))
+                {
+                    _interactingRigidbody.MovePosition(newPoint);
                     _collider.enabled = false;
 
                     return true;
@@ -152,6 +154,10 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     public bool StartInteraction(PlayerController player)
     {
         _interactingPlayer = player;
+        _interactingRigidbody = player.GetComponent<Rigidbody>();
+
+        _interactingCameraController = player.GetComponent<CameraController>();
+        _interactingCameraController.ChangeCameraMode(false);
 
         // Local 환경과 Remote 환경에서 상태를 갱신한다.
         StartPossession(player);
@@ -165,8 +171,8 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
             StartPossessionServerRpc(player.gameObject);
         }
 
-        player.transform.position = transform.position;
-        player.transform.rotation = transform.rotation;
+        _interactingRigidbody.MovePosition(transform.position);
+        _interactingRigidbody.MoveRotation(transform.rotation);
 
         return true;
     }
@@ -176,6 +182,11 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
         // 빙의 해제 후 들어갈 여유 공간이 있다면
         if (CheckDispossessionPosition(player))
         {
+            _interactingCameraController.ChangeCameraMode(true);
+            _interactingCameraController = null;
+
+            _interactingRigidbody = null;
+
             // Local 환경과 Remote 환경에서 상태를 갱신한다.
             StopPossession(player);
 
@@ -215,6 +226,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
     private void StartPossession(PlayerController player)
     {
         _interactingPlayerRenderer = player.GetComponent<PlayerRenderer>();
+        _interactingCameraController = player.GetComponent<CameraController>();
 
         // 플레이어의 Mesh, Material 갱신
         _interactingPlayerRenderer.HidePlayerRender();
@@ -245,6 +257,7 @@ public class PossessableController : PlayerDependantBehaviour, IInteractable
         player.UpdateCollider(null, Vector3.one);
 
         _interactingPlayerRenderer = null;
+        _interactingCameraController = null;
     }
 
     /// <summary>

@@ -93,9 +93,9 @@ public class PlatformController : NetworkBehaviour, IActivatable
         return true;
     }
 
-    private float EaseInOut(float timer) {
-        float sine = Mathf.Sin(Mathf.PI * timer / 2f);
-        return sine * sine;
+    private float EaseInOut(float timer)
+    {
+        return -(Mathf.Cos(Mathf.PI * timer) - 1f) / 2f;
     }
 
     /// <summary>
