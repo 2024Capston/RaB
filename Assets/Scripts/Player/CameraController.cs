@@ -11,8 +11,6 @@ public class CameraController : NetworkBehaviour
     [SerializeField] CinemachineVirtualCamera _firstPersonCamera;
     [SerializeField] CinemachineFreeLook _thirdPersonCamera;
 
-    private Vector2 _rotateInput;
-
     private CinemachinePOV _cinemachinePOV;
 
     private bool _isFirstPerson;
@@ -50,25 +48,6 @@ public class CameraController : NetworkBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (!IsOwner)
-        {
-            return;
-        }
-
-        if (_isFirstPerson)
-        {
-            _cinemachinePOV.m_VerticalAxis.m_InputAxisValue = _rotateInput.y;
-            _cinemachinePOV.m_HorizontalAxis.m_InputAxisValue = _rotateInput.x;
-        }
-        else
-        {
-            _thirdPersonCamera.m_YAxis.m_InputAxisValue = _rotateInput.y;
-            _thirdPersonCamera.m_XAxis.m_InputAxisValue = _rotateInput.x;
-        }
-    }
-
     public void ChangeCameraMode(bool toFirstPerson)
     {
         if (toFirstPerson && !_isFirstPerson)
@@ -92,6 +71,17 @@ public class CameraController : NetworkBehaviour
 
     public void OnLookAroundInput(InputValue value)
     {
-        _rotateInput = value.Get<Vector2>() / 64f;
+        Vector2 rotateInput = value.Get<Vector2>() / 16f;
+
+        if (_isFirstPerson)
+        {
+            _cinemachinePOV.m_VerticalAxis.m_InputAxisValue = rotateInput.y;
+            _cinemachinePOV.m_HorizontalAxis.m_InputAxisValue = rotateInput.x;
+        }
+        else
+        {
+            _thirdPersonCamera.m_YAxis.m_InputAxisValue = rotateInput.y;
+            _thirdPersonCamera.m_XAxis.m_InputAxisValue = rotateInput.x;
+        }
     }
 }

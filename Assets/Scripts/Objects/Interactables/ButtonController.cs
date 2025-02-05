@@ -43,28 +43,47 @@ public class ButtonController : NetworkBehaviour, IInteractable
     [SerializeField] private GameObject[] _activatables;
 
     /// <summary>
+    /// 버튼 애니메이터
+    /// </summary>
+    [SerializeField] private Animator _animator;
+
+    /// <summary>
+    /// 버튼 조명 Mesh Renderer 및 매터리얼
+    /// </summary>
+    [SerializeField] private MeshRenderer _lightMeshRenderer;
+    [SerializeField] private Material[] _lightMaterials;
+
+    /// <summary>
+    /// 버튼 유리 Mesh Renderer 및 매터리얼
+    /// </summary>
+    [SerializeField] private MeshRenderer[] _glassMeshRenderers;
+    [SerializeField] private Material[] _glassMaterials;
+
+    /// <summary>
     /// 버튼이 활성화됐을 때 실행될 함수
     /// </summary>
     [SerializeField] private UnityEvent _events;
-
-    /// <summary>
-    /// 렌더링에 쓰일 매터리얼. (파랑, 빨강 순)
-    /// </summary>
-    [SerializeField] private Material[] _materials;
 
     private bool _isPressed = false;    // 버튼이 눌려서 활성화됐는지 여부
     private bool _isEnabled = true;     // 버튼을 사용 가능한지 여부
     private float _temporaryTime = 0f;  // Temporary용 타이머
 
     private Outline _outline;
-    public Outline Outline {
+    public Outline Outline
+    {
         get => _outline;
         set => _outline = value;
     }
 
     public override void OnNetworkSpawn()
     {
-        GetComponent<MeshRenderer>().material = _materials[(int)_buttonColor - 1];
+        _lightMeshRenderer.material = _lightMaterials[(int)_buttonColor - 1];
+
+        foreach (MeshRenderer glassMeshRenderer in _glassMeshRenderers)
+        {
+            glassMeshRenderer.material = _glassMaterials[(int)_buttonColor - 1];
+        }
+
         _outline = GetComponent<Outline>();
     }
 
@@ -129,17 +148,20 @@ public class ButtonController : NetworkBehaviour, IInteractable
 
             foreach (PlayerController playerController in playerControllers)
             {
-                if (Vector3.Distance(transform.position, playerController.transform.position) > _detectionRadius) {
+                if (Vector3.Distance(transform.position, playerController.transform.position) > _detectionRadius)
+                {
                     return false;
                 }
             }
         }
-        
+
         return (_buttonColor == ColorType.Purple || _buttonColor == player.Color) && (_buttonType == ButtonType.Toggle || !_isPressed);
     }
 
     public bool StartInteraction(PlayerController player)
     {
+        PlayButtonPressAnimationServerRpc();
+
         PressButtonServerRpc();
 
         return false;
@@ -202,10 +224,23 @@ public class ButtonController : NetworkBehaviour, IInteractable
         _isEnabled = isEnabled;
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayButtonPressAnimationServerRpc()
+    {
+        PlayButtonPressAnimationClientRpc();
+    }
+
+    [ClientRpc]
+    private void PlayButtonPressAnimationClientRpc()
+    {
+        _animator.SetTrigger("Press");
+    }
+
     [ClientRpc]
     private void SetButtonPressStateClientRpc(bool isPressed)
     {
         _isPressed = isPressed;
+
     }
 
     /// <summary>
