@@ -46,7 +46,7 @@ Shader "Custom/GaugeFill"
             fixed4 frag (v2f i) : SV_Target
             {
                 float fill = step(i.uv.x, _FillAmount);
-                fixed4 color = lerp(_BackgroundColor, _FillColor, fill) * 4.0;
+                fixed4 color = lerp(_BackgroundColor, _FillColor, fill);
                 return color;
             }
             ENDCG
