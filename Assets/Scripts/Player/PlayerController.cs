@@ -225,10 +225,9 @@ public class PlayerController : NetworkBehaviour
     {
         if (_networkPlatformFinder.Platform)
         {
-            Vector3 positionDiff = _networkPlatformFinder.Velocity * Time.deltaTime;
-            positionDiff.y = 0f;
-
-            _rigidbody.MovePosition(_rigidbody.position + positionDiff);
+            Vector3 velocityDiff = _networkPlatformFinder.Velocity;
+            velocityDiff.y = 0f;
+            _rigidbody.velocity += velocityDiff;
         }
     }
 
