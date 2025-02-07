@@ -29,9 +29,6 @@ public class StageLoader : NetworkBehaviour
         
         // Local Object는 Client에 개별적으로 Load 한다.
         LoadAllLocalObjectClientRpc(); 
-        
-        // InGameManager에도 자신을 등록한다.
-        InGameManager.Instance.StageLoader = this;
     }
 
     /// <summary>
@@ -103,6 +100,7 @@ public class StageLoader : NetworkBehaviour
         if (++_clientLoadCount == 1)
         {
             // Client의 Loading이 모두 완료되었으므로 게임 시작
+            Logger.Log("Client Load Completed");
             InGameManager.Instance.StartGame();
         }
         // TODO 

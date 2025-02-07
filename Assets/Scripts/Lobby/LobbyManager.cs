@@ -60,10 +60,16 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         // InGame Scene으로 이동하면 ConnectionManager에 있는 SelectStage로 Loader를 불러온다.
         SessionManager.Instance.SelectedStage = stageName;
         
+        // 현재 Player는 Despawn합니다.
         foreach (ulong playerId in NetworkManager.Singleton.ConnectedClientsIds)
         {
             PlayerConfig playerConfig = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(playerId).GetComponent<PlayerConfig>();
-            playerConfig.MyPlayer.GetComponent<NetworkObject>().Despawn();
+            if (playerConfig.MyPlayer is not null)
+            {
+                playerConfig.MyPlayer.GetComponent<NetworkObject>().Despawn();
+                playerConfig.MyPlayer = null;
+            }
+            
         }
         
         SceneLoaderWrapper.Instance.LoadScene(SceneType.InGame.ToString(), true);
@@ -80,7 +86,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
             .GetPlayerNetworkObject(serverRpcParams.Receive.SenderClientId).GetComponent<PlayerConfig>();
         int isBlue = playerConfig.IsBlue ? 1 : 0;
         GameObject player = Instantiate(_playerPrefabs[isBlue]);
-    /*    player.transform.position = _spawnPoints[isBlue].position;
+    /*  player.transform.position = _spawnPoints[isBlue].position;
         player.transform.rotation = _spawnPoints[isBlue].rotation;*/
         
         player.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
@@ -96,7 +102,8 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     private void SetMapDataServerRpc(ServerRpcParams serverRpcParams = default)
     {
         PlayData data = SessionManager.Instance.SelectedData;
-
+        
+        // 데이터 세팅을 요청한 ClientId를 저장합니다.
         ClientRpcParams clientRpcParams = new ClientRpcParams
         {
             Send = new ClientRpcSendParams
@@ -105,6 +112,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
             }
         };
         
+        // 데이터를 요청한 Client에서 뿌려서 Airlock를 세팅합니다.
         for (int i = 0; i < 6; i++)
         {
             int index = (SessionManager.Instance.CurrentFloor - 1) * 6 + i;
@@ -113,6 +121,13 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         }
     }
 
+    /// <summary>
+    /// AirLock의 StageName과 개방 여부를 세팅합니다.
+    /// </summary>
+    /// <param name="index">Airlock 인덱스</param>
+    /// <param name="stageName">StageName</param>
+    /// <param name="isAirlockOpened">Stage 개방 여부</param>
+    /// <param name="clientRpcParams">세팅 할 Client</param>
     [ClientRpc]
     private void SetAirlockDataClientRpc(int index, StageName stageName, bool isAirlockOpened, ClientRpcParams clientRpcParams = default)
     {

@@ -9,6 +9,10 @@ using UnityEngine;
 
 namespace RaB.Connection
 {
+    /// <summary>
+    /// 네트워크 연결관련 처리를 하는 매니저
+    /// 현재 연결 상태와 입장한 Lobby를 관리하고 있습니다.
+    /// </summary>
     public class ConnectionManager : SingletonBehavior<ConnectionManager>
     {
         private ConnectionState _currentState;
@@ -20,7 +24,7 @@ namespace RaB.Connection
         internal readonly ClientConnectedState ClientConnected = new ClientConnectedState();
         
         public Lobby? CurrentLobby { get; internal set; }
-
+        
         private void Start()
         {
             CurrentLobby = null;
@@ -38,14 +42,14 @@ namespace RaB.Connection
         private void OnDestroy()
         {
             CurrentLobby = null;
-            
             SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
             SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
             SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
-            NetworkManager.Singleton.OnConnectionEvent -= OnConnectionEvent;
-            NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
-            NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
-            NetworkManager.Singleton.OnTransportFailure -= OnTransportFailure;
+            
+            /*
+             NetworkManager에 등록된 델리게이트를 제거하는 코드가 있었으나
+             NetworkManager가 더 빨리 Destory 되기 때문에 제거하였습니다.
+             */
         }
 
         public void StartServer()
@@ -79,7 +83,10 @@ namespace RaB.Connection
             _currentState = nextState;
             _currentState.Enter();
         }
-
+        
+        /// <summary>
+        /// 연결이벤트가 발생했을 때 이벤트 타입에 따라 Connect, DisConnect를 구분합니다.
+        /// </summary>
         private void OnConnectionEvent(NetworkManager networkManager, ConnectionEventData connectionEventData)
         {
             if (connectionEventData.EventType == ConnectionEvent.ClientConnected)

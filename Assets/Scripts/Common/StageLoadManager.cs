@@ -26,31 +26,37 @@ public class StageLoadManager : NetworkSingletonBehaviour<StageLoadManager>
     }
 
     /// <summary>
-    /// StageName에 해당하는 StageLoader를 Load
+    /// StageName에 해당하는 StageLoader를 생성하여 반환합니다.
     /// </summary>
-    /// <param name="stageName"></param>
-    public void LoadStage(StageName stageName)
+    /// <param name="stageName">생성할 StageName</param>
+    /// <returns>생성된 Loader</returns>
+    public StageLoader LoadLoader(StageName stageName)
     {
+        // 해당 Stage의 Loader의 이름이 해싱되었는지 확인
         if (!_stageLoaderData.TryGetValue(stageName, out string stageLoaderName))
         {
             throw new Exception($"{stageName} does not exist in the dictionary");
         }
-
+        
         GameObject loaderPrefab = Resources.Load<GameObject>(STAGELOADER_PATH + stageLoaderName);
-        if (!loaderPrefab)
+        
+        // 올바른 경로에 Loader가 존재하는지 확인
+        if (loaderPrefab is null)
         {
             throw new Exception($"Cannot find the path {STAGELOADER_PATH + stageLoaderName}");
         }
 
-        GameObject loaderObject = Instantiate(loaderPrefab);
-        loaderObject.GetComponent<NetworkObject>().Spawn();
+        StageLoader stageLoader = Instantiate(loaderPrefab).GetComponent<StageLoader>();
         
-        StageLoader stageLoader = loaderObject.GetComponent<StageLoader>();
-        if (!stageLoader)
+        // 생성된 Loader에 StageLoader 컴포넌트가 있는지 확인
+        if (stageLoader is null)
         {
             throw new Exception("StageLoader Component does not exist");
         }
+        
+        // Loader 컴포넌트가 존재하면 NetworkObject 컴포넌트는 존재하므로 예외처리 필요 없음
+        stageLoader.GetComponent<NetworkObject>().Spawn();
 
-        stageLoader.LoadStage();
+        return stageLoader;
     } 
 }

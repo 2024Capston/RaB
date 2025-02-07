@@ -9,12 +9,23 @@ using UnityEngine.SceneManagement;
 
 public class InGameManager : NetworkSingletonBehaviour<InGameManager>
 {
+    /// <summary>
+    /// InGameManager의 상태 Enum
+    /// </summary>
+    private enum InGameState
+    {
+        Init, Progress, Reset, End
+    }
+
+    private InGameState _inGameState;
+    
     private Transform _blueSpawnPoint;
     private Transform _redSpawnPoint;
     
     [SerializeField] private GameObject[] _playerPrefabs = new GameObject[2];
     
     public StageLoader StageLoader { get; set; }
+    public StageManager StageManager { get; set; }
     
     protected override void Init()
     {
@@ -22,10 +33,17 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
         base.Init();
 
         StageLoader = null;
+        StageManager = null;
+        _inGameState = InGameState.Init;
     }
 
+    /// <summary>
+    /// 선택한 스테이지의 Loader를 생성합니다.
+    /// Loader를 생성하다 오류가 발생하면 LobbyScene으로 돌아갑니다.
+    /// </summary>
     private void Start()
     {
+        base.OnNetworkSpawn();
         if (!IsHost)
         {
             return;
@@ -36,15 +54,19 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
 
         try
         {
-            // 시작한 스테이지를 가져온다.
+            // 선택한 스테이지를 가져옵니다. 스테이지 값이 이상하면 예외가 발생합니다.
             StageName stageName = SessionManager.Instance.SelectedStage;
             if (stageName == StageName.Size)    
             {
                 throw new Exception("StageName MissMatch");
             }   
 
-            // 해당 스테이지의 Loader를 생성한다.
-            StageLoadManager.Instance.LoadStage(stageName);
+            // 해당 스테이지의 Loader를 만듭니다.
+            StageLoader = StageLoadManager.Instance.LoadLoader(stageName);
+            Logger.Log("StageLoader Generated");
+            
+            // Loader를 이용해 Stage를 Load합니다.
+            StageLoader.LoadStage();
         }
         catch (Exception e)
         {
@@ -53,9 +75,12 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
         
     }
 
+    /// <summary>
+    /// 게임이 시작하면 SpawnPoint를 찾고 해당 위치에 플레이어를 Spawn합니다. 이후 해당 스테이지 매니저에서 게임 처리를 하면 됩니다.
+    /// 중간 과정에서 예외 발생 시 생성한 모든 Object를 파괴하고 Lobby로 되돌아 갑니다.
+    /// </summary>
     public void StartGame()
     {
-        // SpawnPoint Tag를 찾느다.
         try
         {
             FindSpawnPoint();
@@ -64,33 +89,42 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
             {
                 SpawnPlayer(clientId);
             }
+            
+            UIManager.Instance.CloseAllOpenUI();
+            _inGameState = InGameState.Progress;
+            
+            // StageManager를 상속받은 스크립트가 Loader에 포함되어 있어야 정상작동합니다.
+            // StageManager.Instance.StartGame();
+
+            // 테스트용으로 일정 시간 후에 Lobby로 복귀
+            StartCoroutine(CoTest());
         }
         catch (Exception e)
         {
             DestoryAllObjects();
             StageLoadFailed(e);
         }
-        UIManager.Instance.CloseAllOpenUI();
-        // StageManager.Instance.StartGame();
-
-        StartCoroutine(CoTest());
     }
 
-    private void FindSpawnPoint()
+    private IEnumerator CoTest()
     {
-        _blueSpawnPoint = GameObject.Find("BlueSpawnPoint").transform;
-        _redSpawnPoint = GameObject.Find("RedSpawnPoint").transform;
-        
-        if (!_blueSpawnPoint)
-        {
-            throw new Exception("BlueSpawnPoint has not exist");
-        }
-        if (!_redSpawnPoint)
-        {
-            throw new Exception("RedSpawnPoint has not exist");
-        }
+        yield return new WaitForSeconds(60f);
+        EndGameServerRpc();
     }
     
+    /// <summary>
+    /// Tag를 이용해 SpawnPoint를 탐색합니다.
+    /// </summary>
+    private void FindSpawnPoint()
+    {
+        _blueSpawnPoint = GameObject.FindWithTag("Blue Spawn Point").transform;
+        _redSpawnPoint = GameObject.FindWithTag("Red Spawn Point").transform;
+    }
+    
+    /// <summary>
+    /// PlayerConfig를 참고해 지정된 위치에 Player를 Spawn합니다.
+    /// </summary>
+    /// <param name="clientId"></param>
     private void SpawnPlayer(ulong clientId)
     {
         PlayerConfig playerConfig = NetworkManager.Singleton.SpawnManager
@@ -103,12 +137,6 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
         playerConfig.MyPlayer = playerController;
         //playerController.PlayerColor = playerConfig.IsBlue ? ColorType.Blue : ColorType.Red;
     }
-
-    private IEnumerator CoTest()
-    {
-        yield return new WaitForSeconds(60f);
-        EndGameServerRpc();
-    }
     
     /// <summary>
     /// 게임이 종료되었으면 LobbyScene으로 되돌아간다.
@@ -116,19 +144,32 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
     [ServerRpc]
     public void EndGameServerRpc()
     {
-        // TODO Clear 했을 때 GameData를 업데이트 해야 한다.
-        // 이미 종료 상태일 땐 밑 로직 처리되지 않게 하기
+        // ServerRpc의 중복 호출을 방지하기 위해 이미 종료 단계일 땐 처리하지 않는다.
+        if (_inGameState == InGameState.End)
+        {
+            return;
+        }
+
+        _inGameState = InGameState.End;
         
         DestoryAllObjects();
         SceneLoaderWrapper.Instance.LoadScene(SceneType.Lobby.ToString(), true);
     }
 
+    /// <summary>
+    /// Spawn된 모든 Network Object들을 Despawn합니다.
+    /// </summary>
     private void DestoryAllObjects()
     {
         foreach (ulong playerId in NetworkManager.Singleton.ConnectedClientsIds)
         {
             PlayerConfig playerConfig = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(playerId).GetComponent<PlayerConfig>();
-            playerConfig.MyPlayer.GetComponent<NetworkObject>().Despawn();
+            if (playerConfig.MyPlayer is not null)
+            {
+                playerConfig.MyPlayer.GetComponent<NetworkObject>().Despawn();
+                playerConfig.MyPlayer = null;
+            }   
+            
         }
         
         StageLoader.DestoryStage();
@@ -140,8 +181,9 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
     /// </summary>
     private void StageLoadFailed(Exception e)
     {
+        _inGameState = InGameState.End;
         Logger.LogError($"StageLoad Failed\n{e}");
-        Logger.Log($"Scene Transition {SceneManager.GetActiveScene().name} to {SceneType.Lobby}");
         SceneLoaderWrapper.Instance.LoadScene(SceneType.Lobby.ToString(), true);
+        Logger.Log($"Scene Transition {SceneManager.GetActiveScene().name} to {SceneType.Lobby}");
     }
 }
