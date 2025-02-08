@@ -139,7 +139,7 @@ public class InGameManager : NetworkSingletonBehaviour<InGameManager>
     }
     
     /// <summary>
-    /// 게임이 종료되었으면 LobbyScene으로 되돌아간다.
+    /// 게임이 종료되었으면 LobbyScene으로 되돌아갑니다. Host만 호출할 수 있습니다.
     /// </summary>
     [ServerRpc]
     public void EndGameServerRpc()

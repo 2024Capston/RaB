@@ -26,10 +26,12 @@ public class CodeInputUI : BaseUI
     /// </summary>
     public async void OnClickOkButton()
     {
+        // 코드를 입력받고 그에 따른 처리를 합니다.
         Result result = await RaB.Connection.ConnectionManager.Instance.StartClient(_inputField.text);
 
         switch (result)
         {
+            // 유효한 코드의 경우 바로 해당 Lobby로 입장
             case Result.OK:
             {
                 _descText.text = "Find the lobby!";
@@ -37,18 +39,21 @@ public class CodeInputUI : BaseUI
                 CloseUI();
                 break;
             }
+            // 코드 형식이 올바르지 않은 경우
             case Result.InvalidParam:
             {
                 _descText.text = "The format is incorrect.";
                 _descText.color = UnityEngine.Color.red;
                 break;
             }
+            // 로비가 꽉 찾을 때
             case Result.Busy:
             {
                 _descText.text = "Lobby is full";
                 _descText.color = UnityEngine.Color.red;
                 break;
             }
+            // 유효하지 않은 코드
             case Result.InvalidName:
             {
                 _descText.text = "Couldn't find the lobby";

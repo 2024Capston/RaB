@@ -97,7 +97,8 @@ public class StageLoader : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void CompleteLoadAllLocalObjectServerRpc()
     {
-        if (++_clientLoadCount == 1)
+        // 혼자 테스트가 필요할 땐 1일 때 StartGame을 해주면 됩니다.
+        if (++_clientLoadCount == 2)
         {
             // Client의 Loading이 모두 완료되었으므로 게임 시작
             Logger.Log("Client Load Completed");
@@ -108,7 +109,7 @@ public class StageLoader : NetworkBehaviour
     }
     
     /// <summary>
-    /// 생성된 모든 NetworkObject를 Destory하는 메소드
+    /// 생성된 모든 NetworkObject를 Destroy하는 메소드
     /// </summary>
     private void DestroyAllNetworkObject()
     {

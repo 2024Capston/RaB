@@ -63,12 +63,14 @@ public class PlayDataSelectUI : BaseUI
             CancelButtonText = "취소",
             OnClickOKButton = () =>
             {
+                // OK 버튼을 눌렀을 때 새 게임은 새로 데이터를 생성
                 if (!_playDataSelectUIData.UserGameData.PlayDatas[index].HasData)
                 {
                     _playDataSelectUIData.UserGameData.SetNewData(index);
                     _playDataSelectUIData.UserGameData.SaveData();
                 }
-
+                
+                // 선택한 인덱스로 세션을 생성하고 Server를 실행
                 SessionManager.Instance.CreateSession(index);
                 ConnectionManager.Instance.StartServer();
             },
