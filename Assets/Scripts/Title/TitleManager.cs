@@ -1,10 +1,12 @@
 using Netcode.Transports.Facepunch;
 using Steamworks;
+using Steamworks.Data;
 using System;
 using System.Collections;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
@@ -32,8 +34,6 @@ public class TitleManager : MonoBehaviour
 
     private void Start()
     {
-        // TODO : User의 Data를 불러오는 작업이 필요하다.
-
         if (_isSteamClientInitialized)
         {
             LoadUserData();
@@ -52,6 +52,7 @@ public class TitleManager : MonoBehaviour
         {
             SteamClient.Init(APP_ID, false);
             _isSteamClientInitialized = true;
+            _facepunch.InitSteamworks();
         }
         catch (Exception e)
         {
@@ -72,10 +73,6 @@ public class TitleManager : MonoBehaviour
 
             // Confirm 팝업을 연다.
             UIManager.Instance.OpenUI<ConfirmUI>(confirmUIData);
-        }
-        finally
-        {
-            _facepunch.InitSteamworks();
         }
     }
 
@@ -110,7 +107,7 @@ public class TitleManager : MonoBehaviour
         _progressText.text = "10%";
 
         // Home Scene을 비동기적으로 불러오기 위해 시도한다.
-        _asyncOperation = SceneLoader.Instance.LoadSceneAsync(SceneType.Home);
+        _asyncOperation = SceneManager.LoadSceneAsync(SceneType.Home.ToString());
 
         if (_asyncOperation == null)
         {

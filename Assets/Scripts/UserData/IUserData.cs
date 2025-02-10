@@ -1,3 +1,5 @@
+using System;
+
 /// <summary>
 /// UserDataManager에서 사용하는 UserData Interface
 /// </summary>
