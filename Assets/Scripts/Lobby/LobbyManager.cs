@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Steamworks;
 using Unity.Netcode;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
@@ -11,8 +10,8 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     [SerializeField] private GameObject[] _playerPrefabs = new GameObject[2];
     [SerializeField] private Transform[] _spawnPoints = new Transform[2];
     [SerializeField] private AirlockController[] _airlockControllers = new AirlockController[6];
-    public LobbyUIController LobbyUIController {  get; private set; }
-    
+    public LobbyUIController LobbyUIController { get; private set; }
+
     protected override void Init()
     {
         _isDestroyOnLoad = true;
@@ -49,7 +48,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     [ServerRpc(RequireOwnership = false)]
     public void RequestOpenDoorServerRpc(StageName stageName)
     {
-        
+
     }
 
     /// <summary>
@@ -58,7 +57,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     [ServerRpc(RequireOwnership = false)]
     public void RequestOpenElevatorServerRpc()
     {
-        
+
     }
 
     /// <summary>
@@ -67,9 +66,9 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     [ServerRpc(RequireOwnership = false)]
     public void RequestMoveFloorServerRpc(int floor)
     {
-        
+
     }
-    
+
     /// <summary>
     /// InGame으로 이동하는 메소드 OnClickAirlockButtonServerRpc에서 호출되므로 Server에서 실행된다.
     /// </summary>
@@ -80,7 +79,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         SessionManager.Instance.SelectedStage = stageName;
         NetworkManager.SceneManager.LoadScene(SceneType.InGame.ToString(), UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
-    
+
     /// <summary>
     /// PlayerConfig를 참고하여 
     /// </summary>
@@ -92,9 +91,9 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
             .GetPlayerNetworkObject(serverRpcParams.Receive.SenderClientId).GetComponent<PlayerConfig>();
         int isBlue = playerConfig.IsBlue ? 1 : 0;
         GameObject player = Instantiate(_playerPrefabs[isBlue]);
-    /*    player.transform.position = _spawnPoints[isBlue].position;
-        player.transform.rotation = _spawnPoints[isBlue].rotation;*/
-        
+        /*    player.transform.position = _spawnPoints[isBlue].position;
+            player.transform.rotation = _spawnPoints[isBlue].rotation;*/
+
         player.GetComponent<NetworkObject>().SpawnWithOwnership(serverRpcParams.Receive.SenderClientId);
         PlayerController playerController = player.GetComponent<PlayerController>();
         playerConfig.MyPlayer = playerController;
@@ -109,7 +108,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
             // 해당 스테이지를 클리어 했다면 문을 연다.
             _airlockControllers[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].IsAirlockOpened =
                 data.MapInfoList[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].ClearFlag != 0;
-            
+
             _airlockControllers[(SessionManager.Instance.CurrentFloor - 1) * 6 + i].StageName = (StageName)((SessionManager.Instance.CurrentFloor - 1) * 6 + i);
         }
     }

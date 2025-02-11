@@ -919,7 +919,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Damping: {x: 0, y: 0, z: 0}
-  ShoulderOffset: {x: 0.5, y: 3, z: 5}
+  ShoulderOffset: {x: 0, y: 3, z: 3}
   VerticalArmLength: 0
   CameraSide: 0.5
   CameraDistance: 0

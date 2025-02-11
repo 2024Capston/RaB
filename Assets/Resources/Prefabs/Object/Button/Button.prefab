@@ -230,6 +230,7 @@ MonoBehaviour:
   _animator: {fileID: 6737163864863246141}
   _lightMeshRenderer: {fileID: 1974353558567234100}
   _lightMaterials:
+  - {fileID: 2100000, guid: 9763a66416c89f748b062a69ab4d7244, type: 2}
   - {fileID: 2100000, guid: 10d9fbaf5995d58429bef09df5ec8be7, type: 2}
   - {fileID: 2100000, guid: 4cb158ad218484c44906fe37ffa769e0, type: 2}
   - {fileID: 2100000, guid: 68eadcbfeed3be246803ed6d2efbd9d9, type: 2}
@@ -237,6 +238,7 @@ MonoBehaviour:
   - {fileID: 1614882635829938387}
   - {fileID: 3654346297062570058}
   _glassMaterials:
+  - {fileID: 2100000, guid: b609cb9a92cce104f82ac7cb6c0279c9, type: 2}
   - {fileID: 2100000, guid: c78c73891e3f34748aa3d005f614afda, type: 2}
   - {fileID: 2100000, guid: ee13c450abc1379469b04e772bfd0d96, type: 2}
   - {fileID: 2100000, guid: 07bce2ae8ebfce3449dbfc059437ccff, type: 2}
