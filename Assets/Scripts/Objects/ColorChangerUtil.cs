@@ -19,7 +19,10 @@ public class ColorChangerUtil : MonoBehaviour
 
     private void Update()
     {
-        transform.LookAt(Camera.main.transform.position);
+        if (Camera.main)
+        {
+            transform.LookAt(Camera.main.transform.position);
+        }
 
         if (!_timerStarted || _timerEnded)
         {

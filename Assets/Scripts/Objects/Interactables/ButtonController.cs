@@ -64,9 +64,25 @@ public class ButtonController : NetworkBehaviour, IInteractable
     /// </summary>
     [SerializeField] private UnityEvent _events;
 
-    private bool _isPressed = false;    // 버튼이 눌려서 활성화됐는지 여부
-    private bool _isEnabled = true;     // 버튼을 사용 가능한지 여부
     private float _temporaryTime = 0f;  // Temporary용 타이머
+
+    /// <summary>
+    /// 버튼이 눌려서 활성화됐는지 여부
+    /// </summary>
+    private bool _isPressed = false;
+    public bool isPressed
+    {
+        get => _isPressed;
+    }
+
+    /// <summary>
+    /// 버튼을 사용 가능한지 여부
+    /// </summary>
+    private bool _isEnabled = true;
+    public bool isEnabled
+    {
+        get => _isEnabled;
+    }
 
     private Outline _outline;
     public Outline Outline
@@ -77,11 +93,11 @@ public class ButtonController : NetworkBehaviour, IInteractable
 
     public override void OnNetworkSpawn()
     {
-        _lightMeshRenderer.material = _lightMaterials[(int)_buttonColor - 1];
+        _lightMeshRenderer.material = _lightMaterials[(int)_buttonColor];
 
         foreach (MeshRenderer glassMeshRenderer in _glassMeshRenderers)
         {
-            glassMeshRenderer.material = _glassMaterials[(int)_buttonColor - 1];
+            glassMeshRenderer.material = _glassMaterials[(int)_buttonColor];
         }
 
         _outline = GetComponent<Outline>();
@@ -103,33 +119,6 @@ public class ButtonController : NetworkBehaviour, IInteractable
             {
                 SetButtonPressStateClientRpc(false);
                 DeactivateObjects();
-            }
-        }
-    }
-
-    private void ActivateObjects()
-    {
-        // IActivatable 활성화
-        foreach (GameObject gameObject in _activatables)
-        {
-            if (gameObject.TryGetComponent<IActivatable>(out IActivatable activatable))
-            {
-                activatable.Activate(gameObject);
-            }
-        }
-
-        // 이벤트 호출
-        _events.Invoke();
-    }
-
-    private void DeactivateObjects()
-    {
-        // IActivatable 비활성화
-        foreach (GameObject gameObject in _activatables)
-        {
-            if (gameObject.TryGetComponent<IActivatable>(out IActivatable activatable))
-            {
-                activatable.Deactivate(gameObject);
             }
         }
     }
@@ -240,7 +229,67 @@ public class ButtonController : NetworkBehaviour, IInteractable
     private void SetButtonPressStateClientRpc(bool isPressed)
     {
         _isPressed = isPressed;
+    }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void ActivateObjectsServerRpc()
+    {
+        // IActivatable 활성화
+        foreach (GameObject gameObject in _activatables)
+        {
+            if (gameObject.TryGetComponent<IActivatable>(out IActivatable activatable))
+            {
+                activatable.Activate(gameObject);
+            }
+        }
+
+        // 이벤트 호출
+        _events.Invoke();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DeactivateObjectsServerRpc()
+    {
+        // IActivatable 비활성화
+        foreach (GameObject gameObject in _activatables)
+        {
+            if (gameObject.TryGetComponent<IActivatable>(out IActivatable activatable))
+            {
+                activatable.Deactivate(gameObject);
+            }
+        }
+    }
+
+    [ClientRpc]
+    private void SetButtonColorClientRpc(ColorType newColor)
+    {
+        _buttonColor = newColor;
+        OnNetworkSpawn();
+    }
+
+    /// <summary>
+    /// 버튼에 새 색깔을 지정한다.
+    /// </summary>
+    /// <param name="newColor">새 색깔</param>
+    public void SetButtonColor(ColorType newColor)
+    {
+        SetButtonColorClientRpc(newColor);
+    }
+
+    /// <summary>
+    /// 버튼에 연결된 Activatable들을 서버 단에서 활성화한다.
+    /// </summary>
+    public void ActivateObjects()
+    {
+        ActivateObjectsServerRpc();
+    }
+
+    /// <summary>
+    /// 버튼에 연결된 Activatable들을 서버 단에서 비활성화한다.
+    /// </summary>
+    public void DeactivateObjects()
+    {
+        DeactivateObjectsServerRpc();
     }
 
     /// <summary>
