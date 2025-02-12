@@ -24033,6 +24033,31 @@ PrefabInstance:
       propertyPath: _activatables.Array.data[0]
       value: 
       objectReference: {fileID: 840933358}
+    - target: {fileID: 5908970674793578051, guid: e4a88bd9858f943489580e9987084674,
+        type: 3}
+      propertyPath: _color
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5908970674793578051, guid: e4a88bd9858f943489580e9987084674,
+        type: 3}
+      propertyPath: _buttonType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5908970674793578051, guid: e4a88bd9858f943489580e9987084674,
+        type: 3}
+      propertyPath: _temporaryCooldown
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5908970674793578051, guid: e4a88bd9858f943489580e9987084674,
+        type: 3}
+      propertyPath: _activatables.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5908970674793578051, guid: e4a88bd9858f943489580e9987084674,
+        type: 3}
+      propertyPath: _activatables.Array.data[0]
+      value: 
+      objectReference: {fileID: 840933358}
     - target: {fileID: 8555734388943171834, guid: e4a88bd9858f943489580e9987084674,
         type: 3}
       propertyPath: GlobalObjectIdHash
