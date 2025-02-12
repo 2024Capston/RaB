@@ -6,70 +6,33 @@ using UnityEngine.Rendering;
 using System;
 using UnityEngine.Events;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 
 /// <summary>
-/// 버튼을 조작하는 Class
+/// 버튼을 조작하는 Abstract Class
 /// </summary>
-public class ButtonController : NetworkBehaviour, IInteractable
+abstract public class ButtonController : NetworkBehaviour, IInteractable
 {
     /// <summary>
     /// 버튼 색깔
     /// </summary>
-    [SerializeField] private ColorType _buttonColor;
-
-    /// <summary>
-    /// 버튼 작동 방식
-    /// </summary>
-    [SerializeField] private ButtonType _buttonType;
-
-    /// <summary>
-    /// 작동 방식이 Temporary일 때 비활성화까지 걸리는 시간
-    /// </summary>
-    [SerializeField] private float _temporaryCooldown;
-
-    /// <summary>
-    /// 두 플레이어가 모두 근처에 위치해야 하는지 여부
-    /// </summary>
-    [SerializeField] private bool _requiresBoth;
-
-    /// <summary>
-    /// Requires Both가 true일 때 인식 반경
-    /// </summary>
-    [SerializeField] private float _detectionRadius;
+    [SerializeField] protected ColorType _color;
+    public ColorType Color
+    {
+        get => _color;
+    }
 
     /// <summary>
     /// 버튼이 활성화됐을 때 Activate될 IInteractable 오브젝트
     /// </summary>
     [SerializeField] private GameObject[] _activatables;
 
-    /// <summary>
-    /// 버튼 애니메이터
-    /// </summary>
-    [SerializeField] private Animator _animator;
-
-    /// <summary>
-    /// 버튼 조명 Mesh Renderer 및 매터리얼
-    /// </summary>
-    [SerializeField] private MeshRenderer _lightMeshRenderer;
-    [SerializeField] private Material[] _lightMaterials;
-
-    /// <summary>
-    /// 버튼 유리 Mesh Renderer 및 매터리얼
-    /// </summary>
-    [SerializeField] private MeshRenderer[] _glassMeshRenderers;
-    [SerializeField] private Material[] _glassMaterials;
-
-    /// <summary>
-    /// 버튼이 활성화됐을 때 실행될 함수
-    /// </summary>
-    [SerializeField] private UnityEvent _events;
-
-    private float _temporaryTime = 0f;  // Temporary용 타이머
+    protected ButtonRenderer _buttonRenderer;
 
     /// <summary>
     /// 버튼이 눌려서 활성화됐는지 여부
     /// </summary>
-    private bool _isPressed = false;
+    protected bool _isPressed = false;
     public bool isPressed
     {
         get => _isPressed;
@@ -78,7 +41,7 @@ public class ButtonController : NetworkBehaviour, IInteractable
     /// <summary>
     /// 버튼을 사용 가능한지 여부
     /// </summary>
-    private bool _isEnabled = true;
+    protected bool _isEnabled = true;
     public bool isEnabled
     {
         get => _isEnabled;
@@ -93,140 +56,59 @@ public class ButtonController : NetworkBehaviour, IInteractable
 
     public override void OnNetworkSpawn()
     {
-        _lightMeshRenderer.material = _lightMaterials[(int)_buttonColor];
-
-        foreach (MeshRenderer glassMeshRenderer in _glassMeshRenderers)
-        {
-            glassMeshRenderer.material = _glassMaterials[(int)_buttonColor];
-        }
-
         _outline = GetComponent<Outline>();
-    }
-
-    private void Update()
-    {
-        if (!IsServer || !_isEnabled || _buttonType != ButtonType.Temporary)
-        {
-            return;
-        }
-
-        // Temporary 처리
-        if (_isPressed)
-        {
-            _temporaryTime -= Time.deltaTime;
-
-            if (_temporaryTime < 0f)
-            {
-                SetButtonPressStateClientRpc(false);
-                DeactivateObjects();
-            }
-        }
+        _buttonRenderer = GetComponent<ButtonRenderer>();
     }
 
     public bool IsInteractable(PlayerController player)
     {
-        // 버튼이 비활성화 상태인 경우
-        if (!_isEnabled)
-        {
-            return false;
-        }
-        // 플레이어 둘이 주변에 있어야 하는 경우
-        else if (_requiresBoth)
-        {
-            PlayerController[] playerControllers = FindObjectsOfType<PlayerController>();
-
-            foreach (PlayerController playerController in playerControllers)
-            {
-                if (Vector3.Distance(transform.position, playerController.transform.position) > _detectionRadius)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return (_buttonColor == ColorType.Purple || _buttonColor == player.Color) && (_buttonType == ButtonType.Toggle || !_isPressed);
+        return OnInteractableCheck(player);
     }
+
+    /// <summary>
+    /// 현재 버튼과 플레이어가 상호작용할 수 있는지 확인한다.
+    /// </summary>
+    /// <param name="player">대상 플레이어</param>
+    /// <returns>상호작용 가능 여부</returns>
+    public abstract bool OnInteractableCheck(PlayerController player);
 
     public bool StartInteraction(PlayerController player)
     {
-        PlayButtonPressAnimationServerRpc();
-
-        PressButtonServerRpc();
-
-        return false;
+        return OnStartInteraction(player);
     }
+
+    /// <summary>
+    /// 플레이어가 버튼을 눌렀을 때 실행할 함수.
+    /// </summary>
+    /// <param name="player">대상 플레이어</param>
+    /// <returns>일반적인 경우엔 false로 반환</returns>
+    public abstract bool OnStartInteraction(PlayerController player);
 
     public bool StopInteraction(PlayerController player)
     {
         return false;
     }
 
-    /// <summary>
-    /// 서버 측에서 버튼 입력을 처리한다.
-    /// </summary>
     [ServerRpc(RequireOwnership = false)]
-    private void PressButtonServerRpc()
+    private void EnableButtonServerRpc(bool isEnabled)
     {
-        // 버튼 타입: Persistent
-        if (_buttonType == ButtonType.Persistent && !_isPressed)
-        {
-            SetButtonPressStateClientRpc(true);
-
-            ActivateObjects();
-        }
-        // 버튼 타입: Toggle
-        else if (_buttonType == ButtonType.Toggle)
-        {
-            SetButtonPressStateClientRpc(!_isPressed);
-
-            if (_isPressed)
-            {
-                ActivateObjects();
-            }
-            else
-            {
-                DeactivateObjects();
-            }
-        }
-        // 버튼 타입: Temporary
-        else if (_buttonType == ButtonType.Temporary)
-        {
-            if (!_isPressed)
-            {
-                SetButtonPressStateClientRpc(true);
-                _temporaryTime = _temporaryCooldown;
-
-                ActivateObjects();
-            }
-        }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void SetButtonStateServerRpc(bool isEnabled)
-    {
-        SetButtonStateClientRpc(isEnabled);
+        EnableButtonClientRpc(isEnabled);
     }
 
     [ClientRpc]
-    private void SetButtonStateClientRpc(bool isEnabled)
+    private void EnableButtonClientRpc(bool isEnabled)
     {
         _isEnabled = isEnabled;
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void PlayButtonPressAnimationServerRpc()
+    private void PressButtonServerRpc(bool isPressed)
     {
-        PlayButtonPressAnimationClientRpc();
+        PressButtonClientRpc(isPressed);
     }
 
     [ClientRpc]
-    private void PlayButtonPressAnimationClientRpc()
-    {
-        _animator.SetTrigger("Press");
-    }
-
-    [ClientRpc]
-    private void SetButtonPressStateClientRpc(bool isPressed)
+    private void PressButtonClientRpc(bool isPressed)
     {
         _isPressed = isPressed;
     }
@@ -242,9 +124,6 @@ public class ButtonController : NetworkBehaviour, IInteractable
                 activatable.Activate(gameObject);
             }
         }
-
-        // 이벤트 호출
-        _events.Invoke();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -260,11 +139,41 @@ public class ButtonController : NetworkBehaviour, IInteractable
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void SetButtonColorServerRpc(ColorType newColor)
+    {
+        SetButtonColorClientRpc(newColor);
+    }
+
     [ClientRpc]
     private void SetButtonColorClientRpc(ColorType newColor)
     {
-        _buttonColor = newColor;
-        OnNetworkSpawn();
+        _color = newColor;
+        _buttonRenderer.SetButtonColor(newColor);
+    }
+
+    [ServerRpc]
+    private void SetAnimatorPressStateServerRpc(bool isPressed)
+    {
+        SetAnimatorPressStateClientRpc(isPressed);
+    }
+
+    [ClientRpc]
+    private void SetAnimatorPressStateClientRpc(bool isPressed)
+    {
+        _buttonRenderer.SetAnimatorPressState(isPressed);
+    }
+
+    [ServerRpc]
+    private void SetAnimatorToggleTriggerServerRpc()
+    {
+        SetAnimatorToggleTriggerClientRpc();
+    }
+
+    [ClientRpc]
+    private void SetAnimatorToggleTriggerClientRpc()
+    {
+        _buttonRenderer.SetAnimatorToggleTrigger();
     }
 
     /// <summary>
@@ -273,7 +182,7 @@ public class ButtonController : NetworkBehaviour, IInteractable
     /// <param name="newColor">새 색깔</param>
     public void SetButtonColor(ColorType newColor)
     {
-        SetButtonColorClientRpc(newColor);
+        SetButtonColorServerRpc(newColor);
     }
 
     /// <summary>
@@ -297,7 +206,7 @@ public class ButtonController : NetworkBehaviour, IInteractable
     /// </summary>
     public void EnableButton()
     {
-        SetButtonStateServerRpc(true);
+        EnableButtonServerRpc(true);
     }
 
     /// <summary>
@@ -305,6 +214,39 @@ public class ButtonController : NetworkBehaviour, IInteractable
     /// </summary>
     public void DisableButton()
     {
-        SetButtonStateServerRpc(false);
+        EnableButtonServerRpc(false);
+    }
+
+    /// <summary>
+    /// 버튼의 눌림 상태를 true로 바꾼다.
+    /// </summary>
+    public void PressButton()
+    {
+        PressButtonServerRpc(true);
+    }
+
+    /// <summary>
+    /// 버튼의 눌림 상태를 false로 바꾼다.
+    /// </summary>
+    public void UnpressButton()
+    {
+        PressButtonServerRpc(false);
+    }
+
+    /// <summary>
+    /// 버튼 누르기 애니메이션을 재생한다.
+    /// </summary>
+    /// <param name="isPressed">true: 누르기 / false: 떼기</param>
+    public void PlayPressAnimation(bool isPressed)
+    {
+        SetAnimatorPressStateServerRpc(isPressed);
+    }
+
+    /// <summary>
+    /// 버튼을 눌렀다 떼는 애니메이션을 재생한다.
+    /// </summary>
+    public void PlayToggleAnimation()
+    {
+        SetAnimatorToggleTriggerServerRpc();
     }
 }

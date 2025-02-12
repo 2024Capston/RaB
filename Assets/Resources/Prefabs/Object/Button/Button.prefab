@@ -151,7 +151,11 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -5225508859077060500, guid: 64e949c83cdf32442b7d819d2724c549,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8730089417332068034}
+      addedObject: {fileID: 5908970674793578051}
+    - targetCorrespondingSourceObject: {fileID: -5225508859077060500, guid: 64e949c83cdf32442b7d819d2724c549,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1786408737702434949}
     - targetCorrespondingSourceObject: {fileID: -5225508859077060500, guid: 64e949c83cdf32442b7d819d2724c549,
         type: 3}
       insertIndex: -1
@@ -209,7 +213,7 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 6842067718061864876, guid: 64e949c83cdf32442b7d819d2724c549, type: 3}
---- !u!114 &8730089417332068034
+--- !u!114 &5908970674793578051
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -218,21 +222,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 4313470809306902236}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd6a65119e142df41832f8c6408b041b, type: 3}
+  m_Script: {fileID: 11500000, guid: d44c539fd8348dc49a382d1051ff4b61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buttonColor: 0
+  _color: 0
+  _activatables: []
   _buttonType: 0
   _temporaryCooldown: 0
   _requiresBoth: 0
   _detectionRadius: 0
-  _activatables: []
+  _events:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1786408737702434949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4313470809306902236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cb020cb7f1949947bdf3e76e972eed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   _animator: {fileID: 6737163864863246141}
   _lightMeshRenderer: {fileID: 1974353558567234100}
   _lightMaterials:
   - {fileID: 2100000, guid: 9763a66416c89f748b062a69ab4d7244, type: 2}
   - {fileID: 2100000, guid: 10d9fbaf5995d58429bef09df5ec8be7, type: 2}
-  - {fileID: 2100000, guid: 4cb158ad218484c44906fe37ffa769e0, type: 2}
+  - {fileID: 2100000, guid: 396ff0c0b627b1b4e81a51719a5948f5, type: 2}
   - {fileID: 2100000, guid: 68eadcbfeed3be246803ed6d2efbd9d9, type: 2}
   _glassMeshRenderers:
   - {fileID: 1614882635829938387}
@@ -242,9 +261,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: c78c73891e3f34748aa3d005f614afda, type: 2}
   - {fileID: 2100000, guid: ee13c450abc1379469b04e772bfd0d96, type: 2}
   - {fileID: 2100000, guid: 07bce2ae8ebfce3449dbfc059437ccff, type: 2}
-  _events:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &4392119023286809264
 MonoBehaviour:
   m_ObjectHideFlags: 0
