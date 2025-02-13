@@ -39,7 +39,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     {
         SetMapDataServerRpc();
         SpawnPlayerServerRpc();
-        UIManager.Instance.CloseAllOpenUI();
+        
     }
 
     /// <summary>

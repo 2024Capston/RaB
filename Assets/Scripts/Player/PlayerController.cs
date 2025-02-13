@@ -109,6 +109,7 @@ public class PlayerController : NetworkBehaviour
             });
 
             Cursor.lockState = CursorLockMode.Locked;
+            UIManager.Instance.CloseAllOpenUI();
         }
         else
         {
