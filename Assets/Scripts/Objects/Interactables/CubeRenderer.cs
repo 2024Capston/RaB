@@ -94,11 +94,8 @@ public class CubeRenderer : NetworkBehaviour
 
     private IEnumerator CoPlayTransitionAnimation(float transitionTime)
     {
-        bool originalOutline = false;
-
-        // Outline 매터리얼까지 갱신되는 것을 막기 위해 잠시 비활성화
+        // Outline 매터리얼까지 갱신되는 것을 막기 위해 비활성화
         if (_outline) {
-            originalOutline = _outline.enabled;
             _outline.enabled = false;
         }
         
@@ -117,6 +114,7 @@ public class CubeRenderer : NetworkBehaviour
 
                 Material[] materials = _piecesMeshRenderers[0].materials;
                 materials[1].Lerp(startMaterial, targetMaterial, timer * 3f / transitionTime);
+
                 _piecesMeshRenderers[i].materials = materials;
             }
 
@@ -143,6 +141,7 @@ public class CubeRenderer : NetworkBehaviour
                 {
                     Material[] materials = _piecesMeshRenderers[5].materials;
                     materials[1].Lerp(startMaterial, targetMaterial, timer * 3f / transitionTime);
+
                     _piecesMeshRenderers[i].materials = materials;
                 }
             }
@@ -170,6 +169,7 @@ public class CubeRenderer : NetworkBehaviour
                 {
                     Material[] materials = _piecesMeshRenderers[4].materials;
                     materials[1].Lerp(startMaterial, targetMaterial, timer * 3f / transitionTime);
+
                     _piecesMeshRenderers[i].materials = materials;
                 }
             }
@@ -182,10 +182,6 @@ public class CubeRenderer : NetworkBehaviour
 
         for (int i = 4; i < 8; i++) {
             _piecesTransforms[i].localRotation = Quaternion.identity;
-        }
-
-        if (_outline) {
-            _outline.enabled = originalOutline;
         }
     }
 }

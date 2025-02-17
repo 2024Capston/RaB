@@ -71,7 +71,7 @@ public class CameraController : NetworkBehaviour
 
     public void OnLookAroundInput(InputValue value)
     {
-        Vector2 rotateInput = value.Get<Vector2>() / 16f;
+        Vector2 rotateInput = value.Get<Vector2>() * Time.deltaTime * 8f;
 
         if (_isFirstPerson)
         {

@@ -78,8 +78,12 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
 
         if (_interactingPlayer)
         {
-            Vector3 target = _interactingPlayer.transform.position + _interactingPlayer.transform.forward * DISTANCE_FROM_PLAYER;
-            _rigidbody.velocity = (target - transform.position) * CUBE_SPEED;
+            Vector3 target = Camera.main.transform.position + Camera.main.transform.forward * DISTANCE_FROM_PLAYER;
+
+            if (!_rigidbody.SweepTest((target - transform.position).normalized, out RaycastHit hit, (target - transform.position).magnitude * CUBE_SPEED * Time.deltaTime))
+            {
+                _rigidbody.velocity = (target - transform.position) * CUBE_SPEED;
+            }
 
             if (Vector3.Distance(transform.position, _interactingPlayer.transform.position) > MAXIMUM_DISTANCE_FROM_PLAYER)
             {
