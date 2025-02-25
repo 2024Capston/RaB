@@ -39,6 +39,10 @@ public class PlateController : NetworkBehaviour
     private BoxCollider _boxCollider;
 
     private List<GameObject> _objectsOnPlate;
+    public List<GameObject> ObjectsOnPlate
+    {
+        get => _objectsOnPlate;
+    }
 
     public override void OnNetworkSpawn()
     {
