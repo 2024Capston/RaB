@@ -18,7 +18,7 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
 
     private const float DISTANCE_FROM_PLAYER = 32f;         // 플레이어와 큐브 사이의 거리
     private const float MAXIMUM_DISTANCE_FROM_PLAYER = 64f; // 플레이어와 큐브가 멀어질 수 있는 최대 거리
-    private const float CUBE_SPEED = 32f;                   // 큐브의 이동 속력
+    private const float CUBE_SPEED = 64f;                   // 큐브의 이동 속력
 
     private Rigidbody _rigidbody;
     private CubeRenderer _cubeRenderer;
@@ -79,11 +79,9 @@ public class CubeController : PlayerDependantBehaviour, IInteractable
         if (_interactingPlayer)
         {
             Vector3 target = Camera.main.transform.position + Camera.main.transform.forward * DISTANCE_FROM_PLAYER;
+            target = target - transform.position;
 
-            if (!_rigidbody.SweepTest((target - transform.position).normalized, out RaycastHit hit, (target - transform.position).magnitude * CUBE_SPEED * Time.deltaTime))
-            {
-                _rigidbody.velocity = (target - transform.position) * CUBE_SPEED;
-            }
+            _rigidbody.velocity = target.normalized * Mathf.Sqrt(target.magnitude) * CUBE_SPEED;
 
             if (Vector3.Distance(transform.position, _interactingPlayer.transform.position) > MAXIMUM_DISTANCE_FROM_PLAYER)
             {
