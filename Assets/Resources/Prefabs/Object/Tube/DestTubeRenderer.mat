@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TubeRenderer
-  m_Shader: {fileID: -6465566751694194690, guid: 35fcbe41639c381449653db5d326dafa,
+  m_Name: DestTubeRenderer
+  m_Shader: {fileID: -6465566751694194690, guid: 4980956f7723b3a4793ab55df8a74bdf,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -38,9 +38,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Fill: 1
-    - _LookType: 1
-    - _ObjectColor: 2
+    - _Fill: 0
+    - _LookType: 0
+    - _ObjectColor: 0
     - _PlayerColor: 1
     - _QueueControl: 0
     - _QueueOffset: 0
