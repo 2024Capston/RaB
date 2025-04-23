@@ -60,7 +60,7 @@ namespace TubeStage
             for (int i = 0; i < _buttonMap.Count; i++)
             {
                 _buttonGroupManager.SetButtonColor(i, _buttonMap[i]);
-                _buttonGroupManager.UnpressButton(i);
+                _buttonGroupManager.SetButtonPress(i, false);
                 _buttonGroupManager.SetButtonEnable(i, true);
             }
         }
@@ -84,7 +84,7 @@ namespace TubeStage
             for (int i = 0; i < _buttonMap.Count; i++)
             {
                 _buttonGroupManager.SetButtonColor(i, ColorType.Purple);
-                _buttonGroupManager.UnpressButton(i);
+                _buttonGroupManager.SetButtonPress(i, false);
                 _buttonGroupManager.SetButtonEnable(i, false);
                 
                 _tubeGroupManager.SetTubeLight(i, false);
@@ -98,7 +98,7 @@ namespace TubeStage
             for (int i = 0; i < _buttonMap.Count; i++)
             {
                 _buttonGroupManager.SetButtonColor(i, ColorType.None);
-                _buttonGroupManager.UnpressButton(i);
+                _buttonGroupManager.SetButtonPress(i, false);
                 _buttonGroupManager.SetButtonEnable(i, false);
                 
                 _tubeGroupManager.SetTubeLight(i, false);
