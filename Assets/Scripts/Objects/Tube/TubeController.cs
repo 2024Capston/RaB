@@ -124,6 +124,12 @@ public class TubeController : NetworkBehaviour
     {
         _lightRenderer.materials[1].SetFloat(IS_LIGHT_ON_ID, isLightOn ? 1.0f : 0.0f);
     }
+
+    [ClientRpc]
+    public void SetTubeColorClientRpc(ColorType colorType)
+    {
+        Color = colorType;
+    }
     
     private void SetTubeWobble(float maxWobble, float wobbleSpeed, float recoverySpeed)
     {
@@ -131,4 +137,5 @@ public class TubeController : NetworkBehaviour
         _wobbleSpeed = wobbleSpeed;
         _recoverySpeed = recoverySpeed;
     }
+    
 }

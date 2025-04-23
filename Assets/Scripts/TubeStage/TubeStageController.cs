@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace TubeStage
 {
@@ -8,11 +9,11 @@ namespace TubeStage
     {
         [Header("Buttons")]
         [SerializeField] protected List<TubeButtonController> _sourceButtonGroup;
-        [SerializeField] protected TubeButtonController _descButton;
+        [SerializeField] protected TubeButtonController _destinationButton;
         
         [Header("Tubes")]
         [SerializeField] protected List<TubeController> _sourceTubeGroup;
-        [SerializeField] protected TubeController _destTube;
+        [SerializeField] protected TubeController _destinationTube;
 
         [Header("Monitors")] 
         [SerializeField] protected List<TextRenderMonitorController> _monitorGroup;
@@ -63,9 +64,9 @@ namespace TubeStage
             _sourceTubeGroup[index].UpdateValue(deltaValue);
         }
 
-        protected void SetDestTubeValue(float deltaValue)
+        protected void SetDestinationTubeValue(float deltaValue)
         {
-            _destTube.UpdateValue(deltaValue);
+            _destinationTube.UpdateValue(deltaValue);
         }
 
         #endregion

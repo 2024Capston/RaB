@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace TubeStage
 {
@@ -9,17 +11,38 @@ namespace TubeStage
         public List<int> Answer;
         public int StageCount => Answer.Count;
         public int CurrentCount;
-        public int FailCount; 
+        public int FailCount;
+        public int MaxFailCount;
+        public ColorType PlayerAnswer;
+        public bool OnPlayerAnswered;
     }
     
     public class TubeStage2Manager : StageManager
     {
+        public new static TubeStage2Manager Instance => StageManager.Instance as TubeStage2Manager;
+        
         private TubeStageState _currentState;
 
         internal readonly WaitingState Waiting = new WaitingState();
         internal readonly AskingState Asking = new AskingState();
         internal readonly CheckingState Checking = new CheckingState();
         internal readonly ClearedState Cleared = new ClearedState();
+
+        public TubeStage2Controller TubeStageController;
+        internal TubeStage2Problem? Problem = null;
+        internal Coroutine TimerCoroutine;
+
+        protected override void Init()
+        {
+            _isDestroyOnLoad = true;
+            base.Init();
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            EventBus.Instance.SubscribeEvent<UnityAction<ColorType>>(EventType.EventA, OnButtonClicked);
+        }
 
         internal void ChangeState(TubeStageState nextState)
         {
@@ -43,6 +66,16 @@ namespace TubeStage
         }
 
         public override void EndGame()
+        {
+            
+        }
+
+        public void StartCoroutine(float time)
+        {
+            
+        }
+
+        public void StopCoroutine()
         {
             
         }

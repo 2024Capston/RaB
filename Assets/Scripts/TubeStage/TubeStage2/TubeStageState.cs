@@ -1,6 +1,6 @@
 namespace TubeStage
 {
-    public abstract class TubeStageState
+    internal abstract class TubeStageState
     {
         public abstract void Enter();
 
