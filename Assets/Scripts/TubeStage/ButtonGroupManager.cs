@@ -1,33 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace TubeStage
 {
     public class ButtonGroupManager : MonoBehaviour
     {
-        [SerializeField] private List<TubeButtonController> _buttonGroup;
+        [SerializeField] private List<TubeButtonController> _sourceButtonGroup;
+        [SerializeField] private TubeButtonController _descButton;
 
         public void SetButtonColor(int index, ColorType colorType)
         {
-            _buttonGroup[index].SetButtonColor(colorType);
+            _sourceButtonGroup[index].SetButtonColor(colorType);
         }
 
-        public void UnpressButton(int index)
+        public void SetButtonPress(int index, bool isPress)
         {
-            _buttonGroup[index].UnpressButton();
-            _buttonGroup[index].PlayPressAnimation(false);
+            if (isPress)
+            {
+                _sourceButtonGroup[index].PressButton();
+                _sourceButtonGroup[index].PlayPressAnimation(true);
+            }
+            else
+            {
+                _sourceButtonGroup[index].UnpressButton();
+                _sourceButtonGroup[index].PlayPressAnimation(false);
+            }
         }
 
         public void SetButtonEnable(int index, bool isEnable)
         {
             if (isEnable)
             {
-                _buttonGroup[index].EnableButton();
+                _sourceButtonGroup[index].EnableButton();
             }
             else
             {
-                _buttonGroup[index].DisableButton();
+                _sourceButtonGroup[index].DisableButton();
             }
         }
     }   

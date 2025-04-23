@@ -25,13 +25,12 @@ namespace TubeStage
             {
                 UnpressButton();
                 PlayPressAnimation(false);
-                TubeStageMapper.Instance.OnClickButton(_color, IsHost, false);
             }
             else
             {
+                EventBus.Instance.InvokeEvent(EventType.EventA, _color);
                 PressButton();
                 PlayPressAnimation(true);
-                TubeStageMapper.Instance.OnClickButton(_color, IsHost, true);
             }
         }
     }
