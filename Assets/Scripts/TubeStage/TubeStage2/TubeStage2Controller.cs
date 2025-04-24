@@ -1,10 +1,28 @@
+using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace TubeStage
 {
     public class TubeStage2Controller : TubeStageController
     {
+        private double _endTime;
+        private bool _isTimeUpdate;
+        
+        private void Update()
+        {
+            if (!_isTimeUpdate)
+            {
+                return;
+            }
+            int remainTime = Math.Max(0, (int)(_endTime - NetworkManager.Singleton.ServerTime.Time));
+            
+            // TODO 모니터 출력하기
+            Logger.Log($"{remainTime}");
+        }
+
+
         /// <summary>
         /// Stage를 초기 상태로 만든다.
         /// </summary>
@@ -99,8 +117,19 @@ namespace TubeStage
         public void ApplyTubeCondition(ColorType colorType)
         {
             TubeController tube = _sourceTubeGroup.Find(x => x.Color == colorType);
-            tube.UpdateValue(-0.33333f);
+            tube.UpdateValue(-0.33334f);
             _destinationTube.UpdateValue(0.125f);
+        }
+
+        public void StartLocalTimer(double endTime)
+        {
+            _endTime = endTime;
+            _isTimeUpdate = true;
+        }
+
+        public void StopLocalTimer()
+        {
+            _isTimeUpdate = false;
         }
     }
 }

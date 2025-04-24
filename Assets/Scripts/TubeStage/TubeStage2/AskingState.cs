@@ -36,12 +36,7 @@ namespace TubeStage
 
         public override void Exit()
         {
-            // 여기서 나갈 때 진행중이 코루틴이 있다면 중지하고 나가면 됩니다.
-            if (TubeStage2Manager.Instance.TimerCoroutine is not null)
-            {
-                TubeStage2Manager.Instance.StopCoroutine();
-            }
-
+            TubeStage2Manager.Instance.StopCoroutine();
             TubeStage2Manager.Instance.Problem = _problem;
         }
 
