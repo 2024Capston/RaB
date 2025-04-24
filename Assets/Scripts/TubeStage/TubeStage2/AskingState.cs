@@ -26,7 +26,7 @@ namespace TubeStage
             _problem.OnPlayerAnswered = false;
             
             // 현재 Answer를 Stage에 적용한다.
-            TubeStage2Manager.Instance.TubeStageController.ApplyProblem((ColorType)_problem.Answer[_problem.CurrentCount]);
+            TubeStage2Manager.Instance.TubeStageController.SetProblemInMonitor(_problem.CurrentCount, (ColorType)_problem.Answer[_problem.CurrentCount]);
             
             TubeStage2Manager.Instance.TubeStageController.ResumeStage();
             

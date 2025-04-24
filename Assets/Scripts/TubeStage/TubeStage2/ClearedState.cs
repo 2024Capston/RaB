@@ -8,7 +8,7 @@ namespace TubeStage
     {
         public override void Enter()
         {
-            // TODO 
+            TubeStage2Manager.Instance.TubeStageController.ClearStage();
             TubeStage2Manager.Instance.TubeStageController.EndDoorOpen();
         }
 

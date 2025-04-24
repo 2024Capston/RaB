@@ -41,13 +41,13 @@ namespace TubeStage
                 if (++_problem.FailCount == _problem.MaxFailCount)
                 {
                     // TODO 실패를 띄우기
+                    TubeStage2Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
                     TubeStage2Manager.Instance.ChangeState(TubeStage2Manager.Instance.Waiting);
-                    Logger.Log("Incorrect! Stage Failed");
                 }
                 else
                 {
                     // TODO 현재 실패 카운트를 띄우기
-                    Logger.Log($"Incorrect! remain try {_problem.MaxFailCount - _problem.FailCount}");
+                    TubeStage2Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
                 }
             }
             else
@@ -57,13 +57,13 @@ namespace TubeStage
                 if (++_problem.CurrentCount == _problem.StageCount)
                 {
                     // TODO 클리어를 띄우기
-                    Logger.Log("Correct! Clear!");
+                    TubeStage2Manager.Instance.TubeStageController.SetSuccessInMonitor(true);
                     TubeStage2Manager.Instance.ChangeState(TubeStage2Manager.Instance.Cleared);
                 }
                 else
                 {
                     // TODO 다음 단계를 띄우기
-                    Logger.Log("Correct! Let's Go next Step");
+                    TubeStage2Manager.Instance.TubeStageController.SetSuccessInMonitor(false);
                 }
             }
         }
