@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -16,11 +18,11 @@ namespace TubeStage
         public ColorType PlayerAnswer;
         public bool OnPlayerAnswered;
     }
-    
+
     public class TubeStage2Manager : StageManager
     {
         public new static TubeStage2Manager Instance => StageManager.Instance as TubeStage2Manager;
-        
+
         private TubeStageState _currentState;
 
         internal readonly WaitingState Waiting = new WaitingState();
@@ -30,8 +32,9 @@ namespace TubeStage
 
         public TubeStage2Controller TubeStageController;
         internal TubeStage2Problem? Problem = null;
-        internal Coroutine TimerCoroutine;
 
+        private Coroutine _timerCoroutine;
+        
         protected override void Init()
         {
             _isDestroyOnLoad = true;
@@ -43,6 +46,7 @@ namespace TubeStage
             base.OnNetworkSpawn();
             EventBus.Instance.SubscribeEvent<UnityAction<ColorType>>(EventType.EventA, OnButtonClicked);
         }
+        
 
         internal void ChangeState(TubeStageState nextState)
         {
@@ -54,7 +58,7 @@ namespace TubeStage
             _currentState = nextState;
             _currentState.Enter();
         }
-        
+
         public override void StartGame()
         {
             ChangeState(Waiting);
@@ -67,17 +71,48 @@ namespace TubeStage
 
         public override void EndGame()
         {
-            
+
         }
 
-        public void StartCoroutine(float time)
+        public void StartCoroutine(float duration)
         {
-            
+            double startTime = NetworkManager.Singleton.ServerTime.Time;
+            StartLocalTimerClientRpc(startTime, duration);
+            _timerCoroutine = StartCoroutine(CoServerTimer(startTime, duration));
         }
 
         public void StopCoroutine()
         {
+            StopLocalTimerClientRpc();
+            if (_timerCoroutine is not null)
+            {
+                StopCoroutine(_timerCoroutine);
+            }
+        }
+
+        private IEnumerator CoServerTimer(double startTime, float duration)
+        {
+            double endTime = startTime + duration;
+
+            while (NetworkManager.Singleton.ServerTime.Time < endTime)
+            {
+                yield return null;
+            }
             
+            _timerCoroutine = null;
+            ChangeState(Checking);  
+        }
+        
+        [ClientRpc]
+        private void StartLocalTimerClientRpc(double startTime, float duration)
+        {
+            TubeStageController.StartLocalTimer(startTime + duration);
+        }
+
+        [ClientRpc]
+        private void StopLocalTimerClientRpc()
+        {
+            TubeStageController.StopLocalTimer();
         }
 
         private void OnButtonClicked(ColorType colorType)
