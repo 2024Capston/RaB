@@ -62,6 +62,7 @@ namespace TubeStage
         public override void StartGame()
         {
             ChangeState(Waiting);
+            TubeStageController.StartDoorOpen();
         }
 
         public override void RestartGame()
@@ -71,7 +72,7 @@ namespace TubeStage
 
         public override void EndGame()
         {
-
+            InGameManager.Instance.EndGameServerRpc();
         }
 
         public void StartCoroutine(float duration)

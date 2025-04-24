@@ -75,7 +75,8 @@ public enum ArmType
 
 public enum MonitorType
 {
-    CheckMark, XMark,
-    CubeMark, AlphabetA, AlphabetB, AlphabetC, AlphabetD, AlphabetE, AlphabetF, AlphabetG, AlphabetH,
+    CheckMark, XMark, 
+    CubeMark, Text, Color, 
+    AlphabetA, AlphabetB, AlphabetC, AlphabetD, AlphabetE, AlphabetF, AlphabetG, AlphabetH,
     ArrowDown, ArrowLeft, ArrowRight, ArrowUp
 }
