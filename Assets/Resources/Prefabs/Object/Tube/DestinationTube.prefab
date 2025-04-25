@@ -93,10 +93,15 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 1.34
       objectReference: {fileID: 0}
+    - target: {fileID: -992169122520749660, guid: b6ef5e0f6e7a0d44c86a2be5801f27fe,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1d23926c4ac02e0489810413210ccb68, type: 2}
     - target: {fileID: 919132149155446097, guid: b6ef5e0f6e7a0d44c86a2be5801f27fe,
         type: 3}
       propertyPath: m_Name
-      value: DescTube
+      value: DestinationTube
       objectReference: {fileID: 0}
     - target: {fileID: 3948035312816860358, guid: b6ef5e0f6e7a0d44c86a2be5801f27fe,
         type: 3}
@@ -150,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1278357952
+  GlobalObjectIdHash: 855192134
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
