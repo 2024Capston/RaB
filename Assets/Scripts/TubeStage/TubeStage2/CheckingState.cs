@@ -1,3 +1,6 @@
+using System.Collections;
+using UnityEngine;
+
 namespace TubeStage
 {
     /// <summary>
@@ -40,13 +43,11 @@ namespace TubeStage
             {
                 if (++_problem.FailCount == _problem.MaxFailCount)
                 {
-                    // TODO 실패를 띄우기
                     TubeStage2Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
-                    TubeStage2Manager.Instance.ChangeState(TubeStage2Manager.Instance.Waiting);
+                    TubeStage2Manager.Instance.StartFailedCoroutine(5f);
                 }
                 else
                 {
-                    // TODO 현재 실패 카운트를 띄우기
                     TubeStage2Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
                 }
             }
@@ -56,13 +57,11 @@ namespace TubeStage
                 TubeStage2Manager.Instance.TubeStageController.ApplyTubeCondition(_problem.PlayerAnswer);
                 if (++_problem.CurrentCount == _problem.StageCount)
                 {
-                    // TODO 클리어를 띄우기
                     TubeStage2Manager.Instance.TubeStageController.SetSuccessInMonitor(true);
                     TubeStage2Manager.Instance.ChangeState(TubeStage2Manager.Instance.Cleared);
                 }
                 else
                 {
-                    // TODO 다음 단계를 띄우기
                     TubeStage2Manager.Instance.TubeStageController.SetSuccessInMonitor(false);
                 }
             }

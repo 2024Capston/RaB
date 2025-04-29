@@ -31,7 +31,7 @@ namespace TubeStage
             TubeStage2Manager.Instance.TubeStageController.ResumeStage();
             
             // 타이머를 시작한다.
-            TubeStage2Manager.Instance.StartCoroutine(MakingAnswerTime());
+            TubeStage2Manager.Instance.StartAskingCoroutine(MakingAnswerTime());
         }
 
         public override void Exit()
