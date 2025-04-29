@@ -75,11 +75,16 @@ namespace TubeStage
             InGameManager.Instance.EndGameServerRpc();
         }
 
-        public void StartCoroutine(float duration)
+        public void StartAskingCoroutine(float duration)
         {
             double startTime = NetworkManager.Singleton.ServerTime.Time;
             StartLocalTimerClientRpc(startTime, duration);
             _timerCoroutine = StartCoroutine(CoServerTimer(startTime, duration));
+        }
+
+        public void StartFailedCoroutine(float duration)
+        {
+            StartCoroutine(CoWaitTimer(duration));
         }
 
         public void StopCoroutine()
@@ -102,6 +107,12 @@ namespace TubeStage
             
             _timerCoroutine = null;
             ChangeState(Checking);  
+        }
+
+        private IEnumerator CoWaitTimer(float duration)
+        {
+            yield return new WaitForSeconds(duration);
+            ChangeState(Waiting);   
         }
         
         [ClientRpc]
