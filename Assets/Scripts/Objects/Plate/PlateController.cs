@@ -65,7 +65,8 @@ public class PlateController : NetworkBehaviour
         {
             if (hit.collider.gameObject.GetComponent<PlayerController>() ||
                 hit.collider.gameObject.GetComponent<CubeController>() ||
-                hit.collider.gameObject.GetComponent<PossessableController>())
+                hit.collider.gameObject.GetComponent<PossessableController>() ||
+                hit.collider.gameObject.GetComponent<NumberObjectController>())
             {
                 newObjects.Add(hit.collider.gameObject);
 
