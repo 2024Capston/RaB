@@ -77,14 +77,14 @@ public class LaserController : NetworkBehaviour
         _laserColor = lazerColor;
         _laserVisible = lazerVisible;
         
-        PlayerController.LocalPlayerCreated += () =>
-        {
-            if (PlayerController.LocalPlayer.Color != _laserColor && !_laserVisible)
+        
+       
+            if ((IsHost ? ColorType.Blue : ColorType.Red) != _laserColor && !_laserVisible)
             {
                 _lazer.enabled = false;
             }
             ;
-        };
+       
     }
 
     [ClientRpc(RequireOwnership = false)]

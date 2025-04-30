@@ -15,19 +15,16 @@ public class LaserSpawner : NetworkObjectSpawner
     private bool _movingToEnd = true;
     
     // Start is called before the first frame update
-    private void Start()
+    public override void SpawnObject()
     {
-        if (!NetworkManager.Singleton.IsServer)
-        {
-            return;
-        }
+        base.SpawnObject();
 
-        var spawnedRazer = Instantiate(_prefab);
-        spawnedRazer.transform.position = transform.position;
-        spawnedRazer.transform.rotation = transform.rotation;
-        spawnedRazer.transform.localScale = transform.lossyScale;
+        _spawnedObject = Instantiate(_prefab);
+        _spawnedObject.transform.position = transform.position;
+        _spawnedObject.transform.rotation = transform.rotation;
+        _spawnedObject.transform.localScale = transform.lossyScale;
         
-        spawnedRazer.GetComponent<NetworkObject>().Spawn();
-        spawnedRazer.GetComponent<LaserController>().Initialize(transform.position, _endPoint, _moveDuration, _waitAtStartTime, _waitAtEndTime, _movingToEnd, _laserColor, _laserVisible);
+        _spawnedObject.GetComponent<NetworkObject>().Spawn();
+        _spawnedObject.GetComponent<LaserController>().Initialize(transform.position, _endPoint, _moveDuration, _waitAtStartTime, _waitAtEndTime, _movingToEnd, _laserColor, _laserVisible);
     }
 }
