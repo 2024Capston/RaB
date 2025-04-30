@@ -79,8 +79,6 @@ public class AudioManager : SingletonBehavior<AudioManager>
         LoadSFXPlayer();
 
         LoadValues();
-        
-        PlayBGM(BGM.Main);
     }
     
     public void ApplyAudioMixerValues()
