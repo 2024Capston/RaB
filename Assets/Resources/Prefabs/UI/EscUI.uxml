@@ -4,7 +4,7 @@
     <Style src="project://database/Assets/Resources/Prefabs/UI/SliderStyle.uss?fileID=7433441132597879392&amp;guid=2571c32dd048b6a48b1a0f5f216d10b8&amp;type=3#SliderStyle" />
     <ui:VisualElement name="EscUI" class="panel--default" style="-unity-font-definition: url(&quot;project://database/Assets/Resources/Fonts/NotoSans-Regular%20SDF.asset?fileID=11400000&amp;guid=0d1f838670768be4c891260af0b39d6e&amp;type=2#NotoSans-Regular SDF&quot;); width: 1920px; height: 1080px; background-color: rgba(0, 0, 0, 0.49); flex-direction: row;">
         <ui:VisualElement name="EscPanel" style="flex-grow: 1; width: 100%; height: 100%; align-items: center; flex-direction: column; justify-content: space-between; transition-duration: 0.5s; transition-timing-function: ease-out-back;">
-            <ui:VisualElement style="width: 700px; height: 740px; flex-direction: column; align-items: center; justify-content: space-around; margin-top: 150px;">
+            <ui:VisualElement style="width: 700px; height: 740px; flex-direction: column; align-items: center; justify-content: space-around; margin-top: 150px; align-self: center;">
                 <ui:Button text="#MAIN" parse-escape-sequences="true" display-tooltip-when-elided="true" name="MainButton" class="button--default" style="width: 700px;" />
                 <ui:Button text="#LOBBY" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LobbyButton" class="button--default" style="width: 700px;" />
                 <ui:Button text="#RESTART" parse-escape-sequences="true" display-tooltip-when-elided="true" name="RespawnButton" class="button--default" style="width: 700px;" />
