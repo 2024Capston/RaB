@@ -1180,7 +1180,7 @@ GameObject:
   - component: {fileID: 9165956007199990930}
   m_Layer: 0
   m_Name: Red_Save3
-  m_TagString: Red Save Pont 3
+  m_TagString: Red Save Point3
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

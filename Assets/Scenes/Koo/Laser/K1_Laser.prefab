@@ -13,6 +13,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Laser
       objectReference: {fileID: 0}
+    - target: {fileID: -8693144804996578944, guid: 6b685529fdd65e44eb0e779aafd6f7cb,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6b685529fdd65e44eb0e779aafd6f7cb,
         type: 3}
       propertyPath: m_LocalScale.x

@@ -16,20 +16,18 @@ public class MovingObjectSpawner : NetworkObjectSpawner
  
     
     // Start is called before the first frame update
-    void Start()
-    {if (!NetworkManager.Singleton.IsServer)
-        {
-            return;
-        }
-
-        var spawnedRazer = Instantiate(_prefab);
-
-        spawnedRazer.transform.position = transform.position;
-        spawnedRazer.transform.rotation = transform.rotation;
-        spawnedRazer.transform.localScale = transform.lossyScale;
+    public override void SpawnObject()
+    {
+        base.SpawnObject();
         
-        spawnedRazer.GetComponent<NetworkObject>().Spawn();
-        spawnedRazer.GetComponent<MovingObjectController>().Initialize(transform.position, _endPoint, _moveDuration,  _waitAtEndTime, _requirement, _buttonClicked, _plateClicked, _plateOut);
+        _spawnedObject = Instantiate(_prefab);
+
+        _spawnedObject.transform.position = transform.position;
+        _spawnedObject.transform.rotation = transform.rotation;
+        _spawnedObject.transform.localScale = transform.lossyScale;
+        
+        _spawnedObject.GetComponent<NetworkObject>().Spawn();
+        _spawnedObject.GetComponent<MovingObjectController>().Initialize(transform.position, _endPoint, _moveDuration,  _waitAtEndTime, _requirement, _buttonClicked, _plateClicked, _plateOut);
 
     }
 }

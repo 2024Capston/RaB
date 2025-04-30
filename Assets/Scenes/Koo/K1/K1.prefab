@@ -1931,7 +1931,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 52264a920df5d4d42b4899d86ed4eaa0, type: 2}
+  - {fileID: 2100000, guid: feab38b88062de34da6054770b54f57d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2372,6 +2372,11 @@ PrefabInstance:
         type: 3}
       propertyPath: _laserColor
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4120832538277427200, guid: 0d1626c9f70689141b349d13c88533ca,
+        type: 3}
+      propertyPath: _laserVisible
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4120832538277427200, guid: 0d1626c9f70689141b349d13c88533ca,
         type: 3}
