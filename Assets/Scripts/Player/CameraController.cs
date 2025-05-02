@@ -19,14 +19,12 @@ public class CameraController : NetworkBehaviour
     private GameObject _visualReference;    // 플레이어에 대한 Visual Reference
 
     private CinemachinePOV _cinemachinePOV; // 1인칭 시점 컴포넌트
+    private CinemachineBasicMultiChannelPerlin _multiChannelPerlin;
     private AxisState _axisState;           // 1인칭 시점의 위치를 계산하기 위한 구조체
     private Vector2 _lookAroundInput;       // 화면 회전 입력 값
 
     private Rigidbody _rigidbody;           // 플레이어의 Rigidbody
     private PlayerRenderer _playerRenderer; // 플레이어의 렌더러
-
-    private bool _firstPersonInvertY;
-    private bool _thirdPersonInvertY;
 
     // 카메라 조작 활성화 여부
     private static bool _isInputEnabled = true;
@@ -83,6 +81,13 @@ public class CameraController : NetworkBehaviour
                     _axisState.m_InputAxisValue = _lookAroundInput.x;
                     _axisState.Update(Time.deltaTime);
                 }
+                else
+                {
+                    _cinemachinePOV.m_VerticalAxis.m_InputAxisValue = 0.0f;
+
+                    _axisState.m_InputAxisValue = 0.0f;
+                    _axisState.Update(Time.deltaTime);
+                }
 
                 // Camera Holder와 플레이어 Rigidbody를 갱신
                 _cameraHolder.transform.rotation = Quaternion.Euler(Vector3.up * _axisState.Value);
@@ -91,10 +96,18 @@ public class CameraController : NetworkBehaviour
                 // 플레이어가 바라보는 방향 갱신
                 _playerRenderer.SetHeadTarget(Camera.main.transform.forward);
             }
-            else if (_isInputEnabled)
+            else
             {
-                _thirdPersonCamera.m_YAxis.m_InputAxisValue = _lookAroundInput.y;
-                _thirdPersonCamera.m_XAxis.m_InputAxisValue = _lookAroundInput.x;
+                if (_isInputEnabled)
+                {
+                    _thirdPersonCamera.m_YAxis.m_InputAxisValue = _lookAroundInput.y;
+                    _thirdPersonCamera.m_XAxis.m_InputAxisValue = _lookAroundInput.x;
+                }
+                else
+                {
+                    _thirdPersonCamera.m_YAxis.m_InputAxisValue = 0.0f;
+                    _thirdPersonCamera.m_XAxis.m_InputAxisValue = 0.0f;
+                }
             }
         }
     }
@@ -118,6 +131,7 @@ public class CameraController : NetworkBehaviour
         _thirdPersonCamera.transform.SetParent(_cameraHolder.transform);
 
         _cinemachinePOV = _firstPersonCamera.GetCinemachineComponent<CinemachinePOV>();
+        _multiChannelPerlin = _firstPersonCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         _axisState = _cinemachinePOV.m_HorizontalAxis;
 
         _isFirstPerson = _firstPersonCamera.m_Priority > _thirdPersonCamera.m_Priority;
@@ -191,6 +205,16 @@ public class CameraController : NetworkBehaviour
     }
 
     /// <summary>
+    /// 3인칭 카메라의 위치와 회전을 강제로 변경한다.
+    /// </summary>
+    /// <param name="position">위치</param>
+    /// <param name="rotation">회전</param>
+    public void ForceThirdPersonCameraPosition(Vector3 position, Quaternion rotation)
+    {
+        _thirdPersonCamera.ForceCameraPosition(position, rotation);
+    }
+
+    /// <summary>
     /// 카메라 상하반전 여부를 설정한다.
     /// </summary>
     /// <param name="firstPersonInvertY">1인칭 상하반전</param>
@@ -199,5 +223,14 @@ public class CameraController : NetworkBehaviour
     {
         _cinemachinePOV.m_VerticalAxis.m_InvertInput = !firstPersonInvertY;
         _thirdPersonCamera.m_YAxis.m_InvertInput = !thirdPersonInvertY;
+    }
+
+    /// <summary>
+    /// 카메라 흔들림 정도를 설정한다.
+    /// </summary>
+    /// <param name="amplitude">흔들림 정도 [0, INF)</param>
+    public void ChangeShakeAmplitude(float amplitude)
+    {
+        _multiChannelPerlin.m_AmplitudeGain = amplitude;
     }
 }
