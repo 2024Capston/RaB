@@ -97,6 +97,9 @@ namespace Possessable
 
             Vector3 offset = Vector3.up * (PlayerController.INITIAL_CAPSULE_HEIGHT / 2f * player.transform.localScale.y - PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x) * 0.9f;
             float radius = _collider.bounds.size.x + PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x;
+            Vector3 forward = new Vector3(Camera.main.transform.forward.x, 0.0f, Camera.main.transform.forward.z).normalized;
+
+            Debug.Log(forward);
 
             // 물체를 중심으로, 주변을 원으로 탐색한다.
             for (int i = 0; i < 9; i++)
@@ -105,7 +108,7 @@ namespace Possessable
                 Collider[] colliders;
 
                 // 정면으로부터 0~180도 회전
-                newPoint = origin + Quaternion.Euler(0, i * 20, 0) * transform.forward * radius;
+                newPoint = origin - Quaternion.Euler(0, i * 20, 0) * forward * radius;
                 colliders = Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x);
 
                 if (colliders.Length == 0 || colliders.All(collider => collider.isTrigger))
@@ -120,7 +123,7 @@ namespace Possessable
                 }
 
                 // 정면으로부터 -180~0도 회전
-                newPoint = origin + Quaternion.Euler(0, -i * 20, 0) * transform.forward * radius;
+                newPoint = origin - Quaternion.Euler(0, -i * 20, 0) * forward * radius;
                 colliders = Physics.OverlapCapsule(newPoint + offset, newPoint - offset, PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x);
 
                 if (colliders.Length == 0 || colliders.All(collider => collider.isTrigger))
@@ -157,15 +160,19 @@ namespace Possessable
 
             if (IsServer)
             {
-                StartPossessionClientRpc(player.gameObject);
+                StartPossessionClientRpc(player.GetComponent<NetworkObject>());
             }
             else
             {
-                StartPossessionServerRpc(player.gameObject);
+                StartPossessionServerRpc(player.GetComponent<NetworkObject>());
             }
+
+            Vector3 originalPosition = player.transform.position;
 
             _interactingRigidbody.MovePosition(transform.position);
             _interactingRigidbody.MoveRotation(transform.rotation);
+
+            _interactingCameraController.ForceThirdPersonCameraPosition(transform.position + (originalPosition - transform.position).normalized * 100f, Quaternion.LookRotation(transform.position - originalPosition, Vector3.up));
 
             return true;
         }
@@ -185,11 +192,11 @@ namespace Possessable
 
                 if (IsServer)
                 {
-                    StopPossessionClientRpc(player.gameObject);
+                    StopPossessionClientRpc(player.GetComponent<NetworkObject>());
                 }
                 else
                 {
-                    StopPossessionServerRpc(player.gameObject);
+                    StopPossessionServerRpc(player.GetComponent<NetworkObject>());
                 }
 
                 _interactingPlayer = null;

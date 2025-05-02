@@ -13,7 +13,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _walkSpeed;    // 이동 속력
     [SerializeField] private float _jumpForce;     // 점프 속력
 
-    private const float GROUND_DETECTION_THRESHOLD = 2f;        // 접지 판정 범위
+    private const float GROUND_DETECTION_THRESHOLD = 1f;        // 접지 판정 범위
     private const float JUMP_REMEMBER_TIME = 0.64f;             // 점프 키 입력 기억 시간
     private const float MAXIMUM_REACH_DISTANCE = 32f;           // 상호작용 가능 범위
 
@@ -170,6 +170,16 @@ public class PlayerController : NetworkBehaviour
                 _cameraController.ChangeCameraMode(!_cameraController.IsFirstPerson);
             }
 
+            if (Input.GetKeyDown(KeyCode.KeypadPlus))
+            {
+                CameraController.LocalCamera.ChangeShakeAmplitude(1.0f);
+            }
+
+            if (Input.GetKeyDown(KeyCode.KeypadMinus))
+            {
+                CameraController.LocalCamera.ChangeShakeAmplitude(0.0f);
+            }
+
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 QualitySettings.vSyncCount = 0;
@@ -241,7 +251,24 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            _isGrounded = Physics.BoxCast(transform.position, _collider.bounds.extents * 0.9f, Vector3.down, transform.rotation, GROUND_DETECTION_THRESHOLD);
+            Vector3 forwardOffset = transform.forward * _collider.bounds.extents.z;
+            Vector3 rightOffset = transform.right * _collider.bounds.extents.x;
+
+            _isGrounded = false;
+
+            Vector3[] checkPositions = { transform.position + forwardOffset - rightOffset, transform.position + forwardOffset, transform.position + forwardOffset + rightOffset,
+                                        transform.position - rightOffset, transform.position, transform.position + rightOffset,
+                                        transform.position - forwardOffset - rightOffset, transform.position - forwardOffset, transform.position - forwardOffset + rightOffset };
+
+            foreach (Vector3 checkPosition in checkPositions)
+            {
+                if (Physics.Raycast(checkPosition, Vector3.down, out RaycastHit hit, _collider.bounds.extents.y + GROUND_DETECTION_THRESHOLD) &&
+                    hit.collider.material.staticFriction > 0.0f)
+                {
+                    _isGrounded = true;
+                    break;
+                }
+            }
         }
     }
 
@@ -500,6 +527,11 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     private void SendPlayerColorClientRpc(ColorType color)
     {
+        if (IsServer)
+        {
+            return;   
+        }
+
         _color = color;
         _playerRenderer.Initialize();
     }
