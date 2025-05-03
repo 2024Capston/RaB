@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using Possessable;
 using Unity.Netcode;
 using UnityEngine;
@@ -13,12 +14,18 @@ public class PossessableCompareController : NetworkBehaviour
     {
         if (other.TryGetComponent(out PossessableController possessableController) && IsServer && possessableController.Color == _color)
         {
-            if (possessableController.name != "K2_5")
+            if (possessableController.name!= "Possessable2_5(Clone)")
             {
                 EventBus.Instance.InvokeEvent(EventType.EventB);
                 StartCoroutine(Wait());
                 EventBus.Instance.InvokeEvent(EventType.EventB);
             }
+        }
+        else
+        {
+            EventBus.Instance.InvokeEvent(EventType.EventB);
+            StartCoroutine(Wait());
+            EventBus.Instance.InvokeEvent(EventType.EventB);
         }
     }
 
