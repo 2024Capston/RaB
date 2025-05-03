@@ -47,7 +47,7 @@ public class VideoUIController
         
         savedWidth = PlayerPrefs.GetInt("VideoResolutionWidth", Screen.currentResolution.width);
         savedHeight = PlayerPrefs.GetInt("VideoResolutionHeight", Screen.currentResolution.height);
-        isFullScreen = PlayerPrefs.GetInt("IsFullScreen", 1) == 1;
+        savedFullScreen = PlayerPrefs.GetInt("IsFullScreen", 1) == 1;
         savedBrightness = PlayerPrefs.GetFloat("BrightnessValue", 0.5f);
         
         InitResolutions();
@@ -67,9 +67,11 @@ public class VideoUIController
     {
         _resolution = _root.Q<DropdownField>("Resolution");
         _resolution.choices = Screen.resolutions
-            .Select(resolution => $"{resolution.width}x{resolution.height}")
+            .Where(resolution => (float)resolution.width / resolution.height > 16f/10f)
+            .Select(resolution => $"{resolution.width}x{resolution.height}") 
             .ToList();
 
+        isFullScreen = savedFullScreen;
         _selectedResolution = $"{savedWidth}x{savedHeight}";
         _resolution.index = _resolution.choices.IndexOf(_selectedResolution);
 
@@ -93,12 +95,11 @@ public class VideoUIController
     private void InitFullScreen()
     {
         _fullScreenToggle = _root.Q<Toggle>("FullScreenToggle");
-        _fullScreenToggle.value = isFullScreen;
+        _fullScreenToggle.value = savedFullScreen;
 
         _fullScreenToggle.RegisterValueChangedCallback(evt =>
         {
-            if (evt.newValue != isFullScreen)
-            {
+            
                 isFullScreen = evt.newValue;
                 _selectedResolution = _resolution.value;
                 string[] resolutionParts = _selectedResolution.Split('x');
@@ -107,7 +108,7 @@ public class VideoUIController
                 
                 Screen.SetResolution(changedWidth, changedHeight, isFullScreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
                 _applyButton.style.display = DisplayStyle.Flex; 
-            }
+            
         });
     }
     
