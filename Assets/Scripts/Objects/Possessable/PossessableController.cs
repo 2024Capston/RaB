@@ -96,10 +96,8 @@ namespace Possessable
             origin.y += PlayerController.INITIAL_CAPSULE_HEIGHT / 2f * player.transform.localScale.y;
 
             Vector3 offset = Vector3.up * (PlayerController.INITIAL_CAPSULE_HEIGHT / 2f * player.transform.localScale.y - PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x) * 0.9f;
-            float radius = _collider.bounds.size.x + PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x;
             Vector3 forward = new Vector3(Camera.main.transform.forward.x, 0.0f, Camera.main.transform.forward.z).normalized;
-
-            Debug.Log(forward);
+            float radius = _collider.bounds.size.x + PlayerController.INITIAL_CAPSULE_RADIUS * player.transform.localScale.x;
 
             // 물체를 중심으로, 주변을 원으로 탐색한다.
             for (int i = 0; i < 9; i++)
