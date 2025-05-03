@@ -33,7 +33,7 @@ public class LaserController1 : NetworkBehaviour
     {
         while (true)
         {
-            transform.rotation = Quaternion.Euler(new Vector3(0, 0.5f, 0)) * transform.rotation;
+            transform.rotation = Quaternion.Euler(new Vector3(0, 1f, 0)) * transform.rotation;
             yield return null;
         }
     }
