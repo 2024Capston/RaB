@@ -14,13 +14,15 @@ public class MapInfo
 {
     public int Floor;
     public int Stage;
+    public int OpenFlag;
     public int ClearFlag;
 
-    public MapInfo(int floor, int stage, int clearflag)
+    public MapInfo(int floor, int stage, int openFlag, int clearFlag)
     {
         Floor = floor;
         Stage = stage;
-        ClearFlag = clearflag;
+        OpenFlag = openFlag;
+        ClearFlag = clearFlag;
     }
 }
 
@@ -96,18 +98,18 @@ public class UserGameData : IUserData
             for (int i = 0; i < 3; i++)
             {
                 PlayData playData = new PlayData();
-                string mapInfoListstring = PlayerPrefs.GetString($"MapInfoList{i}");
+                string mapInfoListString = PlayerPrefs.GetString($"MapInfoList{i}");
 
-                if (mapInfoListstring[0] == '1')
+                if (mapInfoListString[0] == '1')
                 {
                     playData.HasData = true;
-                    string mapInfoListJson = mapInfoListstring.Substring(1);
+                    string mapInfoListJson = mapInfoListString.Substring(1);
                     if (!string.IsNullOrEmpty(mapInfoListJson))
                     {
                         MapInfoListWrapper mapInfoListWrapper = JsonUtility.FromJson<MapInfoListWrapper>(mapInfoListJson);
                         foreach (MapInfo mapInfo in mapInfoListWrapper.MapInfoList)
                         {
-                            playData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.ClearFlag));                   
+                            playData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.OpenFlag, mapInfo.ClearFlag));                   
                             playData.StageCount++;
                             playData.StageClearCount += mapInfo.ClearFlag;
                         }
@@ -136,15 +138,15 @@ public class UserGameData : IUserData
         {
             for (int i = 0; i < 3; i++)
             {
-                string mapInfoListstring = PlayDatas[i].HasData ? "1" : "0";
+                string mapInfoListString = PlayDatas[i].HasData ? "1" : "0";
                 if (PlayDatas[i].HasData)
                 {
                     MapInfoListWrapper mapInfoListWrapper = new MapInfoListWrapper();
                     mapInfoListWrapper.MapInfoList = PlayDatas[i].MapInfoList;
                     string mapInfoListJson = JsonUtility.ToJson(mapInfoListWrapper);
-                    mapInfoListstring += mapInfoListJson;
+                    mapInfoListString += mapInfoListJson;
                 }
-                PlayerPrefs.SetString($"MapInfoList{i}", mapInfoListstring);
+                PlayerPrefs.SetString($"MapInfoList{i}", mapInfoListString);
             }
 
             result = true;
@@ -167,18 +169,18 @@ public class UserGameData : IUserData
         playData.MapInfoList = new List<MapInfo>();
         
         // defaultData는 Resources/Json/mapdefaultinfo.json을 읽어온다.
-        TextAsset defalutjson = Resources.Load<TextAsset>(MAP_DATA_PATH + "defaultmapinfo");
-        if (!defalutjson)
+        TextAsset defaultJson = Resources.Load<TextAsset>(MAP_DATA_PATH + "defaultmapinfo");
+        if (!defaultJson)
         {
             Logger.LogError($"{MAP_DATA_PATH + "defaultmapinfo"} does not exist.");
             return;
         }
 
-        MapInfoListWrapper mapInfoListWrapper = JsonUtility.FromJson<MapInfoListWrapper>(defalutjson.ToString());
+        MapInfoListWrapper mapInfoListWrapper = JsonUtility.FromJson<MapInfoListWrapper>(defaultJson.ToString());
         
         foreach (MapInfo mapInfo in mapInfoListWrapper.MapInfoList)
         {
-            playData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.ClearFlag));                   
+            playData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.OpenFlag, mapInfo.ClearFlag));                   
             playData.StageCount++;
             playData.StageClearCount += mapInfo.ClearFlag;
         }

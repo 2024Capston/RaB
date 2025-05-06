@@ -60,6 +60,7 @@ public class UserDataManagerEditor : Editor
                             EditorGUILayout.LabelField("MapInfo", EditorStyles.boldLabel);
                             mapInfo.Floor = EditorGUILayout.IntField("Floor", mapInfo.Floor);
                             mapInfo.Stage = EditorGUILayout.IntField("Stage", mapInfo.Stage);
+                            mapInfo.OpenFlag = EditorGUILayout.IntField("OpenFlag", mapInfo.OpenFlag);
                             mapInfo.ClearFlag = EditorGUILayout.IntField("ClearFlag", mapInfo.ClearFlag);
                         }
                     }

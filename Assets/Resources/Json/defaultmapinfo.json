@@ -3,31 +3,37 @@
     {
       "Floor" : 1,
       "Stage" : 1,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
       "Floor" : 1,
       "Stage" : 2,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
       "Floor" : 1,
       "Stage" : 3,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
       "Floor" : 1,
       "Stage" : 4,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
       "Floor" : 1,
       "Stage" : 5,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
       "Floor" : 1,
       "Stage" : 6,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     }
   ]  
