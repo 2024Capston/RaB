@@ -119,7 +119,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         {
             int index = (SessionManager.Instance.CurrentFloor - 1) * 6 + i;
             
-            SetAirlockDataClientRpc(i, (StageName)index, data.MapInfoList[index].ClearFlag != 0, clientRpcParams);
+            SetAirlockDataClientRpc(i, (StageName)index, data.MapInfoList[index].OpenFlag == 1, clientRpcParams);
         }
     }
 
