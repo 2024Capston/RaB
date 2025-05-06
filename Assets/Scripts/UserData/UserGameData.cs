@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
+using Application = UnityEngine.Device.Application;
 
 /*
  임시로 레지스트리에 현재 진행 중인 Chapter를 저장하도록 만들었습니다.
@@ -98,8 +100,16 @@ public class UserGameData : IUserData
             for (int i = 0; i < 3; i++)
             {
                 PlayData playData = new PlayData();
-                string mapInfoListString = PlayerPrefs.GetString($"MapInfoList{i}");
 
+                string mapInfoListString;
+                
+#if UNITY_EDITOR
+                mapInfoListString = PlayerPrefs.GetString($"MapInfoList{i}");
+#else
+                string path = Path.Combine(Application.persistentDataPath, $"MapInfoList{i}");
+                mapInfoListString = File.ReadAllText(path);
+#endif
+                
                 if (mapInfoListString[0] == '1')
                 {
                     playData.HasData = true;
@@ -146,7 +156,14 @@ public class UserGameData : IUserData
                     string mapInfoListJson = JsonUtility.ToJson(mapInfoListWrapper);
                     mapInfoListString += mapInfoListJson;
                 }
+                
+#if UNITY_EDITOR
                 PlayerPrefs.SetString($"MapInfoList{i}", mapInfoListString);
+                
+#else
+                string path = Path.Combine(Application.persistentDataPath, $"MapInfoList{i}");
+                File.WriteAllText(path, mapInfoListString);
+#endif
             }
 
             result = true;
