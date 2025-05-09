@@ -62,11 +62,7 @@ public class PlayDataSelectUI
 
     private void OnClickSaveSlot(int index)
     {
-        if (!HomeManager.Instance.UserGameData.PlayDatas[index].HasData)
-        {
-            HomeManager.Instance.UserGameData.SetNewData(index);
-            HomeManager.Instance.UserGameData.SaveData();
-        }
+        HomeManager.Instance.UserGameData.PlayDatas[index].HasData = true;
                 
         // 선택한 인덱스로 세션을 생성하고 Server를 실행
         SessionManager.Instance.CreateSession(index);
