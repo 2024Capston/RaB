@@ -10,9 +10,12 @@ using System.Runtime.CompilerServices;
 public class CubeRenderer : NetworkBehaviour
 {
     [SerializeField] private int _viewMode;
+    [SerializeField] private AudioClip _colorChangeClips;
+
     private ColorType _playerColor;
     
     private CubeController _cubeController;
+    private CubeAudioController _cubeAudioController;
     private NetworkInterpolator _networkInterpolator;
     private Outline _outline;
 
@@ -56,6 +59,7 @@ public class CubeRenderer : NetworkBehaviour
     public void Initialize()
     {
         _cubeController = GetComponent<CubeController>();
+        _cubeAudioController = GetComponent<CubeAudioController>();
         _networkInterpolator = GetComponent<NetworkInterpolator>();
 
         _playerColor = NetworkManager.Singleton.IsHost ? ColorType.Blue : ColorType.Red;
@@ -122,6 +126,8 @@ public class CubeRenderer : NetworkBehaviour
         float lastTime = Time.realtimeSinceStartup;
 
         // 1차 회전
+        _cubeAudioController.PlayColorChangeSound();
+
         while (timer < transitionTime / 3f)
         {
             for (int i = 0; i < 4; i++)
@@ -145,8 +151,10 @@ public class CubeRenderer : NetworkBehaviour
         }
 
         timer -= transitionTime / 3f;
-        
-        // 2차 회전전
+
+        // 2차 회전
+        _cubeAudioController.PlayColorChangeSound();
+
         while (timer < transitionTime / 3f)
         {
             for (int i = 1; i < 8; i += 2)
@@ -173,8 +181,10 @@ public class CubeRenderer : NetworkBehaviour
         }
 
         timer -= transitionTime / 3f;
-        
+
         // 3차 회전
+        _cubeAudioController.PlayColorChangeSound();
+
         while (timer < transitionTime / 3f)
         {
             for (int i = 4; i < 8; i++)
