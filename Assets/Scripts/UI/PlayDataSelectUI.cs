@@ -14,12 +14,17 @@ public class PlayDataSelectUI
     private Button _saveSlot1Button;
     private Button _saveSlot2Button;
     private Button _saveSlot3Button;
+
+    private Button _saveSlot1ResetButton;
+    private Button _saveSlot2ResetButton;
+    private Button _saveSlot3ResetButton;
+    
     private Button _backButton;
 
     private Action OnClosePanel;
 
     private List<Button> _buttonContainer;
-    // Start is called before the first frame update
+    
     public PlayDataSelectUI(VisualElement root, Action OnClosePlayDataSelectUIButton)
     {
         _root = root;
@@ -29,6 +34,11 @@ public class PlayDataSelectUI
         _saveSlot1Button = _root.Q<Button>("SaveSlot1_Button");
         _saveSlot2Button = _root.Q<Button>("SaveSlot2_Button");
         _saveSlot3Button = _root.Q<Button>("SaveSlot3_Button");
+
+        _saveSlot1ResetButton = _root.Q<Button>("SaveSlot1_Reset_Button");
+        _saveSlot2ResetButton = _root.Q<Button>("SaveSlot2_Reset_Button");
+        _saveSlot3ResetButton = _root.Q<Button>("SaveSlot3_Reset_Button");
+        
         _backButton = _root.Q<Button>("Back_Button");
         OnClosePanel = OnClosePlayDataSelectUIButton;
         
@@ -38,7 +48,7 @@ public class PlayDataSelectUI
         {
             if (!HomeManager.Instance.UserGameData.PlayDatas[i].HasData)
             {
-                _buttonContainer[i].text = "#New Game";
+                _buttonContainer[i].text = LocalizationSettings.StringDatabase.GetLocalizedString("UI Table", "New Game");
             }
             else
             {
@@ -56,8 +66,13 @@ public class PlayDataSelectUI
                 OnClickSaveSlot(index);
             };
         }
+
+        _saveSlot1ResetButton.clicked += () => OnClickResetButton(0);
+        _saveSlot2ResetButton.clicked += () => OnClickResetButton(1);
+        _saveSlot3ResetButton.clicked += () => OnClickResetButton(2);
         
         _backButton.RegisterCallback<ClickEvent>(OnClickBackButton);
+        
     }
 
     private void OnClickSaveSlot(int index)
@@ -67,6 +82,16 @@ public class PlayDataSelectUI
         // 선택한 인덱스로 세션을 생성하고 Server를 실행
         SessionManager.Instance.CreateSession(index);
         ConnectionManager.Instance.StartServer();
+    }
+
+    private void OnClickResetButton(int index)
+    {
+        if (HomeManager.Instance.UserGameData.PlayDatas[index].HasData)
+        {
+            HomeManager.Instance.UserGameData.ClearData(index);
+        }
+        
+        _buttonContainer[index].text = LocalizationSettings.StringDatabase.GetLocalizedString("UI Table", "New Game");
     }
 
     private void OnClickBackButton(ClickEvent evt)
