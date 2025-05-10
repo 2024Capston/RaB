@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class AirlockButtonController : MonoBehaviour, IInteractable
+public class AirlockButtonController : NetworkBehaviour, IInteractable
 {
     [SerializeField] private AirlockController _airlockController;
     [SerializeField] private bool _isInButton;
@@ -34,14 +34,50 @@ public class AirlockButtonController : MonoBehaviour, IInteractable
 
     public bool StartInteraction(PlayerController player)
     {
+        _airlockController.OnClickAirlockButtonServerRpc(_buttonColor, _isInButton);
+
         _audioSource.pitch = Random.Range(1.0f, 2.0f);
         _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
-        _airlockController.OnClickAirlockButtonServerRpc(_buttonColor, _isInButton);
+
+        PlayPressSound();
+
+        if (IsServer)
+        {
+            PlayPressSoundClientRpc();
+        }
+        else
+        {
+            PlayPressSoundServerRpc();
+        }
+
         return false;
     }
 
     public bool StopInteraction(PlayerController playerController)
     {
         return true;
+    }
+
+    private void PlayPressSound()
+    {
+        _audioSource.pitch = Random.Range(1.0f, 2.0f);
+        _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayPressSoundServerRpc()
+    {
+        PlayPressSound();
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void PlayPressSoundClientRpc()
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        PlayPressSound();
     }
 }
