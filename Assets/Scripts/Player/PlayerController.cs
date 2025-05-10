@@ -1,4 +1,5 @@
 using System;
+using Possessable;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEditor.Rendering;
@@ -24,11 +25,17 @@ public class PlayerController : NetworkBehaviour
     private Collider _collider;
     private NetworkInterpolator _networkInterpolator;
     private PlayerRenderer _playerRenderer;
+    private PlayerAudioController _playerAudioController;
     private CameraController _cameraController;
     private NetworkPlatformFinder _networkPlatformFinder;
 
     private IInteractable _interactableOnPointer;  // 플레이어가 바라보고 있는 Interactable
+    private NetworkObject _networkObjectOnPointer; // 플레이어가 바라보고 있는 Network Object
     private IInteractable _interactableInHand;     // 플레이어가 들고 있는 Interactable
+    public IInteractable InteractableInHand
+    {
+        get => _interactableInHand;
+    }
 
     // 입력 관련
     private bool _jumpInput;        // 점프 입력 여부
@@ -197,6 +204,25 @@ public class PlayerController : NetworkBehaviour
                 QualitySettings.vSyncCount = 1;
                 Application.targetFrameRate = 0;
             }
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!IsOwner)
+        {
+            return;
+        }
+
+        _playerAudioController?.PlayHitSound(collision.impulse.magnitude);
+
+        if (IsServer)
+        {
+            PlayHitSoundClientRpc(collision.impulse.magnitude);
+        }
+        else
+        {
+            PlayHitSoundServerRpc(collision.impulse.magnitude);
         }
     }
 
@@ -371,6 +397,15 @@ public class PlayerController : NetworkBehaviour
 
                 _interactableOnPointer = interactable;
 
+                if (hit.collider.gameObject.TryGetComponent(out NetworkObject networkObject))
+                {
+                    _networkObjectOnPointer = networkObject;
+                }
+                else
+                {
+                    _networkObjectOnPointer = null;
+                }
+
                 if (_interactableOnPointer.Outline)
                 {
                     _interactableOnPointer.Outline.enabled = true;
@@ -385,6 +420,7 @@ public class PlayerController : NetworkBehaviour
             }
 
             _interactableOnPointer = null;
+            _networkObjectOnPointer = null;
         }
 
         gameObject.layer = originalLayer;
@@ -454,6 +490,15 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
+    /// PlayerRenderer에서 PlayerAudioController가 생성되면 이를 받아온다.
+    /// </summary>
+    /// <param name="playerAudioController">생성된 PlayerAudioController가</param>
+    public void SetPlayerAudioController(PlayerAudioController playerAudioController)
+    {
+        _playerAudioController = playerAudioController;
+    }
+
+    /// <summary>
     /// X, Z 축 입력을 받는 Callback.
     /// </summary>
     /// <param name="value">입력 값</param>
@@ -484,6 +529,15 @@ public class PlayerController : NetworkBehaviour
             {
                 _interactableOnPointer = null;
                 _interactableInHand = null;
+
+                if (IsServer)
+                {
+                    ResetInteractableInHandClientRpc();
+                }
+                else
+                {
+                    ResetInteractableInHandServerRpc();
+                }
             }
         }
         else if (_interactableOnPointer != null)
@@ -493,6 +547,20 @@ public class PlayerController : NetworkBehaviour
                 _interactableOnPointer.Outline.enabled = false;
                 _interactableInHand = _interactableOnPointer;
                 _interactableOnPointer = null;
+
+                if (_networkObjectOnPointer != null)
+                {
+                    if (IsServer)
+                    {
+                        SetInteractableInHandClientRpc(_networkObjectOnPointer);
+                    }
+                    else
+                    {
+                        SetInteractableInHandServerRpc(_networkObjectOnPointer);
+                    }
+                }
+
+                _networkObjectOnPointer = null;
             }
         }
     }
@@ -707,5 +775,58 @@ public class PlayerController : NetworkBehaviour
         }
 
         RespawnLocalPlayer();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetInteractableInHandServerRpc(NetworkObjectReference interactable)
+    {
+        if (interactable.TryGet(out NetworkObject networkObject))
+        {
+            _interactableInHand = networkObject.gameObject.GetComponent<IInteractable>();
+        }
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void SetInteractableInHandClientRpc(NetworkObjectReference interactable)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        if (interactable.TryGet(out NetworkObject networkObject))
+        {
+            _interactableInHand = networkObject.gameObject.GetComponent<IInteractable>();
+            Debug.Log(networkObject.gameObject + "!!");
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ResetInteractableInHandServerRpc()
+    {
+        _interactableInHand = null;
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ResetInteractableInHandClientRpc()
+    {
+        _interactableInHand = null;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayHitSoundServerRpc(float impulse)
+    {
+        _playerAudioController?.PlayHitSound(impulse);
+    }
+
+    [ClientRpc(RequireOwnership = true)]
+    private void PlayHitSoundClientRpc(float impulse)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        _playerAudioController?.PlayHitSound(impulse);
     }
 }

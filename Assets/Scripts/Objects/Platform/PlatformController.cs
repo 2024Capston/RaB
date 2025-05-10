@@ -29,6 +29,7 @@ public class PlatformController : NetworkBehaviour, IActivatable
     private float _moveSpeed;
 
     private Rigidbody _rigidbody;
+    private AudioSource _audioSource;
 
     private bool _isInitialized;
     private bool _isActive;
@@ -38,24 +39,37 @@ public class PlatformController : NetworkBehaviour, IActivatable
     private int _currentTarget = 1;     // 현재 목표 위치
     private float _targetMoveTime;      // 이동에 걸릴 시간
 
+    private Vector3 _lastPosition;
+    private Vector3 _velocity;
+
     public override void OnNetworkSpawn()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
     void FixedUpdate()
     {
         if (!_isActive || !_isInitialized)
         {
+            _audioSource.volume = 0.0f;
             return;
         }
 
         _timer += Time.fixedDeltaTime;
         float lerpCoefficient = EaseInOut(_timer / _targetMoveTime);
 
+        // 플랫폼 이동
         _rigidbody.MovePosition(Vector3.Lerp(_targets[_previousTarget].position, _targets[_currentTarget].position, lerpCoefficient));
         _rigidbody.MoveRotation(Quaternion.Slerp(_targets[_previousTarget].rotation, _targets[_currentTarget].rotation, lerpCoefficient));
         transform.localScale = Vector3.Lerp(_targets[_previousTarget].scale, _targets[_currentTarget].scale, lerpCoefficient);
+
+        // 플랫폼 속도 계산
+        _velocity = (_rigidbody.position - _lastPosition) / Time.fixedDeltaTime;
+        _lastPosition = _rigidbody.position;
+
+        // 플랫폼 소리 볼륨 조절
+        _audioSource.volume = Mathf.Min(_velocity.magnitude / 48.0f, 0.5f);
 
         // 목표에 도달했으면 목표 위치 갱신
         if (Vector3.Distance(transform.position, _targets[_currentTarget].position) < 0.1f)

@@ -9,6 +9,8 @@ namespace Possessable
     /// </summary>
     public class PossessableController : NetworkBehaviour, IInteractable
     {
+        [SerializeField] AudioClip[] _possessClips;
+
         /// <summary>
         /// 물체의 색깔
         /// </summary>
@@ -21,6 +23,7 @@ namespace Possessable
 
         private Rigidbody _rigidbody;
         private Collider _collider;
+        private AudioSource _audioSource;
 
         private NetworkInterpolator _networkInterpolator;
         private MeshRenderer[] _meshRenderers;
@@ -44,6 +47,7 @@ namespace Possessable
         {
             _rigidbody = GetComponent<Rigidbody>();
             _collider = GetComponent<Collider>();
+            _audioSource = GetComponent<AudioSource>();
 
             _networkInterpolator = GetComponent<NetworkInterpolator>();
             _networkInterpolator.AddVisualReferenceDependantFunction(() =>
@@ -274,6 +278,8 @@ namespace Possessable
 
             // 플레이어의 Collider 정보 갱신
             player.UpdateCollider(_collider, transform.localScale);
+
+            _audioSource.PlayOneShot(_possessClips[Random.Range(0, _possessClips.Length)], _audioSource.volume);
         }
 
         /// <summary>
@@ -295,6 +301,8 @@ namespace Possessable
 
             _interactingPlayerRenderer = null;
             _interactingCameraController = null;
+
+            _audioSource.PlayOneShot(_possessClips[Random.Range(0, _possessClips.Length)], _audioSource.volume);
         }
 
         /// <summary>

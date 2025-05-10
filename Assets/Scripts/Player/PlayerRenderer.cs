@@ -63,6 +63,11 @@ public class PlayerRenderer : NetworkBehaviour
             _playerRendererUtil = _playerRender.GetComponent<PlayerRendererUtil>();
             _playerRendererUtil.SetPlayerController(_playerController);
 
+            PlayerAudioController playerAudioController = _playerRender.GetComponent<PlayerAudioController>();
+            playerAudioController.SetPlayerController(_playerController);
+            _playerController.SetPlayerAudioController(playerAudioController);
+            
+
             if (IsOwner)
             {
                 _playerRendererUtil.HideFirstPersonPlayerRender();

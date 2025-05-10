@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -10,6 +9,8 @@ public class AirlockButtonController : MonoBehaviour, IInteractable
     [SerializeField] private bool _isInButton;
     [SerializeField] private ColorType _buttonColor;
 
+    private AudioSource _audioSource;
+
     private Outline _outline;
     public Outline Outline
     {
@@ -19,6 +20,8 @@ public class AirlockButtonController : MonoBehaviour, IInteractable
 
     private void Start()
     {
+        _audioSource = GetComponent<AudioSource>();
+
         _outline = GetComponent<Outline>();
         _outline.enabled = false;
     }
@@ -31,6 +34,8 @@ public class AirlockButtonController : MonoBehaviour, IInteractable
 
     public bool StartInteraction(PlayerController player)
     {
+        _audioSource.pitch = Random.Range(1.0f, 2.0f);
+        _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
         _airlockController.OnClickAirlockButtonServerRpc(_buttonColor, _isInButton);
         return false;
     }

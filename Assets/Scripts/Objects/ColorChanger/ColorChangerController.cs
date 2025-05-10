@@ -10,7 +10,6 @@ namespace ColorChanger
     /// </summary>
     public class ColorChangerController : NetworkBehaviour
     {
-
         /// <summary>
         /// ColorChangerUtil과 시간 표시 UI를 포함한 프리팹
         /// </summary>
@@ -23,13 +22,20 @@ namespace ColorChanger
 
         private const float TRANSITION_TIME = 2f;
 
+        private AudioSource _audioSource;
+
         private CubeController _cubeOnChanger;
         private Rigidbody _cubeRigidbody;
         private ColorChangerUtil _utilObject;
 
         private float _timer;
 
-        void Update()
+        private void Awake()
+        {
+            _audioSource = GetComponent<AudioSource>();
+        }
+
+        private void Update()
         {
             // 색깔 변환 중인 큐브가 있는 경우
             if (_cubeOnChanger)
@@ -148,6 +154,8 @@ namespace ColorChanger
 
         private IEnumerator CoUpdateGaugeColor(CubeController cubeController)
         {
+            _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
+
             float preparationTime = TRANSITION_TIME * 0.2f;
             float fillTime = TRANSITION_TIME * 0.8f;
 
