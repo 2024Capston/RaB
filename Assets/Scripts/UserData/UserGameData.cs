@@ -202,6 +202,22 @@ public class UserGameData : IUserData
         return result;
     }
 
+    public void ClearData(int selectPlayData)
+    {
+        PlayData playData = new PlayData();
+        
+        TextAsset defaultJson = Resources.Load<TextAsset>(MAP_DATA_PATH + "defaultmapinfo");
+        MapInfoListWrapper defaultMapInfo = JsonUtility.FromJson<MapInfoListWrapper>(defaultJson.ToString());
+        foreach (MapInfo mapInfo in defaultMapInfo.MapInfoList)
+        {
+            playData.MapInfoList.Add(new MapInfo(mapInfo.Floor, mapInfo.Stage, mapInfo.OpenFlag, mapInfo.ClearFlag));                   
+            playData.StageCount++;
+            playData.StageClearCount += mapInfo.ClearFlag;
+        }
+
+        PlayDatas[selectPlayData] = playData;
+    }
+
     public void UpdateData(int selectPlayData, StageName stageName, int clearFlag)
     {
         PlayData playData = PlayDatas[selectPlayData];
