@@ -195,11 +195,16 @@ namespace ColorChanger
         }
 
         /// <summary>
-        /// 색깔 변환기 상태를 초기화한다. 이 함수는 서버에서만 호출한다.
-        /// (Change Time은 서버에서만 쓰이는 변수이고, 위치는 Network Transform이 동기화함.)
+        /// 색깔 변환기 상태를 초기화한다.
         /// </summary>
         /// <param name="changeTime">변환 시간</param>
         public void Initialize(float changeTime)
+        {
+            InitializeClientRpc(changeTime);
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        private void InitializeClientRpc(float changeTime)
         {
             _changeTime = changeTime;
         }
