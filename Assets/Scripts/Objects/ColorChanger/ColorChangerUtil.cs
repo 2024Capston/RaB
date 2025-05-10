@@ -10,9 +10,11 @@ namespace ColorChanger
     /// </summary>
     public class ColorChangerUtil : MonoBehaviour
     {
+        [SerializeField] private SpriteRenderer _frontSpriteRenderer;
+        [SerializeField] private SpriteRenderer _backSpriteRenderer;
+
         private const float TRANSITION_TIME = 2f;
         private CubeController _cubeController;
-        private SpriteRenderer _spriteRenderer;
 
         private bool _timerStarted;
         private bool _timerEnded;
@@ -32,7 +34,7 @@ namespace ColorChanger
             }
 
             _timer += Time.deltaTime;
-            _spriteRenderer.material.SetFloat("_Arc2", (1f - _timer / _changeCooldown) * 360f);
+            _frontSpriteRenderer.material.SetFloat("_Arc2", (1f - _timer / _changeCooldown) * 360f);
 
             // 일정 시간이 지나면 색깔을 되돌린다.
             if (_timer > _changeCooldown)
@@ -40,12 +42,18 @@ namespace ColorChanger
                 _cubeController.ForceStopInteraction();
                 _cubeController.GetComponent<CubeRenderer>().PlayTransitionAnimation(TRANSITION_TIME);
 
-                _spriteRenderer.enabled = false;
+                _frontSpriteRenderer.enabled = false;
+                _backSpriteRenderer.enabled = false;
+
                 _timerEnded = true;
 
                 if (NetworkManager.Singleton.IsServer)
                 {
                     StartCoroutine("CoChangeCubeColor", _cubeController);
+                }
+                else
+                {
+                    Destroy(gameObject);
                 }
             }
         }
@@ -71,10 +79,10 @@ namespace ColorChanger
         public void Initialize(CubeController cubeController, float changeTime)
         {
             _changeCooldown = changeTime;
-
             _cubeController = cubeController;
-            _spriteRenderer = GetComponent<SpriteRenderer>();
-            _spriteRenderer.enabled = false;
+
+            _frontSpriteRenderer.enabled = false;
+            _backSpriteRenderer.enabled = false;
         }
 
         /// <summary>
@@ -83,7 +91,9 @@ namespace ColorChanger
         public void StartTimer()
         {
             _timerStarted = true;
-            _spriteRenderer.enabled = true;
+
+            _frontSpriteRenderer.enabled = true;
+            _backSpriteRenderer.enabled = true;
         }
     }
 }
