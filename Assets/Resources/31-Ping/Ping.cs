@@ -2,29 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class Ping : MonoBehaviour
+public class Ping : NetworkBehaviour
 {
+    [SerializeField] AudioClip _pingAudio;
     [SerializeField] private float timer = 5f;
 
     private Transform[] _piecesTransforms;
     [SerializeField] private MeshRenderer[] _childMeshRenderers;
 
     // Start is called before the first frame update
-    void Start()
+    public override void OnNetworkSpawn()
     {
-        //timer = 3.5f;
-        StartCoroutine(DestroySelf(timer));
+        base.OnNetworkSpawn();
+
+        AudioSource.PlayClipAtPoint(_pingAudio, transform.position);
+
         Initialize();
+        if(IsHost)
+            StartCoroutine(DestroyMe(timer));
     }
-    IEnumerator DestroySelf(float timer)
+
+    IEnumerator DestroyMe(float timer)
     {
         yield return new WaitForSeconds(timer);
-        GetComponent<NetworkObject>().Despawn(); // 네트워크에서 제거
-        Destroy(this); // 로컬에서 제거
+        OnDestroySelf();
         yield break;
     }
-    public void Initialize()
+    private void OnDestroySelf()
+    {
+        GetComponent<NetworkObject>().Despawn(); // 네트워크에서 제거
+    }
+
+    private void Initialize()
     {
         ColorType _playerColor = NetworkManager.Singleton.IsHost ? ColorType.Blue : ColorType.Red;
 

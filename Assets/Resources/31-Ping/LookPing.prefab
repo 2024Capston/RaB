@@ -176,8 +176,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1934147746985567773}
   - component: {fileID: 3743997850191412345}
-  - component: {fileID: 2857641806767536595}
   - component: {fileID: 6223294772027872988}
+  - component: {fileID: 2857641806767536595}
   - component: {fileID: 720788337615364884}
   m_Layer: 0
   m_Name: LookPing
@@ -225,23 +225,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &2857641806767536595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4658183709684643492}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b34e9d186ebd554d9891074ca3d09d8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timer: 3.5
-  _childMeshRenderers:
-  - {fileID: 349544983630901373}
-  - {fileID: 5310314757150502489}
-  - {fileID: 414744878185572607}
 --- !u!114 &6223294772027872988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263,6 +246,24 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &2857641806767536595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4658183709684643492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b34e9d186ebd554d9891074ca3d09d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pingAudio: {fileID: 8300000, guid: 07ef426ec93ca4e4987616792fbb5c8d, type: 3}
+  timer: 3.5
+  _childMeshRenderers:
+  - {fileID: 349544983630901373}
+  - {fileID: 5310314757150502489}
+  - {fileID: 414744878185572607}
 --- !u!114 &720788337615364884
 MonoBehaviour:
   m_ObjectHideFlags: 0

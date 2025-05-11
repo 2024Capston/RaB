@@ -24,13 +24,13 @@ public class PingManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown("v"))
+        if(Input.GetKeyDown("v"))   //인풋매니저에 delegate로 추가
         {
-            RequestSpawnLookPingServerRpc();
+            GetPingPositionAndRotation();
         }         
     }
-    [ServerRpc]
-    void RequestSpawnLookPingServerRpc()
+
+    void GetPingPositionAndRotation()
     {
         if (_mainCamera == null)
         {
@@ -44,12 +44,18 @@ public class PingManager : MonoBehaviour
             //{
             Vector3 offset = new Vector3(hit.point.x, hit.point.y, hit.point.z) + hit.normal * 0.1f;
             Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-            GameObject pingObject = Instantiate(_pings[_selectedPing], offset, rotation);
-            AudioSource.PlayClipAtPoint(_pingAudios[_selectedPing], offset);
             //}
 
-            pingObject.GetComponent<NetworkObject>().Spawn();
             Debug.Log($"핑충돌! 각도{hit.normal}");
+            RequestSpawnPingServerRpc(offset, rotation);
         }
+
     }
+    [ServerRpc(RequireOwnership =false)]
+    void RequestSpawnPingServerRpc(Vector3 position, Quaternion rotation)
+    {
+        GameObject pingObject = Instantiate(_pings[_selectedPing], position, rotation);
+        pingObject.GetComponent<NetworkObject>().Spawn();
+    }
+    
 }
