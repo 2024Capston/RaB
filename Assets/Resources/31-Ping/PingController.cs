@@ -31,16 +31,21 @@ public class PingController : NetworkBehaviour
             //}
 
             Debug.Log($"핑충돌! 각도{hit.normal}");
-            RequestSpawnPingServerRpc(offset, rotation);
+            RequestSpawnPingServerRpc(offset, rotation, IsHost);
         }
 
     }
     [ServerRpc(RequireOwnership =false)]
-    void RequestSpawnPingServerRpc(Vector3 position, Quaternion rotation)
+    void RequestSpawnPingServerRpc(Vector3 position, Quaternion rotation, bool isHost)
+    {
+        SpawnPingClientRpc(position, rotation, isHost);
+    }
+
+    [ClientRpc]
+    void SpawnPingClientRpc(Vector3 position, Quaternion rotation, bool isHost)
     {
         GameObject pingObject = Instantiate(_pings, position, rotation);
-        pingObject.GetComponent<Ping>().RequestPlayer = IsHost;
-        pingObject.GetComponent<NetworkObject>().Spawn();
+        pingObject.GetComponent<Ping>().SpawnPing(isHost);
     }
     
 }

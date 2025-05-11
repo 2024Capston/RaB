@@ -2,50 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
-public class Ping : NetworkBehaviour
+public class Ping : MonoBehaviour
 {
     [SerializeField] AudioClip _pingAudio;
-    [SerializeField] private float timer = 5f;
+    [SerializeField] private float _timer = 5f;
 
     private Transform[] _piecesTransforms;
     [SerializeField] private MeshRenderer[] _childMeshRenderers;
-
-    public bool RequestPlayer { get; set; }
     
-    // Start is called before the first frame update
-    public override void OnNetworkSpawn()
+    public void SpawnPing(bool isHost)
     {
-        base.OnNetworkSpawn();
-
         AudioSource.PlayClipAtPoint(_pingAudio, transform.position);
+        ColorType playerColor = isHost ? ColorType.Blue : ColorType.Red;
+        int childCount = _childMeshRenderers.Length;
 
-        Initialize();
-        if(IsHost)
-            StartCoroutine(DestroyMe(timer));
+        for (int i = 0; i < childCount; i++)
+        {
+            _childMeshRenderers[i].material.SetMaterial(playerColor, playerColor, 0);     //viewMode 0:서로색보임 1:상대흰색 2:상대투명
+        }
+        
+        StartCoroutine(DestroyMe(_timer));
     }
 
     IEnumerator DestroyMe(float timer)
     {
         yield return new WaitForSeconds(timer);
-        OnDestroySelf();
-        yield break;
-    }
-    private void OnDestroySelf()
-    {
-        GetComponent<NetworkObject>().Despawn(); // 네트워크에서 제거
+        Destroy(gameObject);
     }
 
-    private void Initialize()
-    {
-        ColorType _playerColor = RequestPlayer ? ColorType.Blue : ColorType.Red;
-
-        int childCount = _childMeshRenderers.Length;
-
-        for (int i = 0; i < childCount; i++)
-        {
-            _childMeshRenderers[i].material.SetMaterial(_playerColor, _playerColor, 0);     //viewMode 0:서로색보임 1:상대흰색 2:상대투명
-        }
-    }
 }
