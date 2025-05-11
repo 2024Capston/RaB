@@ -8,6 +8,7 @@ public class LaserController1 : NetworkBehaviour
     
     [SerializeField] private ColorType _laserColor;
     [SerializeField] private bool _laserVisible;
+    [SerializeField] private char _axis;
      private Rigidbody _rigidbody;
 
     [SerializeField] private MeshRenderer _laser;
@@ -33,8 +34,22 @@ public class LaserController1 : NetworkBehaviour
     {
         while (true)
         {
-            transform.rotation = Quaternion.Euler(new Vector3(0, 2f, 0)) * transform.rotation;
-            yield return null;
+            if (_axis == 'x')
+            {
+                transform.rotation = Quaternion.Euler(new Vector3(2f, 0, 0)) * transform.rotation;
+                yield return null;
+            } 
+            else if (_axis == 'y')
+            {
+                transform.rotation = Quaternion.Euler(new Vector3(0, 2f, 0)) * transform.rotation;
+                yield return null;
+            }
+            else
+            {
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 2f)) * transform.rotation;
+                yield return null;
+            }
+            
         }
     }
 
