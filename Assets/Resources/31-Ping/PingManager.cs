@@ -45,7 +45,7 @@ public class PingManager : MonoBehaviour
             Vector3 offset = new Vector3(hit.point.x, hit.point.y, hit.point.z) + hit.normal * 0.1f;
             Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
             GameObject pingObject = Instantiate(_pings[_selectedPing], offset, rotation);
-            //AudioSource.PlayClipAtPoint(_pingAudios[_selectedPing], offset);
+            AudioSource.PlayClipAtPoint(_pingAudios[_selectedPing], offset);
             //}
 
             pingObject.GetComponent<NetworkObject>().Spawn();
