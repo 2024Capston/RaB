@@ -12,6 +12,8 @@ public class Ping : NetworkBehaviour
     private Transform[] _piecesTransforms;
     [SerializeField] private MeshRenderer[] _childMeshRenderers;
 
+    public bool RequestPlayer { get; set; }
+    
     // Start is called before the first frame update
     public override void OnNetworkSpawn()
     {
@@ -37,7 +39,7 @@ public class Ping : NetworkBehaviour
 
     private void Initialize()
     {
-        ColorType _playerColor = NetworkManager.Singleton.IsHost ? ColorType.Blue : ColorType.Red;
+        ColorType _playerColor = RequestPlayer ? ColorType.Blue : ColorType.Red;
 
         int childCount = _childMeshRenderers.Length;
 

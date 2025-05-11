@@ -39,6 +39,7 @@ public class PingController : NetworkBehaviour
     void RequestSpawnPingServerRpc(Vector3 position, Quaternion rotation)
     {
         GameObject pingObject = Instantiate(_pings, position, rotation);
+        pingObject.GetComponent<Ping>().RequestPlayer = IsHost;
         pingObject.GetComponent<NetworkObject>().Spawn();
     }
     
