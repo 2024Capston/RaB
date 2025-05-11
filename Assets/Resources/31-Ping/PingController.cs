@@ -3,31 +3,15 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PingManager : MonoBehaviour
+public class PingController : NetworkBehaviour
 {
-    public Camera _mainCamera;
-    public GameObject[] _pings;
-    public AudioClip[] _pingAudios;
+    [SerializeField] private Camera _mainCamera;
+    [SerializeField] private GameObject _pings;
 
-    private int _selectedPing = 0;
-
-    private void Awake()
+    public override void OnNetworkSpawn()
     {
-        DontDestroyOnLoad(this);
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if(Input.GetKeyDown("v"))   //인풋매니저에 delegate로 추가
-        {
-            GetPingPositionAndRotation();
-        }         
+        base.OnNetworkSpawn();
+        InputHandler.Instance.OnPing += GetPingPositionAndRotation;
     }
 
     void GetPingPositionAndRotation()
@@ -54,7 +38,7 @@ public class PingManager : MonoBehaviour
     [ServerRpc(RequireOwnership =false)]
     void RequestSpawnPingServerRpc(Vector3 position, Quaternion rotation)
     {
-        GameObject pingObject = Instantiate(_pings[_selectedPing], position, rotation);
+        GameObject pingObject = Instantiate(_pings, position, rotation);
         pingObject.GetComponent<NetworkObject>().Spawn();
     }
     
