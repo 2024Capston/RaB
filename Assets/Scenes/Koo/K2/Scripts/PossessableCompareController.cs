@@ -12,25 +12,18 @@ public class PossessableCompareController : NetworkBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent(out PossessableController possessableController) && IsServer && possessableController.Color == _color)
+        if (other.TryGetComponent(out PossessableController possessableController) && IsServer && possessableController.name == "Possessable2_5(Clone)")
         {
-            if (possessableController.name!= "Possessable2_5(Clone)")
-            {
-                EventBus.Instance.InvokeEvent(EventType.EventB);
-                StartCoroutine(Wait());
-                EventBus.Instance.InvokeEvent(EventType.EventB);
-            }
+            return;
         }
-        else
-        {
-            EventBus.Instance.InvokeEvent(EventType.EventB);
-            StartCoroutine(Wait());
-            EventBus.Instance.InvokeEvent(EventType.EventB);
-        }
+        
+        EventBus.Instance.InvokeEvent(EventType.EventB);
+        StartCoroutine(CoWait());
     }
 
-    public IEnumerator Wait()
+    private IEnumerator CoWait()
     {
         yield return new WaitForSeconds(2f);
+        EventBus.Instance.InvokeEvent(EventType.EventB);
     }
 }
