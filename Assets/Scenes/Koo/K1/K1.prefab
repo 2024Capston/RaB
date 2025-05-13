@@ -306,7 +306,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6388287195233578092}
   - component: {fileID: 2071323829146848377}
-  - component: {fileID: 658451413320076556}
+  - component: {fileID: 7471837261728025165}
   m_Layer: 0
   m_Name: RespawnArea
   m_TagString: Untagged
@@ -350,7 +350,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1994.2959, y: 22.29792, z: 1381.2388}
   m_Center: {x: 15.450195, y: -48.1834, z: 23.321167}
---- !u!114 &658451413320076556
+--- !u!114 &7471837261728025165
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -359,14 +359,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 615439170330596505}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6720a7b0664ec554897d6b4d639e3d44, type: 3}
+  m_Script: {fileID: 11500000, guid: 827db5152d9f0104891b2419e8c4d0d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _redSavePoints:
-  - Red Spawn Point
-  _blueSavePoints:
-  - Blue Spawn Point
-  _endBlockController: []
 --- !u!1 &702631632053560143
 GameObject:
   m_ObjectHideFlags: 0
