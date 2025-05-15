@@ -14,6 +14,7 @@ public class SettingsUI
     private Button _closeSettingButton;
     private Button _audio;
     private Button _video;
+    private Button _control;
     private Button _language;
     private Action _onCloseSetting;
 
@@ -28,6 +29,8 @@ public class SettingsUI
     private static readonly string AudioUI_PATH = "Prefabs/UI/Setting/AudioUI";
     private static readonly string VideoUI_PATH = "Prefabs/UI/Setting/VideoUI";
     private static readonly string LanguageUI_PATH = "Prefabs/UI/Setting/LanguageUI";
+    private static readonly string ControlUI_PATH = "Prefabs/UI/Setting/ControlUI";
+
 
     public SettingsUI(VisualElement root, Action onCloseSettingButtonClick, UIDocumentLocalization localization, bool fromUIManager = false)
     {
@@ -43,11 +46,13 @@ public class SettingsUI
 
         _audio = _root.Q<Button>("AudioSettingButton");
         _video = _root.Q<Button>("VideoSettingButton");
+        _control = _root.Q<Button>("ControlSettingButton");
         _language = _root.Q<Button>("LanguageSettingButton");
         _closeSettingButton = _root.Q<Button>("CloseSettingButton");
 
         _audio.RegisterCallback<ClickEvent>(OnClickAudio);
         _video.RegisterCallback<ClickEvent>(OnClickVideo);
+        _control.RegisterCallback<ClickEvent>(OnClickControl);
         _language.RegisterCallback<ClickEvent>(OnClickLanguage);
         _closeSettingButton.RegisterCallback<ClickEvent>(OnClickCloseSettingButton);
 
@@ -68,6 +73,11 @@ public class SettingsUI
     private void OnClickVideo(ClickEvent evt)
     {
         NewSettingUI<VideoUIController>(VideoUI_PATH);
+    }
+    
+    private void OnClickControl(ClickEvent evt)
+    {
+        NewSettingUI<ControlUIController>(ControlUI_PATH);
     }
     
     private void OnClickLanguage(ClickEvent evt)
