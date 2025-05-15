@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ControlUIController : MonoBehaviour
+public class ControlUIController
 {
     private VisualElement _root;
     
