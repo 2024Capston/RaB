@@ -16,13 +16,13 @@ public class LobbyUIController : MonoBehaviour
 
     public void SetPlayerColorData(bool isHost)
     {
-        if (isHost)
+        /*if (isHost)
         {
             _playerColorData.text = "Your Color: <color=\"blue\">Blue</color>";
         }
         else
         {
             _playerColorData.text = "Your Color: <color=\"red\">Red</color>";
-        }
+        }   */
     }
 }
