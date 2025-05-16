@@ -7,17 +7,12 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class TitleManager : MonoBehaviour
 {
     [SerializeField]
     private FacepunchTransport _facepunch;
-
-    [SerializeField]
-    private GameObject _title;
-
-    [SerializeField]
-    private TMP_Text _progressText;
 
     private AsyncOperation _asyncOperation;
 
@@ -25,45 +20,46 @@ public class TitleManager : MonoBehaviour
 
     private bool _isSteamClientInitialized;
 
-    private void Awake()
+    private ProgressBar _progressBar;
+
+    private void OnEnable()
     {
-        _title.SetActive(true);
-        _isSteamClientInitialized = false;
-        InitSteamClient();
+        UIManager.Instance.Localization.onLocalizationCompleted += InitSteamClient;
     }
 
     private void Start()
     {
-        if (_isSteamClientInitialized)
-        {
-            LoadUserData();
-
-            StartCoroutine(CoLoadHome());
-        }
-
+        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+        _progressBar = root.Q<ProgressBar>("ProgressBar");
+        AudioManager.Instance.ApplyAudioMixerValues();
+        
+        StartCoroutine(CoLoadHome());
     }
 
-    /// <summary>
-    /// SteamClient를 Initialize한다. 성공하면 _isSteamClientInitialized가 true가 된다.
-    /// </summary>
+    private void OnDisable()
+    {
+        UIManager.Instance.Localization.onLocalizationCompleted -= InitSteamClient;
+    }
+
     private void InitSteamClient()
     {
         try
         {
+            _isSteamClientInitialized = false;
             SteamClient.Init(APP_ID, false);
-            _isSteamClientInitialized = true;
             _facepunch.InitSteamworks();
+            _isSteamClientInitialized = true;
         }
         catch (Exception e)
         {
-            Logger.LogError($"[{nameof(FacepunchTransport)}] - Caught an exeption during initialization of Steam client: {e}");
+            Logger.LogError($"[{nameof(FacepunchTransport)}] - Caught an exception during initialization of Steam client: {e}");
 
             // 팝업에 대한 정보를 넣는다.
             ConfirmUIData confirmUIData = new ConfirmUIData()
             {
                 ConfirmType = ConfirmType.OK,
                 TitleText = "네트워크 연결 실패",
-                DescText = $"[{nameof(FacepunchTransport)}] - Caught an exeption during initialization of Steam client: {e}",
+                ParagraphText = $"[{nameof(FacepunchTransport)}] - Caught an exception during initialization of Steam client: {e}",
                 OKButtonText = "종료",
                 OnClickOKButton = () =>
                 {
@@ -99,12 +95,25 @@ public class TitleManager : MonoBehaviour
     {
         Logger.Log($"{GetType()}::CoLoadHome");
 
-        _progressText.text = "0%";
+        _progressBar.title = "0%";
+        _progressBar.value = 0;
+
+        // SteamClient의 Init을 기다린다.
+        yield return new WaitUntil(() => _isSteamClientInitialized);
+        
+        _progressBar.title = "10%";
+        _progressBar.value = 10;
+        
+        LoadUserData();
+        
+        _progressBar.title = "20%";
+        _progressBar.value = 20;
 
         // NetworkManager Instance가 생성될 때까지 대기한다.
         yield return new WaitUntil(() => NetworkManager.Singleton != null);
 
-        _progressText.text = "10%";
+        _progressBar.title = "30%";
+        _progressBar.value = 30;
 
         // Home Scene을 비동기적으로 불러오기 위해 시도한다.
         _asyncOperation = SceneLoadManager.Instance.LoadScene(SceneType.Home.ToString(), false);
@@ -121,14 +130,16 @@ public class TitleManager : MonoBehaviour
         // asyncOperation이 완료될 때까지 반복한다.
         while (!_asyncOperation.isDone)
         {
-            _progressText.text = $"{(int)((_asyncOperation.progress < 0.5f ? 0.5f : _asyncOperation.progress) * 100)}%";
+            _progressBar.title = $"{(int)((_asyncOperation.progress < 0.5f ? 0.5f : _asyncOperation.progress) * 100)}%";
+            _progressBar.value = (int)((_asyncOperation.progress < 0.5f ? 0.5f : _asyncOperation.progress) * 100);
 
             // asyncOperation이 완료되었다면 
             if (_asyncOperation.progress >= 0.9f)
             {
 
                 // 약간 대기 한 뒤 Home Scene으로 넘어간다.
-                _progressText.text = "100%";
+                _progressBar.title = "100%";
+                _progressBar.value = 100;
                 yield return new WaitForSecondsRealtime(0.5f);
 
                 _asyncOperation.allowSceneActivation = true;

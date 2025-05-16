@@ -1,151 +1,212 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
+using System;
+using UnityEngine.SceneManagement;
 
 public class UIManager : SingletonBehavior<UIManager>
 {
-    [SerializeField]
-    private Transform _uiCanvas;
+    [Tooltip("UIManager의 UIDocument")] [SerializeField]
+    private UIDocument _uiDocument;
 
-    [SerializeField]
-    private Transform _uiCloseCanvas;
+    private UIDocumentLocalization _localization;
+    public UIDocumentLocalization Localization => _localization;
 
-    /// <summary>
-    /// 가장 맨 위에 있는 UI
-    /// </summary>
+    private readonly string UI_PATH = "Prefabs/UI/";
+
+    private Dictionary<Type, BaseUI> _uiPool = new Dictionary<Type, BaseUI>();
+    private VisualElement _root;
     private BaseUI _frontUI;
 
-    /// <summary>
-    /// 화면에 보이고 있는 UI Dictionary
-    /// </summary>
-    private Dictionary<System.Type, GameObject> _openUIPool = new Dictionary<System.Type, GameObject>();
-
-    /// <summary>
-    /// 화면에서 보이고 있지 않은 UI Dictionary
-    /// </summary>
-    private Dictionary<System.Type, GameObject> _closedUIPool = new Dictionary<System.Type, GameObject>();
-    
-    public Camera UICamara;
-    
     protected override void Init()
     {
         base.Init();
+        _root = _uiDocument.rootVisualElement;
+        
+        _root.RegisterButtonClickSound();
+
+        _root.style.display = DisplayStyle.None;
+    
+        _localization = GetComponent<UIDocumentLocalization>();
     }
 
-    /// <summary>
-    /// BaseUI를 연다.
-    /// </summary>
-    /// <typeparam name="T">BaseUI를 상속받은 UI</typeparam>
-    /// <param name="uiData">T에 필요한 UIData</param>
-    public void OpenUI<T>(BaseUIData uiData)
+    private void Start()
     {
-        System.Type uiType = typeof(T);
+        InputHandler.Instance.OnEscape += OnEscapeInput;
+    }
 
-        Logger.Log($"{GetType()}::OpenUI({uiType})");
+    public void OpenUI<T>(BaseUIData uiData) where T : BaseUI, new()
+    {
+        Type uiType = typeof(T);
 
         bool isAlreadyOpen = false;
         BaseUI ui = GetUI<T>(out isAlreadyOpen);
-
-        // BaseUI가 존재하지 않을 때
-        if (!ui)
+        if (ui is null)
         {
-            Logger.LogError($"{uiType} does not exist.");
+            Logger.LogError($"{uiType} does not exist");
             return;
         }
 
-        // 열려는 UI가 이미 열려있을 때
         if (isAlreadyOpen)
         {
-            Logger.LogError($"{uiType} is already open.");
+            Logger.Log($"{uiType} is already open.");
             return;
         }
-
-        // 열려있는 UI의 위치를 일관성있게 관리하기 위한 코드
-        int siblingIndex = _uiCanvas.childCount;
-        ui.Init(_uiCanvas);
-        ui.transform.SetSiblingIndex(siblingIndex);
-
-        // UI를 보이게 하고 초기화한다.
-        ui.gameObject.SetActive(true);
+        
         ui.SetInfo(uiData);
+        _root.Add(ui.Root);
+        _root.style.display = DisplayStyle.Flex;
         ui.ShowUI();
 
-        // 새롭게 열린 ui가 가장 앞에 있다.
         _frontUI = ui;
-        _openUIPool[uiType] = ui.gameObject;
     }
 
-    /// <summary>
-    /// BaseUI를 닫는다.
-    /// </summary>
-    /// <param name="ui"></param>
     public void CloseUI(BaseUI ui)
     {
-        System.Type uiType = ui.GetType();
+        Type uiType = ui.GetType();
+        
+        VisualElement visualElement = _root.Q<VisualElement>(uiType.ToString());
 
-        Logger.Log($"{GetType()}::CloseUI {uiType}");
+        if (visualElement is null)
+        {
+            Logger.Log($"{uiType} is not opened");
+            return;
+        }
+        
+        visualElement.RemoveFromHierarchy();
 
-        ui.gameObject.SetActive(false);
-
-        // OpenUIPool에서 제거하고 CloseUIPool에 넣는다. (Object Pooling)
-        _openUIPool.Remove(uiType);
-        _closedUIPool[uiType] = ui.gameObject;
-        ui.transform.SetParent(_uiCloseCanvas);
-
-        // 열려있는 또다른 BaseUI가 있다면 해당 UI를 FrontUI로 설정한다.
         _frontUI = null;
-        Transform lastChild = _uiCanvas.GetChild(_uiCanvas.childCount - 1);
-
-        if (lastChild)
+        if (_root.childCount == 0)
         {
-            _frontUI = lastChild.gameObject.GetComponent<BaseUI>();
+            _root.style.display = DisplayStyle.None;
+            
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName == SceneType.Lobby.ToString() || sceneName == SceneType.InGame.ToString())
+            {
+                if (_frontUI is null)
+                {
+                    UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+                }
+            }
+            
         }
-    }
-
-    /// <summary>
-    /// BaseUI 객체를 가져온다.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="isAlreadyOpen">열려있는지 여부</param>
-    /// <returns></returns>
-    private BaseUI GetUI<T>(out bool isAlreadyOpen)
-    {
-        System.Type uiType = typeof(T);
-
-        BaseUI ui = null;
-        isAlreadyOpen = false;
-
-        // UI가 열려있는지 확인한다.
-        if (_openUIPool.ContainsKey(uiType))
-        {
-            ui = _openUIPool[uiType].GetComponent<BaseUI>();
-            isAlreadyOpen = true;
-        }
-
-        // UI가 닫혀있는지 확인한다.
-        else if (_closedUIPool.ContainsKey(uiType))
-        {
-            ui = _closedUIPool[uiType].GetComponent<BaseUI>();
-            _closedUIPool.Remove(uiType);
-        }
-
-        // UI 객체가 생성되지 않았으면 새로 생성한다.
         else
         {
-            GameObject uiObj = Instantiate(Resources.Load<GameObject>($"Prefabs/UI/{uiType}"));
-            ui = uiObj.GetComponent<BaseUI>();
+            var lastUI = _root.ElementAt(_root.childCount - 1);
+            
+            // 따로 찾을 방법이 없어서 ui pool 순회해서 Search
+            // 어짜피 BaseUI가 많진 않아서 괜찮을듯?
+            // 근데 맘에는 안드는데
+            // 다른 방법이 없어서 더 화나는
+            foreach (var baseUI in _uiPool.Values)
+            {
+                if (baseUI.Root == lastUI)
+                {
+                    _frontUI = baseUI;
+                }
+            }
         }
+    }
+    
+    private BaseUI GetUI<T>(out bool isAlreadyOpen) where T : BaseUI, new()
+    {
+        Type uiType = typeof(T);
+
+        BaseUI baseUI = null;
+        isAlreadyOpen = false;
+
+        // T가 이미 uipool에 존재할 경우
+        if (_uiPool.TryGetValue(uiType, out baseUI))
+        {
+            // root VisualElement에 있을 땐 이미 열려있는 경우
+            if (_root.Q<VisualElement>(uiType.ToString()) is not null)
+            {
+                isAlreadyOpen = true;
+            }
+
+            return baseUI;
+        }
+        
+        // ui pool에 없으면 새롭게 생성
+        VisualTreeAsset visualElement = Resources.Load<VisualTreeAsset>(UI_PATH + uiType);
+        if (visualElement is null)
+        {
+            return null;
+        }
+        
+        T ui = new T();
+        ui.Init(visualElement);
+        _uiPool.Add(uiType, ui);
 
         return ui;
     }
 
-    /// <summary>
-    /// 열려 있는 모든 UI를 닫는다.
-    /// </summary>
+    
     public void CloseAllOpenUI()
     {
-        while (_frontUI)
+        while (_root.childCount != 0)
+        {
+            Type uiType = Type.GetType(_root.ElementAt(_root.childCount - 1).name);
+            if (!_uiPool.TryGetValue(uiType, out BaseUI baseUI))
+            {
+                Logger.LogError($"{uiType} does not exist in uiPool");
+                return;
+            }
+            Logger.Log($"{uiType} close");
+            baseUI.CloseUI();
+        }
+    }
+    
+    public void StartPopupIn(VisualElement panel)
+    {
+        StartCoroutine(PopupUIManager.PopupIn(panel));
+    }
+
+    public void StartPopupOut(VisualElement panel)
+    {
+        StartCoroutine(PopupUIManager.PopupOut(panel));
+    }
+    
+    public void OnEscapeInput()
+    {
+        Logger.Log("Escape button Inputed");
+        
+        if (_root.childCount == 0)
+        {
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName == SceneType.Lobby.ToString() || sceneName == SceneType.InGame.ToString())
+            {
+                UnityEngine.Cursor.lockState = CursorLockMode.None;
+
+                EscUIData escUIData = new EscUIData()
+                {
+                    Localization = UIManager.Instance.Localization,
+                    /*OnShow = () =>
+                    {
+                        // settingPanel이 오른쪽에서 중앙으로 이동하기위해 class 추가
+                        _escPanel.AddToClassList("right");
+
+                        // settingPanel을 중앙으로 이동
+                        StartPopupIn(_escPanel);
+                    },*/
+                    //OnClose = () => ClosePanel(_escPanel)
+                };
+        
+                Instance.OpenUI<EscUI>(escUIData);
+
+                PlayerController.IsInputEnabled = false;
+                CameraController.IsInputEnabled = false;
+            }
+        }
+        else
         {
             _frontUI.CloseUI();
         }
+    }
+
+    public void ResetUI()
+    {
+        CloseAllOpenUI();
+        _uiPool.Clear();
     }
 }

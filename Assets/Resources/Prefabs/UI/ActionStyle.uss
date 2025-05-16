@@ -1,0 +1,32 @@
+.HomeUIContainer--in {
+    flex-grow: 1;
+    justify-content: space-around;
+    position: relative;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-out-back;
+}
+
+.HomeUIContainer--out {
+    translate: -2000px 0;
+}
+
+.left {
+    position: relative;
+    translate: -2000px 0;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-out-back;
+}
+
+.right {
+    position: relative;
+    translate: 2000px 0;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-out-back;
+}
+
+.center {
+    position: relative;
+    translate: 0 0;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-out-back;
+}

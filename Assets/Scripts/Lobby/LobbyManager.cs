@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using Steamworks;
 using Unity.Multiplayer.Samples.Utilities;
 using Unity.Netcode;
+#if UNITY_EDITOR
+using UnityEditor.Experimental.GraphView;
+#endif
 using UnityEngine;
-
+    
 public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
 {
     [SerializeField] private GameObject[] _playerPrefabs = new GameObject[2];
@@ -38,7 +41,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     {
         SetMapDataServerRpc();
         SpawnPlayerServerRpc();
-        UIManager.Instance.CloseAllOpenUI();
+        AudioManager.Instance.StopBGM();
     }
 
     /// <summary>
@@ -116,7 +119,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         {
             int index = (SessionManager.Instance.CurrentFloor - 1) * 6 + i;
             
-            SetAirlockDataClientRpc(i, (StageName)index, data.MapInfoList[index].ClearFlag != 0, clientRpcParams);
+            SetAirlockDataClientRpc(i, (StageName)index, data.MapInfoList[index].OpenFlag == 1, clientRpcParams);
         }
     }
 

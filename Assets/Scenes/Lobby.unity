@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.21176471, g: 0.22745098, b: 0.25882354, a: 1}
+  m_AmbientSkyColor: {r: 0, g: 0, b: 0, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
@@ -248,6 +248,11 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4009264273103215621, guid: 7e3ba9bcd94342640b6a3e95831303dd,
+        type: 3}
+      propertyPath: _isOpened
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4030996147037544658, guid: 7e3ba9bcd94342640b6a3e95831303dd,
         type: 3}
       propertyPath: GlobalObjectIdHash
@@ -331,7 +336,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7994061576796796454, guid: 7e3ba9bcd94342640b6a3e95831303dd,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 7e3ba9bcd94342640b6a3e95831303dd, type: 3}
 --- !u!114 &1053430537 stripped
 MonoBehaviour:
@@ -416,7 +425,7 @@ PrefabInstance:
     - target: {fileID: 3949430894545060346, guid: 3fe4998da55205c48ad835690119f9e9,
         type: 3}
       propertyPath: m_Name
-      value: Lobby
+      value: LobbyUI
       objectReference: {fileID: 0}
     - target: {fileID: 6360716520751581404, guid: 3fe4998da55205c48ad835690119f9e9,
         type: 3}

@@ -8,12 +8,12 @@ public class PlatformSpawner : NetworkObjectSpawner
     [SerializeField] private Transform[] _targets;
     [SerializeField] private float _moveSpeed;
 
-    private void Start()
+    [SerializeField] private EventType[] _subscribeForActivation;
+    [SerializeField] private EventType[] _subscribeForDeactivation;
+
+    public override void SpawnObject()
     {
-        if (!NetworkManager.Singleton.IsServer)
-        {
-            return;
-        }
+        base.SpawnObject();
 
         _spawnedObject = Instantiate(_prefab);
 
@@ -22,6 +22,6 @@ public class PlatformSpawner : NetworkObjectSpawner
         _spawnedObject.transform.localScale = transform.lossyScale;
 
         _spawnedObject.GetComponent<NetworkObject>().Spawn();
-        _spawnedObject.GetComponent<PlatformController>().Initialize(_targets, _moveSpeed);
+        _spawnedObject.GetComponent<PlatformController>().Initialize(_targets, _moveSpeed, _subscribeForActivation, _subscribeForDeactivation);
     }
 }

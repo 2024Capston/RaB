@@ -19,6 +19,7 @@ public class EventBus : SingletonBehavior<EventBus>
 
     protected override void Init()
     {
+        _isDestroyOnLoad = true;
         base.Init();
 
         _events = new Dictionary<EventType, UnityEventBase>();
@@ -141,5 +142,19 @@ public class EventBus : SingletonBehavior<EventBus>
             MethodInfo invokeMethod = _events[eventType].GetType().GetMethod("Invoke");
             invokeMethod.Invoke(_events[eventType], parameters);
         }
+    }
+
+    /// <summary>
+    /// 이벤트 버스를 초기화한다.
+    /// </summary>
+    public void ClearEventBus()
+    {
+        foreach(EventType key in _events.Keys)
+        {
+            _events[key].RemoveAllListeners();
+        }
+
+        _events.Clear();
+        _counts.Clear();
     }
 }

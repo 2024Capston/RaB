@@ -46,5 +46,18 @@ public enum ButtonType
 /// </summary>
 public enum EventType
 {
-    EventA, EventB, EventC, EventD, EventE, EventF, EventG, EventH
+    EventA, EventB, EventC, EventD, EventE, EventF, EventG, EventH, EventI, EventJ, EventK, EventL, EventM, EventN, EventO, EventP
+}
+
+/// <summary>
+/// 플레이어 리깅 애니메이션에서 사용할 팔 종류
+/// </summary>
+public enum ArmType
+{
+    LeftArm, RightArm, BothArms
+}
+
+public enum MonitorType
+{
+    CheckMark, XMark, CubeMark
 }

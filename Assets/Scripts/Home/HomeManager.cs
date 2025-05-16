@@ -16,6 +16,8 @@ public class HomeManager : SingletonBehavior<HomeManager>
     private void Start()
     {
         _userGameData = UserDataManager.Instance.GetUserData<UserGameData>();
+        UIManager.Instance.CloseAllOpenUI();
+        AudioManager.Instance.PlayBGM(BGM.Main);
     }
 
     protected override void Init()

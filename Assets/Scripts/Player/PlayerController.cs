@@ -1,5 +1,8 @@
 using System;
+using Possessable;
 using Unity.Netcode;
+using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,24 +16,41 @@ public class PlayerController : NetworkBehaviour
 
     private const float GROUND_DETECTION_THRESHOLD = 1f;        // 접지 판정 범위
     private const float JUMP_REMEMBER_TIME = 0.64f;             // 점프 키 입력 기억 시간
-    private const float MAXIMUM_REACH_DISTANCE = 48f;           // 상호작용 가능 범위
+    private const float MAXIMUM_REACH_DISTANCE = 32f;           // 상호작용 가능 범위
 
     public static float INITIAL_CAPSULE_HEIGHT = 2f;             // 최초 Capsule Collider 높이
     public static float INITIAL_CAPSULE_RADIUS = 0.5f;           // 최초 Capsule Collider 반경 
 
     private Rigidbody _rigidbody;
     private Collider _collider;
+    private NetworkInterpolator _networkInterpolator;
     private PlayerRenderer _playerRenderer;
+    private PlayerAudioController _playerAudioController;
     private CameraController _cameraController;
     private NetworkPlatformFinder _networkPlatformFinder;
 
     private IInteractable _interactableOnPointer;  // 플레이어가 바라보고 있는 Interactable
+    private NetworkObject _networkObjectOnPointer; // 플레이어가 바라보고 있는 Network Object
     private IInteractable _interactableInHand;     // 플레이어가 들고 있는 Interactable
+    public IInteractable InteractableInHand
+    {
+        get => _interactableInHand;
+    }
 
     // 입력 관련
-    private Vector3 _moveInput;     // 방향 입력 값 (수직, 수평)
     private bool _jumpInput;        // 점프 입력 여부
     private float _jumpRemember;    // 입력된 점프를 처리할 수 있는 쿨타임
+
+    private Vector3 _lastPosition;
+    private Quaternion _lastRotation;
+
+    // 플레이어 조작 활성화 여부
+    private static bool _isInputEnabled = true;
+    public static bool IsInputEnabled
+    {
+        get => _isInputEnabled;
+        set => _isInputEnabled = value;
+    }
 
     // 로컬 플레이어를 나타내는 static 변수
     private static PlayerController _localPlayer;
@@ -54,6 +74,36 @@ public class PlayerController : NetworkBehaviour
         get => _color;
     }
 
+    private Vector3 _moveInput;
+    public Vector3 MoveInput
+    {
+        get => _moveInput;
+    }
+
+    private Vector3 _velocity;
+    public Vector3 Velocity
+    {
+        get => _velocity;
+    }
+
+    private Vector3 _angularVelocity;
+    public Vector3 AngularVelocity
+    {
+        get => _angularVelocity;
+    }
+
+    private bool _isGrounded;
+    public bool IsGrounded
+    {
+        get => _isGrounded;
+    }
+
+    private bool _isJumping;
+    public bool IsJumping
+    {
+        get => _isJumping;
+    }
+
     public override void OnNetworkSpawn()
     {
         _collider = GetComponent<Collider>();
@@ -62,6 +112,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             _rigidbody = GetComponent<Rigidbody>();
+            _networkInterpolator = GetComponent<NetworkInterpolator>();
             _cameraController = GetComponent<CameraController>();
             _networkPlatformFinder = GetComponent<NetworkPlatformFinder>();
 
@@ -74,25 +125,12 @@ public class PlayerController : NetworkBehaviour
             _playerRenderer.Initialize();
 
             // 스폰 위치 배정
-            Transform spawnPoint;
-
-            if (_color == ColorType.Blue)
-            {
-                spawnPoint = GameObject.FindWithTag("Blue Spawn Point")?.transform;
-            }
-            else
-            {
-                spawnPoint = GameObject.FindWithTag("Red Spawn Point")?.transform;
-            }
-
-            if (spawnPoint != null)
-            {
-                _rigidbody.MovePosition(spawnPoint.position);
-                _rigidbody.MoveRotation(spawnPoint.rotation);
-            }
+            RespawnLocalPlayer();
 
             _localPlayer = this;
             _localPlayerCreated?.Invoke();
+            
+            UIManager.Instance.CloseAllOpenUI();
         }
         else
         {
@@ -112,27 +150,79 @@ public class PlayerController : NetworkBehaviour
     {
         if (IsOwner)
         {
+            Cursor.lockState = CursorLockMode.None;
             BaseUIData baseUIData = new BaseUIData();
             UIManager.Instance.OpenUI<LoadingUI>(baseUIData);
         }
 
         base.OnNetworkDespawn();
-    }
+    }   
 
-    private void Update()   
+    private void Update()
     {
         if (IsOwner)
         {
+            UpdatePlayerState();
+
             HandleMovement();
             HandleJump();
             SearchInteractables();
+
             HandlePlatform();
+            SendPlayerState();
 
             // !TEST
             if (Input.GetKeyDown(KeyCode.C))
             {
                 _cameraController.ChangeCameraMode(!_cameraController.IsFirstPerson);
             }
+
+            if (Input.GetKeyDown(KeyCode.KeypadPlus))
+            {
+                CameraController.LocalCamera.ChangeShakeAmplitude(1.0f);
+            }
+
+            if (Input.GetKeyDown(KeyCode.KeypadMinus))
+            {
+                CameraController.LocalCamera.ChangeShakeAmplitude(0.0f);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = 30;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = 60;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                QualitySettings.vSyncCount = 1;
+                Application.targetFrameRate = 0;
+            }
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!IsOwner)
+        {
+            return;
+        }
+
+        _playerAudioController?.PlayHitSound(collision.impulse.magnitude);
+
+        if (IsServer)
+        {
+            PlayHitSoundClientRpc(collision.impulse.magnitude);
+        }
+        else
+        {
+            PlayHitSoundServerRpc(collision.impulse.magnitude);
         }
     }
 
@@ -143,9 +233,69 @@ public class PlayerController : NetworkBehaviour
             InputHandler.Instance.OnMove -= OnMoveInput;
             InputHandler.Instance.OnJump -= OnJumpInput;
             InputHandler.Instance.OnInteraction -= OnInteractionInput;
+
+            _localPlayerCreated = null;
         }
 
         base.OnDestroy();
+    }
+
+    /// <summary>
+    /// 플레이어의 상태를 갱신한다.
+    /// </summary>
+    private void UpdatePlayerState()
+    {
+        // 속도 및 각속도 계산
+        _velocity = (transform.position - _lastPosition) / Time.deltaTime;
+        _lastPosition = transform.position;
+
+        _angularVelocity = (transform.rotation * Quaternion.Inverse(_lastRotation)).eulerAngles;
+
+        if (_angularVelocity.x > 180f)
+        {
+            _angularVelocity.x -= 360f;
+        }
+
+        if (_angularVelocity.y > 180f)
+        {
+            _angularVelocity.y -= 360f;
+        }
+
+        if (_angularVelocity.z > 180f)
+        {
+            _angularVelocity.z -= 360f;
+        }
+
+        _angularVelocity /= Time.deltaTime;
+        _lastRotation = transform.rotation;
+
+        // 접지 여부 판단
+        if (_collider is CapsuleCollider)
+        {
+            Vector3 offset = Vector3.up * (_collider.bounds.extents.y - _collider.bounds.extents.x) * 0.9f;
+            _isGrounded = Physics.CapsuleCast(transform.position + offset, transform.position - offset, _collider.bounds.extents.x, Vector3.down, GROUND_DETECTION_THRESHOLD);
+        }
+        else
+        {
+            Vector3 forwardOffset = transform.forward * _collider.bounds.extents.z;
+            Vector3 rightOffset = transform.right * _collider.bounds.extents.x;
+
+            _isGrounded = false;
+
+            Vector3[] checkPositions = { transform.position + forwardOffset - rightOffset, transform.position + forwardOffset, transform.position + forwardOffset + rightOffset,
+                                        transform.position - rightOffset, transform.position, transform.position + rightOffset,
+                                        transform.position - forwardOffset - rightOffset, transform.position - forwardOffset, transform.position - forwardOffset + rightOffset };
+
+            foreach (Vector3 checkPosition in checkPositions)
+            {
+                if (Physics.Raycast(checkPosition, Vector3.down, out RaycastHit hit, _collider.bounds.extents.y + GROUND_DETECTION_THRESHOLD) &&
+                    hit.collider.material.staticFriction > 0.0f)
+                {
+                    _isGrounded = true;
+                    break;
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -153,6 +303,11 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleMovement()
     {
+        if (!_isInputEnabled)
+        {
+            return;
+        }
+
         Quaternion rotation = Quaternion.Euler(Vector3.up * Camera.main.transform.rotation.eulerAngles.y);
 
         if (_cameraController.IsFirstPerson)
@@ -166,11 +321,25 @@ public class PlayerController : NetworkBehaviour
         {
             Vector3 newVelocity = rotation * _moveInput * _walkSpeed;
             newVelocity.y = _rigidbody.velocity.y;
+
             _rigidbody.velocity = newVelocity;
 
             if (_moveInput.magnitude > 0f)
             {
-                _rigidbody.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 32f));
+                Vector3 newAngularVelocity = rotation.eulerAngles - _rigidbody.rotation.eulerAngles;
+
+                if (newAngularVelocity.y > 180f)
+                {
+                    newAngularVelocity.y -= 360f;
+                }
+                if (newAngularVelocity.y < -180)
+                {
+                    newAngularVelocity.y += 360f;
+                }
+
+                newAngularVelocity.y = Mathf.Sign(newAngularVelocity.y) * Mathf.Sqrt(Mathf.Abs(newAngularVelocity.y));
+
+                _rigidbody.angularVelocity = newAngularVelocity;
             }
         }
     }
@@ -182,14 +351,23 @@ public class PlayerController : NetworkBehaviour
     {
         _jumpRemember -= Time.deltaTime;
 
-        if (IsGrounded() && _jumpInput)
+        if (_isGrounded)
         {
-            if (_jumpRemember > 0f)
+            if (_jumpInput)
             {
-                _rigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+                if (_jumpRemember > 0f && _isInputEnabled)
+                {
+                    _isJumping = true;
+                    _rigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+                }
+
+                _jumpInput = false;
             }
 
-            _jumpInput = false;
+            if (_isJumping && _velocity.y < 0f)
+            {
+                _isJumping = false;
+            }
         }
     }
 
@@ -198,7 +376,7 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void SearchInteractables()
     {
-        if (_interactableInHand != null)
+        if (_interactableInHand != null || !_isInputEnabled)
         {
             return;
         }
@@ -219,6 +397,15 @@ public class PlayerController : NetworkBehaviour
 
                 _interactableOnPointer = interactable;
 
+                if (hit.collider.gameObject.TryGetComponent(out NetworkObject networkObject))
+                {
+                    _networkObjectOnPointer = networkObject;
+                }
+                else
+                {
+                    _networkObjectOnPointer = null;
+                }
+
                 if (_interactableOnPointer.Outline)
                 {
                     _interactableOnPointer.Outline.enabled = true;
@@ -233,6 +420,7 @@ public class PlayerController : NetworkBehaviour
             }
 
             _interactableOnPointer = null;
+            _networkObjectOnPointer = null;
         }
 
         gameObject.layer = originalLayer;
@@ -243,29 +431,71 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandlePlatform()
     {
+        if (!_isInputEnabled)
+        {
+            Vector3 newVelocity = Vector3.zero;
+            newVelocity.y = _rigidbody.velocity.y;
+            _rigidbody.velocity = newVelocity;
+        }
+
         if (_networkPlatformFinder.Platform)
         {
             Vector3 velocityDiff = _networkPlatformFinder.Velocity;
             velocityDiff.y = 0f;
+
             _rigidbody.velocity += velocityDiff;
         }
     }
 
     /// <summary>
-    /// 접지 여부를 판단한다.
+    /// 플레이어의 현재 상태를 상대에게 보낸다.
     /// </summary>
-    /// <returns>접지 여부</returns>
-    bool IsGrounded()
+    private void SendPlayerState()
     {
-        if (_collider is CapsuleCollider)
+        if (IsServer)
         {
-            Vector3 offset = Vector3.up * (_collider.bounds.extents.y - _collider.bounds.extents.x) * 0.9f;
-            return Physics.CapsuleCast(transform.position + offset, transform.position - offset, _collider.bounds.extents.x, Vector3.down, GROUND_DETECTION_THRESHOLD);
+            SendPlayerStateClientRpc(_moveInput, _velocity, _angularVelocity, _isJumping, _isGrounded);
         }
         else
         {
-            return Physics.BoxCast(transform.position, _collider.bounds.extents * 0.9f, Vector3.down, transform.rotation, GROUND_DETECTION_THRESHOLD);
+            SendPlayerStateServerRpc(_moveInput, _velocity, _angularVelocity, _isJumping, _isGrounded);
         }
+    }
+
+    private void FetchPlayerState(Vector3 moveInput, Vector3 velocity, Vector3 angularVelocity, bool isJumping, bool isGrounded)
+    {
+        _moveInput = moveInput;
+        _velocity = velocity;
+        _angularVelocity = angularVelocity;
+
+        _isJumping = isJumping;
+        _isGrounded = isGrounded;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendPlayerStateServerRpc(Vector3 moveInput, Vector3 velocity, Vector3 angularVelocity, bool isJumping, bool isGrounded)
+    {
+        FetchPlayerState(moveInput, velocity, angularVelocity, isJumping, isGrounded);
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void SendPlayerStateClientRpc(Vector3 moveInput, Vector3 velocity, Vector3 angularVelocity, bool isJumping, bool isGrounded)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        FetchPlayerState(moveInput, velocity, angularVelocity, isJumping, isGrounded);
+    }
+
+    /// <summary>
+    /// PlayerRenderer에서 PlayerAudioController가 생성되면 이를 받아온다.
+    /// </summary>
+    /// <param name="playerAudioController">생성된 PlayerAudioController가</param>
+    public void SetPlayerAudioController(PlayerAudioController playerAudioController)
+    {
+        _playerAudioController = playerAudioController;
     }
 
     /// <summary>
@@ -299,6 +529,15 @@ public class PlayerController : NetworkBehaviour
             {
                 _interactableOnPointer = null;
                 _interactableInHand = null;
+
+                if (IsServer)
+                {
+                    ResetInteractableInHandClientRpc();
+                }
+                else
+                {
+                    ResetInteractableInHandServerRpc();
+                }
             }
         }
         else if (_interactableOnPointer != null)
@@ -308,6 +547,20 @@ public class PlayerController : NetworkBehaviour
                 _interactableOnPointer.Outline.enabled = false;
                 _interactableInHand = _interactableOnPointer;
                 _interactableOnPointer = null;
+
+                if (_networkObjectOnPointer != null)
+                {
+                    if (IsServer)
+                    {
+                        SetInteractableInHandClientRpc(_networkObjectOnPointer);
+                    }
+                    else
+                    {
+                        SetInteractableInHandServerRpc(_networkObjectOnPointer);
+                    }
+                }
+
+                _networkObjectOnPointer = null;
             }
         }
     }
@@ -342,6 +595,11 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     private void SendPlayerColorClientRpc(ColorType color)
     {
+        if (IsServer)
+        {
+            return;   
+        }
+
         _color = color;
         _playerRenderer.Initialize();
     }
@@ -350,7 +608,7 @@ public class PlayerController : NetworkBehaviour
     /// 클라이언트에서 서버에게 자신의 색깔을 전달한다.
     /// </summary>
     /// <param name="color">색깔</param>
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void SendPlayerColorServerRpc(ColorType color)
     {
         _color = color;
@@ -400,11 +658,13 @@ public class PlayerController : NetworkBehaviour
                 vertices[i].z = vertices[i].z * colliderScale.z / transform.localScale.z;
             }
 
+            mesh.vertices = vertices;
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
 
             _collider = gameObject.AddComponent<MeshCollider>();
             (_collider as MeshCollider).sharedMesh = mesh;
+            (_collider as MeshCollider).convex = true;
         }
     }
 
@@ -412,6 +672,22 @@ public class PlayerController : NetworkBehaviour
     /// 현재 플레이어와 물체의 상호 작용을 강제 중단한다.
     /// </summary>
     public void ForceStopInteraction()
+    {
+        if (IsOwner)
+        {
+            StopInteraction();
+        }
+        else if (IsServer)
+        {
+            StopInteractionClientRpc();
+        }
+        else
+        {
+            StopInteractionServerRpc();
+        }
+    }
+
+    private void StopInteraction()
     {
         if (_interactableInHand != null)
         {
@@ -423,8 +699,134 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    public void Move(Vector3 position)
+    [ServerRpc(RequireOwnership = false)]
+    private void StopInteractionServerRpc()
     {
-        transform.position = position;
+        StopInteraction();
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void StopInteractionClientRpc()
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        StopInteraction();
+    }
+
+    /// <summary>
+    /// 플레이어를 스폰 위치에 리스폰한다.
+    /// </summary>
+    public void RespawnPlayer()
+    {
+        if (IsOwner)
+        {
+            RespawnLocalPlayer();
+        }
+        else if (IsServer)
+        {
+            RespawnLocalPlayerClientRpc();
+        }
+        else
+        {
+            RespawnLocalPlayerServerRpc();
+        }
+    }
+
+    private void RespawnLocalPlayer()
+    {
+        Transform spawnPoint;
+
+        if (_color == ColorType.Blue)
+        {
+            spawnPoint = GameObject.FindWithTag("Blue Spawn Point")?.transform;
+        }
+        else
+        {
+            spawnPoint = GameObject.FindWithTag("Red Spawn Point")?.transform;
+        }
+
+        if (!spawnPoint)
+        {
+            Logger.Log($"The spawn Point for {_color} player doesn't exist!");
+            return;
+        }
+
+        _rigidbody.MovePosition(spawnPoint.position);
+        _cameraController.ResetCamera(spawnPoint.rotation.eulerAngles.y);
+
+        _networkInterpolator.SetInstantTransform(spawnPoint.position, spawnPoint.rotation);
+    }
+
+    [ServerRpc]
+    private void RespawnLocalPlayerServerRpc()
+    {
+        RespawnLocalPlayer();
+    }
+
+    [ClientRpc]
+    private void RespawnLocalPlayerClientRpc()
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        RespawnLocalPlayer();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetInteractableInHandServerRpc(NetworkObjectReference interactable)
+    {
+        if (interactable.TryGet(out NetworkObject networkObject))
+        {
+            _interactableInHand = networkObject.gameObject.GetComponent<IInteractable>();
+        }
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void SetInteractableInHandClientRpc(NetworkObjectReference interactable)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        if (interactable.TryGet(out NetworkObject networkObject))
+        {
+            _interactableInHand = networkObject.gameObject.GetComponent<IInteractable>();
+            Debug.Log(networkObject.gameObject + "!!");
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ResetInteractableInHandServerRpc()
+    {
+        _interactableInHand = null;
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ResetInteractableInHandClientRpc()
+    {
+        _interactableInHand = null;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayHitSoundServerRpc(float impulse)
+    {
+        _playerAudioController?.PlayHitSound(impulse);
+    }
+
+    [ClientRpc(RequireOwnership = true)]
+    private void PlayHitSoundClientRpc(float impulse)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        _playerAudioController?.PlayHitSound(impulse);
     }
 }
