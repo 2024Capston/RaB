@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Steamworks;
 using Steamworks.Data;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
@@ -66,13 +67,7 @@ public class EscUI : BaseUI
         _settingButton.RegisterCallback<ClickEvent>(OnClickSettingButton);
         _backButton.RegisterCallback<ClickEvent>(OnClickCloseUI);
         
-        sceneName = SceneManager.GetActiveScene().name;
-
-        if (sceneName != SceneType.InGame.ToString())
-        {
-            _lobbyButton.style.display = DisplayStyle.None;
-            _respawnButton.style.display = DisplayStyle.None;
-        }
+        
     }
 
     public override void SetInfo(BaseUIData uiData)
@@ -82,6 +77,20 @@ public class EscUI : BaseUI
 
         _localization = _escUIData.Localization;
         _roomCodeLabel.text = ConnectionManager.Instance.CurrentLobby?.Id.Value.ToString();
+        
+        sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName != SceneType.InGame.ToString() || !NetworkManager.Singleton.IsHost)
+        {
+            _lobbyButton.style.display = DisplayStyle.None;
+            _respawnButton.style.display = DisplayStyle.None;
+        }
+        else
+        {
+            _lobbyButton.style.display = DisplayStyle.Flex;
+            _respawnButton.style.display = DisplayStyle.Flex;
+        }
+        
         ApplyLocalization(_root);
     }
 
