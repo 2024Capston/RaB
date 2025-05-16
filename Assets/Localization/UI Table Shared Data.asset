@@ -127,26 +127,6 @@ MonoBehaviour:
     m_Key: Move
     m_Metadata:
       m_Items: []
-  - m_Id: 27046285436121088
-    m_Key: Jump
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27046476067237888
-    m_Key: Emote
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27046731215138816
-    m_Key: Interact
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27046915147952128
-    m_Key: Ping
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27048205789818880
-    m_Key: Control
-    m_Metadata:
-      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -11,7 +11,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 329dd055f3236c84a9c4e89bd3cab9aa,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 11
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 329dd055f3236c84a9c4e89bd3cab9aa,
         type: 3}
@@ -21,7 +21,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 329dd055f3236c84a9c4e89bd3cab9aa,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 11
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 329dd055f3236c84a9c4e89bd3cab9aa,
         type: 3}
@@ -83,10 +83,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: bac80bf0c8015ea47968814229653bd5, type: 2}
+    - target: {fileID: -5754084199372789682, guid: 329dd055f3236c84a9c4e89bd3cab9aa,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -7927285445975828103, guid: bc18e4f436704494883eaf5a9594b7ec,
+        type: 3}
     - target: {fileID: 919132149155446097, guid: 329dd055f3236c84a9c4e89bd3cab9aa,
         type: 3}
       propertyPath: m_Name
-      value: K1_MovingLoof
+      value: K1_MovingLoof2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -127,7 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1528377898
+  GlobalObjectIdHash: 1772344454
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -200,4 +206,4 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: -8273746591621891883, guid: 329dd055f3236c84a9c4e89bd3cab9aa, type: 3}
+  m_Mesh: {fileID: -7927285445975828103, guid: bc18e4f436704494883eaf5a9594b7ec, type: 3}
