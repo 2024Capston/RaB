@@ -24,11 +24,8 @@ public class PingController : NetworkBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            //if(hit.collider.gameObject.layer == 8)
-            //{
             Vector3 offset = new Vector3(hit.point.x, hit.point.y, hit.point.z) + hit.normal * 0.1f;
             Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-            //}
 
             Debug.Log($"핑충돌! 각도{hit.normal}");
             RequestSpawnPingServerRpc(offset, rotation, IsHost);

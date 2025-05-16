@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 public class Ping : MonoBehaviour
 {
-    [SerializeField] AudioClip _pingAudio;
+    //[SerializeField] AudioClip _pingAudio;
     [SerializeField] private float _timer = 5f;
 
     private Transform[] _piecesTransforms;
@@ -15,7 +15,7 @@ public class Ping : MonoBehaviour
     
     public void SpawnPing(bool isHost)
     {
-        AudioSource.PlayClipAtPoint(_pingAudio, transform.position);
+        //AudioSource.PlayClipAtPoint(_pingAudio, transform.position);
         ColorType playerColor = isHost ? ColorType.Blue : ColorType.Red;
         int childCount = _childMeshRenderers.Length;
 
