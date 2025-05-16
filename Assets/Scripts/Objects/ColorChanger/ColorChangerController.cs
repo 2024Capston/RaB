@@ -10,7 +10,6 @@ namespace ColorChanger
     /// </summary>
     public class ColorChangerController : NetworkBehaviour
     {
-
         /// <summary>
         /// ColorChangerUtil과 시간 표시 UI를 포함한 프리팹
         /// </summary>
@@ -23,13 +22,20 @@ namespace ColorChanger
 
         private const float TRANSITION_TIME = 2f;
 
+        private AudioSource _audioSource;
+
         private CubeController _cubeOnChanger;
         private Rigidbody _cubeRigidbody;
         private ColorChangerUtil _utilObject;
 
         private float _timer;
 
-        void Update()
+        private void Awake()
+        {
+            _audioSource = GetComponent<AudioSource>();
+        }
+
+        private void Update()
         {
             // 색깔 변환 중인 큐브가 있는 경우
             if (_cubeOnChanger)
@@ -148,6 +154,8 @@ namespace ColorChanger
 
         private IEnumerator CoUpdateGaugeColor(CubeController cubeController)
         {
+            _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
+
             float preparationTime = TRANSITION_TIME * 0.2f;
             float fillTime = TRANSITION_TIME * 0.8f;
 
@@ -187,11 +195,16 @@ namespace ColorChanger
         }
 
         /// <summary>
-        /// 색깔 변환기 상태를 초기화한다. 이 함수는 서버에서만 호출한다.
-        /// (Change Time은 서버에서만 쓰이는 변수이고, 위치는 Network Transform이 동기화함.)
+        /// 색깔 변환기 상태를 초기화한다.
         /// </summary>
         /// <param name="changeTime">변환 시간</param>
         public void Initialize(float changeTime)
+        {
+            InitializeClientRpc(changeTime);
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        private void InitializeClientRpc(float changeTime)
         {
             _changeTime = changeTime;
         }

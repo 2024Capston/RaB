@@ -10,14 +10,19 @@ using System.Runtime.CompilerServices;
 public class CubeRenderer : NetworkBehaviour
 {
     [SerializeField] private int _viewMode;
+    [SerializeField] private AudioClip _colorChangeClips;
+
     private ColorType _playerColor;
     
     private CubeController _cubeController;
+    private CubeAudioController _cubeAudioController;
     private NetworkInterpolator _networkInterpolator;
     private Outline _outline;
 
     private Transform[] _piecesTransforms;
     private MeshRenderer[] _piecesMeshRenderers;
+
+    private Material[][] _cubeMaterials;
 
     [ServerRpc(RequireOwnership = false)]
     private void UpdateColorServerRpc()
@@ -40,12 +45,10 @@ public class CubeRenderer : NetworkBehaviour
 
         for (int i = 0; i < childCount; i++)
         {
-            Material[] materials = _piecesMeshRenderers[i].materials;
-            for (int j = 0; j < 2; j++)
-            {
-                materials[j].SetObjectColor(_cubeController.Color);
-            }
-            _piecesMeshRenderers[i].materials = materials;
+            _cubeMaterials[i][0].SetObjectColor(_cubeController.Color);
+            _cubeMaterials[i][1].SetObjectColor(_cubeController.Color);
+
+            _piecesMeshRenderers[i].materials = _cubeMaterials[i];
         }
 
         if (_outline) {
@@ -56,6 +59,7 @@ public class CubeRenderer : NetworkBehaviour
     public void Initialize()
     {
         _cubeController = GetComponent<CubeController>();
+        _cubeAudioController = GetComponent<CubeAudioController>();
         _networkInterpolator = GetComponent<NetworkInterpolator>();
 
         _playerColor = NetworkManager.Singleton.IsHost ? ColorType.Blue : ColorType.Red;
@@ -65,8 +69,10 @@ public class CubeRenderer : NetworkBehaviour
             _outline = _networkInterpolator.VisualReference.GetComponent<Outline>();
 
             int childCount = _networkInterpolator.VisualReference.transform.childCount;
+
             _piecesTransforms = new Transform[childCount];
             _piecesMeshRenderers = new MeshRenderer[childCount];
+            _cubeMaterials = new Material[childCount][];
 
             for (int i = 0; i < childCount; i++)
             {
@@ -76,11 +82,11 @@ public class CubeRenderer : NetworkBehaviour
                 _piecesMeshRenderers[i] = child.GetComponent<MeshRenderer>();
 
                 Material[] materials = _piecesMeshRenderers[i].materials;
-                for (int j = 0; j < 2; j++)
-                {
-                    materials[j].SetMaterial(_cubeController.Color, _playerColor, _viewMode);
-                }
+                materials[0].SetMaterial(_cubeController.Color, _playerColor, _viewMode);
+                materials[1].SetMaterial(_cubeController.Color, _playerColor, _viewMode);
                 _piecesMeshRenderers[i].materials = materials;
+
+                _cubeMaterials[i] = materials;
             }
         });
     }
@@ -106,32 +112,33 @@ public class CubeRenderer : NetworkBehaviour
         }
         
         int targetColor = 3 - (int)_cubeController.Color;
+
         for (int i = 0; i < 8; i++)
         {
-            Material[] materials = _piecesMeshRenderers[i].materials;
             for (int j = 0; j < 2; j++)
             {
-                materials[j].SetInterpolationFactor(0f);
-                materials[j].SetTargetColor(targetColor);
+                _cubeMaterials[i][j].SetInterpolationFactor(0f);
+                _cubeMaterials[i][j].SetTargetColor(targetColor);
             }
             
-            _piecesMeshRenderers[i].materials = materials;
+            _piecesMeshRenderers[i].materials = _cubeMaterials[i];
         }
 
         float timer = 0f;
         float lastTime = Time.realtimeSinceStartup;
 
         // 1차 회전
+        _cubeAudioController.PlayColorChangeSound();
+
         while (timer < transitionTime / 3f)
         {
             for (int i = 0; i < 4; i++)
             {
                 _piecesTransforms[i].localRotation = Quaternion.Lerp(Quaternion.identity, Quaternion.Euler(0, 90, 0), timer * 3f / transitionTime);
-                
-                Material[] materials = _piecesMeshRenderers[0].materials;
-                materials[0].SetInterpolationFactor(timer * 3f / transitionTime);
-                materials[1].SetInterpolationFactor(timer * 3f / transitionTime);
-                _piecesMeshRenderers[i].materials = materials;
+
+                _cubeMaterials[i][0].SetInterpolationFactor(timer * 3f / transitionTime);
+                _cubeMaterials[i][1].SetInterpolationFactor(timer * 3f / transitionTime);
+                _piecesMeshRenderers[i].materials = _cubeMaterials[i];
             }
 
             yield return new WaitForSeconds(0.01f);
@@ -145,8 +152,10 @@ public class CubeRenderer : NetworkBehaviour
         }
 
         timer -= transitionTime / 3f;
-        
-        // 2차 회전전
+
+        // 2차 회전
+        _cubeAudioController.PlayColorChangeSound();
+
         while (timer < transitionTime / 3f)
         {
             for (int i = 1; i < 8; i += 2)
@@ -155,10 +164,9 @@ public class CubeRenderer : NetworkBehaviour
 
                 if (i == 5 || i == 7)
                 {
-                    Material[] materials = _piecesMeshRenderers[5].materials;
-                    materials[0].SetInterpolationFactor(timer * 3f / transitionTime);
-                    materials[1].SetInterpolationFactor(timer * 3f / transitionTime);
-                    _piecesMeshRenderers[i].materials = materials;
+                    _cubeMaterials[i][0].SetInterpolationFactor(timer * 3f / transitionTime);
+                    _cubeMaterials[i][1].SetInterpolationFactor(timer * 3f / transitionTime);
+                    _piecesMeshRenderers[i].materials = _cubeMaterials[i];
                 }
             }
 
@@ -173,8 +181,10 @@ public class CubeRenderer : NetworkBehaviour
         }
 
         timer -= transitionTime / 3f;
-        
+
         // 3차 회전
+        _cubeAudioController.PlayColorChangeSound();
+
         while (timer < transitionTime / 3f)
         {
             for (int i = 4; i < 8; i++)
@@ -183,10 +193,9 @@ public class CubeRenderer : NetworkBehaviour
 
                 if (i == 4 || i == 6)
                 {
-                    Material[] materials = _piecesMeshRenderers[4].materials;
-                    materials[0].SetInterpolationFactor(timer * 3f / transitionTime);
-                    materials[1].SetInterpolationFactor(timer * 3f / transitionTime);   
-                    _piecesMeshRenderers[i].materials = materials;
+                    _cubeMaterials[i][0].SetInterpolationFactor(timer * 3f / transitionTime);
+                    _cubeMaterials[i][1].SetInterpolationFactor(timer * 3f / transitionTime);   
+                    _piecesMeshRenderers[i].materials = _cubeMaterials[i];
                 }
             }
 
