@@ -13,6 +13,11 @@ public class PingController : NetworkBehaviour
         base.OnNetworkSpawn();
         InputHandler.Instance.OnPing += GetPingPositionAndRotation;
     }
+    public override void OnNetworkDespawn()
+    {
+        InputHandler.Instance.OnPing -= GetPingPositionAndRotation;
+        base.OnNetworkDespawn();
+    }
 
     void GetPingPositionAndRotation()
     {

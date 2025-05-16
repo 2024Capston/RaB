@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 2857641806767536595}
   - component: {fileID: -592613171267260001}
   m_Layer: 0
-  m_Name: LookPing
+  m_Name: BasicPing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
