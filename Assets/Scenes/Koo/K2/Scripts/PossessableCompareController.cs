@@ -12,10 +12,12 @@ public class PossessableCompareController : NetworkBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent(out PossessableController possessableController) && IsServer && possessableController.name == "Possessable2_5(Clone)")
-        {
-            return;
-        }
+        //if (other.TryGetComponent(out PlayerController playerController))
+        //{
+        //    if (playerController.InteractableInHand == { 정답 Possessable의 IInteractable 레퍼런스 }) {
+        //        return;
+        //    }
+        //}
         
         EventBus.Instance.InvokeEvent(EventType.EventB);
         StartCoroutine(CoWait());
