@@ -7,6 +7,7 @@ namespace TubeStage
 {
     public class TubeStage2Controller : TubeStageController
     {
+        [SerializeField] private TubeStageSoundController _soundController;
         private double _endTime;
         private bool _isTimeUpdate;
         
@@ -217,6 +218,36 @@ namespace TubeStage
                 _monitorGroup[2].UpdateMonitorType(MonitorType.Text);
                 _monitorGroup[2].UpdateMonitorTextServerRpc("");
             }
+        }
+        
+        
+
+        #endregion
+
+        #region SFX
+
+        [ClientRpc]
+        public void PlayCorrectSFXClientRpc()
+        {
+            _soundController.PlayCorrectSFX();
+        }
+
+        [ClientRpc]
+        public void PlayIncorrectSFXClientRpc()
+        {
+            _soundController.PlayInCorrectSFX();
+        }
+
+        [ClientRpc]
+        public void StartTicTacSFXClientRpc()
+        {
+            _soundController.PlayTicTacSFX();
+        }
+
+        [ClientRpc]
+        public void StopTicTacSFXClientRpc()
+        {
+            _soundController.StopTicTacSFX();
         }
 
         #endregion
