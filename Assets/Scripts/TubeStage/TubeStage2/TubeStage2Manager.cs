@@ -80,6 +80,7 @@ namespace TubeStage
             double startTime = NetworkManager.Singleton.ServerTime.Time;
             StartLocalTimerClientRpc(startTime, duration);
             _timerCoroutine = StartCoroutine(CoServerTimer(startTime, duration));
+            TubeStageController.StartTicTacSFXClientRpc();
         }
 
         public void StartFailedCoroutine(float duration)

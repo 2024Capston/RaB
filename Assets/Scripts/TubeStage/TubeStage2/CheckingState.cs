@@ -24,6 +24,7 @@ namespace TubeStage
             }
             
             _problem = TubeStage2Manager.Instance.Problem.Value;
+            TubeStage2Manager.Instance.TubeStageController.StopTicTacSFXClientRpc();
             CheckingAnswer();
         }
         
@@ -41,6 +42,7 @@ namespace TubeStage
         {
             if (_problem.OnPlayerAnswered == false || _problem.PlayerAnswer != (ColorType)_problem.Answer[_problem.CurrentCount])
             {
+                TubeStage2Manager.Instance.TubeStageController.PlayIncorrectSFXClientRpc();
                 if (++_problem.FailCount == _problem.MaxFailCount)
                 {
                     TubeStage2Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
@@ -55,6 +57,7 @@ namespace TubeStage
             {
                 // 정답이므로 Tube 반영!
                 TubeStage2Manager.Instance.TubeStageController.ApplyTubeCondition(_problem.PlayerAnswer);
+                TubeStage2Manager.Instance.TubeStageController.PlayCorrectSFXClientRpc();
                 if (++_problem.CurrentCount == _problem.StageCount)
                 {
                     TubeStage2Manager.Instance.TubeStageController.SetSuccessInMonitor(true);
