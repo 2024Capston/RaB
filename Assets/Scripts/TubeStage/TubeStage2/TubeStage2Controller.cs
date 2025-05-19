@@ -27,6 +27,7 @@ namespace TubeStage
             TubeController tube = _sourceTubeGroup.Find(x => x.Color == colorType);
             tube.UpdateValue(-0.33334f);
             _destinationTube.UpdateValue(0.125f);
+            _destinationTube.SetTubeColorWithInterpolateClientRpc(colorType);
         }
 
         public void StartLocalTimer(double endTime)

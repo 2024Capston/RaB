@@ -137,5 +137,30 @@ public class TubeController : NetworkBehaviour
         _wobbleSpeed = wobbleSpeed;
         _recoverySpeed = recoverySpeed;
     }
-    
+
+    [ClientRpc]
+    public void SetTubeColorWithInterpolateClientRpc(ColorType colorType)
+    {
+        _liquidRenderer.material.SetTargetColor(colorType);
+        _liquidRenderer.material.SetInterpolationFactor(0f);
+
+        StartCoroutine(CoColorChange(colorType));
+    }
+
+    private IEnumerator CoColorChange(ColorType colorType)
+    {
+        float elapsed = 0f;
+        float duration = 1f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            _liquidRenderer.material.SetInterpolationFactor(t);
+
+            yield return null;
+        }
+        
+        Color = colorType;
+        _lightRenderer.material.SetInterpolationFactor(0f);
+    }
 }

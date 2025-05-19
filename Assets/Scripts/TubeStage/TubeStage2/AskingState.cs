@@ -52,8 +52,7 @@ namespace TubeStage
 
         private float MakingAnswerTime()
         {
-            // TODO 수식을 통해 현재 단계와 알맞는 시간을 만든다.
-            return 15f;
+            return 15 - _problem.CurrentCount;
         }
     }
 }
