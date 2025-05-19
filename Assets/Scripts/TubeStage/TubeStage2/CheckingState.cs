@@ -24,7 +24,6 @@ namespace TubeStage
             }
             
             _problem = TubeStage2Manager.Instance.Problem.Value;
-            TubeStage2Manager.Instance.TubeStageController.StopTicTacSFXClientRpc();
             CheckingAnswer();
         }
         

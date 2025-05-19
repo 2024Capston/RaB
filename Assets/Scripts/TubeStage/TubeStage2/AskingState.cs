@@ -38,6 +38,7 @@ namespace TubeStage
         {
             TubeStage2Manager.Instance.StopCoroutine();
             TubeStage2Manager.Instance.Problem = _problem;
+            TubeStage2Manager.Instance.TubeStageController.StopTicTacSFXClientRpc();
         }
 
         
