@@ -5,9 +5,9 @@ using Unity.Netcode;
 using UnityEngine;
 using Random = System.Random;
 
-namespace TubeStage
+namespace TubeStage.TubeStageTemp
 {
-    public class TubeStage1Mapper : TubeStageMapper
+    public class TubeStageTempMapper : TubeStageMapper
     {
         #region TubeControl
         

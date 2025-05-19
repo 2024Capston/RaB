@@ -1,4 +1,4 @@
-namespace TubeStage
+namespace TubeStage.TubeStage1
 {
     /// <summary>
     /// 모든 단계를 성공했을 때 들어오는 State
@@ -8,8 +8,8 @@ namespace TubeStage
     {
         public override void Enter()
         {
-            TubeStage2Manager.Instance.TubeStageController.ClearStage();
-            TubeStage2Manager.Instance.TubeStageController.EndDoorOpen();
+            TubeStage1Manager.Instance.TubeStageController.ClearStage();
+            TubeStage1Manager.Instance.TubeStageController.EndDoorOpen();
         }
 
         public override void Exit()
