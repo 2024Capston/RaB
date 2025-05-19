@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace TubeStage
+namespace TubeStage.TubeStage1
 {
     /// <summary>
     /// 플레이어 입력을 확인하여 정답 여부를 확인합니다.
@@ -10,61 +10,61 @@ namespace TubeStage
     /// </summary>
     internal class CheckingState : TubeStageState
     {
-        private TubeStage2Problem _problem;
+        private TubeStage1Problem _problem;
         
         public override void Enter()
         {
-            TubeStage2Manager.Instance.TubeStageController.StopStage();
+            TubeStage1Manager.Instance.TubeStageController.StopStage();
             
-            if (TubeStage2Manager.Instance.Problem is null)
+            if (TubeStage1Manager.Instance.Problem is null)
             {
                 Logger.LogError("Problem does not exist");
-                TubeStage2Manager.Instance.ChangeState(TubeStage2Manager.Instance.Waiting);
+                TubeStage1Manager.Instance.ChangeState(TubeStage1Manager.Instance.Waiting);
                 return;
             }
             
-            _problem = TubeStage2Manager.Instance.Problem.Value;
+            _problem = TubeStage1Manager.Instance.Problem.Value;
             CheckingAnswer();
         }
         
         public override void Exit()
         {
-            TubeStage2Manager.Instance.Problem = _problem;
+            TubeStage1Manager.Instance.Problem = _problem;
         }
 
         public override void OnButtonClicked(ColorType colorType)
         {
-            TubeStage2Manager.Instance.ChangeState(TubeStage2Manager.Instance.Asking);
+            TubeStage1Manager.Instance.ChangeState(TubeStage1Manager.Instance.Asking);
         }
 
         private void CheckingAnswer()
         {
             if (_problem.OnPlayerAnswered == false || _problem.PlayerAnswer != (ColorType)_problem.Answer[_problem.CurrentCount])
             {
-                TubeStage2Manager.Instance.TubeStageController.PlayIncorrectSFXClientRpc();
+                TubeStage1Manager.Instance.TubeStageController.PlayIncorrectSFXClientRpc();
                 if (++_problem.FailCount == _problem.MaxFailCount)
                 {
-                    TubeStage2Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
-                    TubeStage2Manager.Instance.StartFailedCoroutine(5f);
+                    TubeStage1Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
+                    TubeStage1Manager.Instance.StartFailedCoroutine(5f);
                 }
                 else
                 {
-                    TubeStage2Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
+                    TubeStage1Manager.Instance.TubeStageController.SetFailCountInMonitor(_problem.FailCount);
                 }
             }
             else
             {
                 // 정답이므로 Tube 반영!
-                TubeStage2Manager.Instance.TubeStageController.ApplyTubeCondition(_problem.PlayerAnswer);
-                TubeStage2Manager.Instance.TubeStageController.PlayCorrectSFXClientRpc();
+                TubeStage1Manager.Instance.TubeStageController.ApplyTubeCondition(_problem.PlayerAnswer);
+                TubeStage1Manager.Instance.TubeStageController.PlayCorrectSFXClientRpc();
                 if (++_problem.CurrentCount == _problem.StageCount)
                 {
-                    TubeStage2Manager.Instance.TubeStageController.SetSuccessInMonitor(true);
-                    TubeStage2Manager.Instance.ChangeState(TubeStage2Manager.Instance.Cleared);
+                    TubeStage1Manager.Instance.TubeStageController.SetSuccessInMonitor(true);
+                    TubeStage1Manager.Instance.ChangeState(TubeStage1Manager.Instance.Cleared);
                 }
                 else
                 {
-                    TubeStage2Manager.Instance.TubeStageController.SetSuccessInMonitor(false);
+                    TubeStage1Manager.Instance.TubeStageController.SetSuccessInMonitor(false);
                 }
             }
         }

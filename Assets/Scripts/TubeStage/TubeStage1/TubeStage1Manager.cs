@@ -1,89 +1,138 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace TubeStage
+namespace TubeStage.TubeStage1
 {
+    internal struct TubeStage1Problem
+    {
+        public List<int> Answer;
+        public int StageCount => Answer.Count;
+        public int CurrentCount;
+        public int FailCount;
+        public int MaxFailCount;
+        public ColorType PlayerAnswer;
+        public bool OnPlayerAnswered;
+    }
+
     public class TubeStage1Manager : StageManager
     {
-        private Coroutine _currentGame;
+        public new static TubeStage1Manager Instance => StageManager.Instance as TubeStage1Manager;
 
-        private TubeStage1Controller _tubeStage1Controller;
+        private TubeStageState _currentState;
+
+        internal readonly WaitingState Waiting = new WaitingState();
+        internal readonly AskingState Asking = new AskingState();
+        internal readonly CheckingState Checking = new CheckingState();
+        internal readonly ClearedState Cleared = new ClearedState();
+
+        public TubeStage1Controller TubeStageController;
+        internal TubeStage1Problem? Problem = null;
+
+        private Coroutine _timerCoroutine;
         
         protected override void Init()
         {
             _isDestroyOnLoad = true;
             base.Init();
-            _tubeStage1Controller = GetComponent<TubeStage1Controller>();
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            EventBus.Instance.SubscribeEvent<UnityAction<ColorType>>(EventType.EventA, OnButtonClicked);
         }
         
+
+        internal void ChangeState(TubeStageState nextState)
+        {
+            if (_currentState != null)
+            {
+                _currentState.Exit();
+            }
+
+            _currentState = nextState;
+            _currentState.Enter();
+        }
+
         public override void StartGame()
         {
-            _tubeStage1Controller.SetStartButton(true);
-            TubeStage1Mapper.Instance.ResetAll();
-            EventBus.Instance.SubscribeEvent<UnityAction>(EventType.EventA, OnClickStartButton);
-            _tubeStage1Controller.StartDoorOpen();
+            ChangeState(Waiting);
+            TubeStageController.StartDoorOpen();
         }
 
         public override void RestartGame()
         {
-            if (_currentGame != null)
-            {
-                StopCoroutine(_currentGame);
-            }
-            _currentGame = null;
-            TubeStage1Mapper.Instance.SetSourceTubeLight(0);
-            _tubeStage1Controller.SetStartButton(true);
-            TubeStage1Mapper.Instance.ResetAll();
+            ChangeState(Waiting);
         }
 
         public override void EndGame()
         {
-            EventBus.Instance.UnsubscribeEvent<UnityAction>(EventType.EventA, OnClickStartButton);
             InGameManager.Instance.EndGameServerRpc();
         }
 
-        private void OnClickStartButton()
+        public void StartAskingCoroutine(float duration)
         {
-            _tubeStage1Controller.SetStartButton(false);
-            _currentGame = StartCoroutine(CoProgressGame());
+            double startTime = NetworkManager.Singleton.ServerTime.Time;
+            StartLocalTimerClientRpc(startTime, duration);
+            _timerCoroutine = StartCoroutine(CoServerTimer(startTime, duration));
+            TubeStageController.StartTicTacSFXClientRpc();
         }
 
-        private IEnumerator CoProgressGame()
+        public void StartFailedCoroutine(float duration)
         {
-            TubeStage1Mapper.Instance.InitTube(); 
-            TubeStage1Mapper.Instance.ClearState();
+            StartCoroutine(CoWaitTimer(duration));
+        }
 
-            bool isSuccess = true;
+        public void StopCoroutine()
+        {
+            StopLocalTimerClientRpc();
+            if (_timerCoroutine is not null)
+            {
+                StopCoroutine(_timerCoroutine);
+            }
+        }
+
+        private IEnumerator CoServerTimer(double startTime, float duration)
+        {
+            double endTime = startTime + duration;
+
+            while (NetworkManager.Singleton.ServerTime.Time < endTime)
+            {
+                yield return null;
+            }
             
-            for (int i = 0; i < 8; i++)
-            {
-                int lightMap = Random.Range(0, 15);
-                TubeStage1Mapper.Instance.SetButtonGroupColor();
-                TubeStage1Mapper.Instance.SetSourceTubeLight(lightMap);
-                
-                
-                yield return new WaitForSeconds(15f);
-                TubeStage1Mapper.Instance.ApplyButtonState();
+            _timerCoroutine = null;
+            ChangeState(Checking);  
+        }
 
-                isSuccess &= lightMap == TubeStage1Mapper.Instance.ButtonState;
-                Logger.Log($"{lightMap} {TubeStage1Mapper.Instance.ButtonState}");
-                
-                TubeStage1Mapper.Instance.ClearState();
-                
-            }
+        private IEnumerator CoWaitTimer(float duration)
+        {
+            yield return new WaitForSeconds(duration);
+            ChangeState(Waiting);   
+        }
+        
+        [ClientRpc]
+        private void StartLocalTimerClientRpc(double startTime, float duration)
+        {
+            TubeStageController.StartLocalTimer(startTime + duration);
+        }
 
-            if (isSuccess)
-            {
-                _tubeStage1Controller.EndDoorOpen();
-                TubeStage1Mapper.Instance.ClearAll();
-            }
-            else
-            {
-                RestartGame();
-            }
+        [ClientRpc]
+        private void StopLocalTimerClientRpc()
+        {
+            TubeStageController.StopLocalTimer();
+        }
+
+        private void OnButtonClicked(ColorType colorType)
+        {
+            _currentState.OnButtonClicked(colorType);
         }
     }
 }
+
 

@@ -1,4 +1,4 @@
-namespace TubeStage
+namespace TubeStage.TubeStage1
 {
     internal abstract class TubeStageState
     {
