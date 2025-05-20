@@ -25,7 +25,7 @@ public class PassableColorWallController : MonoBehaviour
 
         if (_color == PlayerController.LocalPlayer.Color || _color == ColorType.Purple)
         {
-            GetComponent<BoxCollider>().enabled = false;
+            GetComponent<Collider>().enabled = false;
         }
     }
 }
