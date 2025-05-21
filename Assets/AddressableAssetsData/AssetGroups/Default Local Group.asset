@@ -16,7 +16,12 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 9e290812186459048a54c3315a312320
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 59f78a8d6b661574bb3e5ef37e432546
+    m_Address: Assets/Material/Glass_001.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f982286b83796ee4a8deaa1b3dff0d3c, type: 2}
   m_SchemaSet:
