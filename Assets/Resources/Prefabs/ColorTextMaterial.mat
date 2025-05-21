@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ButtonGlassShader
-  m_Shader: {fileID: -6465566751694194690, guid: 43f953c9b5aef6249aa427528cf6f643,
+  m_Name: ColorTextMaterial
+  m_Shader: {fileID: -6465566751694194690, guid: 411797fa6f744e141a4dbc9c4a6bbdae,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -38,18 +38,20 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ObjectColor: 0
-    - _PlayerColor: 0
+    - _Factor: 0
+    - _ObjectColor: 1
+    - _PlayerColor: 1
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ViewMode: 1
+    - _TargetColor: 0
+    - _ViewMode: 2
     m_Colors:
-    - _Blue: {r: 0, g: 0.019607844, b: 0.34901962, a: 0}
-    - _Gray: {r: 0.0627451, g: 0.0627451, b: 0.0627451, a: 0}
-    - _Purple: {r: 0.34901962, g: 0.019607844, b: 0.34901962, a: 0}
-    - _Red: {r: 0.34901962, g: 0.019607844, b: 0, a: 0}
+    - _Blue: {r: 0.3333333, g: 0.5490196, b: 0.945098, a: 1}
+    - _Gray: {r: 0.9647059, g: 0.9686274, b: 0.98431367, a: 1}
+    - _Purple: {r: 0.93333334, g: 0.23529407, b: 0.84705883, a: 1}
+    - _Red: {r: 0.93333334, g: 0.29411763, b: 0.23529407, a: 1}
   m_BuildTextureStacks: []
---- !u!114 &4972750311242672485
+--- !u!114 &6104840847294079081
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

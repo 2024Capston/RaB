@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -15,6 +16,7 @@ public class InputHandler : SingletonBehavior<InputHandler>
     public UnityAction OnJump;
     public UnityAction OnInteraction;
     public UnityAction OnEscape;
+    public UnityAction OnPing;
 
     void OnMoveInput(InputValue value)
     {
@@ -39,5 +41,10 @@ public class InputHandler : SingletonBehavior<InputHandler>
     void OnEscapeInput()
     {
         OnEscape?.Invoke();
+    }
+
+    void OnPingInput()
+    {
+        OnPing?.Invoke();
     }
 }

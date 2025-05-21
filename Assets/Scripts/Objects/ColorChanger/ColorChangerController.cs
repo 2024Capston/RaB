@@ -160,8 +160,18 @@ namespace ColorChanger
             float fillTime = TRANSITION_TIME * 0.8f;
 
             Color initialColor = _gaugeMeshRenderer.material.GetColor("_FillColor");
-            Color originalColor = _materials[(int)cubeController.Color - 1].color;
-            Color newColor = _materials[2 - (int)cubeController.Color].color;
+            Color originalColor = Color.white;
+            Color newColor = Color.white;
+
+            if (cubeController.Color == PlayerController.LocalPlayer.Color)
+            {
+                originalColor = _materials[(int)cubeController.Color - 1].color;
+            }
+
+            if (cubeController.Color - 3 == PlayerController.LocalPlayer.Color)
+            {
+                newColor = _materials[2 - (int)cubeController.Color].color;
+            }
 
             _gaugeMeshRenderer.material.SetColor("_BackgroundColor", originalColor);
 

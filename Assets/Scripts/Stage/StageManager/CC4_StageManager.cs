@@ -9,6 +9,8 @@ namespace ColorChanger
 { 
     public class CC4_StageManager : StageManager
     {
+        [SerializeField] AudioSource _audioSource;
+
         public override void EndGame()
         {
             InGameManager.Instance.EndGameServerRpc();
@@ -22,6 +24,8 @@ namespace ColorChanger
         {
             EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventA, OnRoomEntered);
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventC, OnPlatePressed);
+            EventBus.Instance.SubscribeEvent<UnityAction>(EventType.EventI, PlayClearSound);
+
         }
 
         public void OnRoomEntered(GameObject other)
@@ -29,6 +33,9 @@ namespace ColorChanger
             if (other.GetComponent<CubeController>())
             {
                 EventBus.Instance.InvokeEvent(EventType.EventB);
+                EventBus.Instance.InvokeEvent(EventType.EventH, MonitorType.CheckMark);
+
+                PlayClearSoundClientRpc();
             }
         }
 
@@ -37,7 +44,19 @@ namespace ColorChanger
             if (objectOnPlate.GetComponent<CubeController>())
             {
                 EventBus.Instance.InvokeEvent(EventType.EventD);
+                PlayClearSoundClientRpc();
             }
+        }
+
+        public void PlayClearSound()
+        {
+            PlayClearSoundClientRpc();
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        private void PlayClearSoundClientRpc()
+        {
+            _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
         }
     }
 }
