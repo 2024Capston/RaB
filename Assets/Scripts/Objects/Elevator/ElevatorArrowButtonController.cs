@@ -6,6 +6,10 @@ using UnityEngine;
 public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
 {
     [SerializeField] private int _deltaValue;
+    [SerializeField] private List<Material> _materials;
+
+    private MeshRenderer _meshRenderer;
+    
     public Outline Outline { get; set; }
 
     private NetworkVariable<bool> _isActive;
@@ -13,6 +17,7 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        _meshRenderer = GetComponent<MeshRenderer>();
         _isActive.OnValueChanged += OnValueChanged;
     }
 
@@ -59,11 +64,11 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
 
     private void ActivateButton()
     {
-        
+        _meshRenderer.material = _materials[1];
     }
 
     private void DeactivateButton()
     {
-        
+        _meshRenderer.material = _materials[0];
     }
 }

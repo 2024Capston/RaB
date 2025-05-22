@@ -89,7 +89,7 @@ public class ElevatorController : NetworkBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.G))
         {
-            
+            _elevatorDoor.IsOpened = true;
             _elevatorDoor.Activate();
         }
     }
