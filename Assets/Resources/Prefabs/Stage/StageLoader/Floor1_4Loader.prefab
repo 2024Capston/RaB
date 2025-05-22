@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -7003528103421170569}
   - component: {fileID: -4888093720654665678}
   m_Layer: 0
-  m_Name: Floor1_1Loader
+  m_Name: Floor1_4Loader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 829660867
+  GlobalObjectIdHash: 3536891377
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -67,6 +67,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _networkObjects:
-  - {fileID: 4760297340198228138, guid: 9456291201cd6f2488ab5b64492260ea, type: 3}
+  - {fileID: 4760297340198228138, guid: b94499d34e9dd434d9a2dbe5c5315aee, type: 3}
   _localObjects:
-  - {fileID: 930616204381523541, guid: 97e08701024f24347a5edf3feceac6f6, type: 3}
+  - {fileID: 930616204381523541, guid: 28bf10f36383c2b4aa11dbd779260b07, type: 3}
