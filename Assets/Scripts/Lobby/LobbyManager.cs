@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Steamworks;
+using Unity.Multiplayer.Samples.BossRoom;
 using Unity.Multiplayer.Samples.Utilities;
 using Unity.Netcode;
 #if UNITY_EDITOR
@@ -14,7 +15,10 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     [SerializeField] private GameObject[] _playerPrefabs = new GameObject[2];
     [SerializeField] private Transform[] _spawnPoints = new Transform[2];
     [SerializeField] private AirlockController[] _airlockControllers = new AirlockController[6];
+    [SerializeField] private ElevatorController _elevatorController;
     public LobbyUIController LobbyUIController {  get; private set; }
+
+    public ElevatorController Elevator => _elevatorController;
     
     protected override void Init()
     {
@@ -50,7 +54,17 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     [ServerRpc(RequireOwnership = false)]
     public void RequestMoveFloorServerRpc(int floor)
     {
-        
+        // 이동할 floor를 SessionManager.Instance.CurrentFloor에 넣어준다.
+        SessionManager.Instance.CurrentFloor = floor;
+        // SetMapDataServerRpc를 그냥 호출하면 호출한 Player만 적용된다. 
+        // 그러므로 모든 플레이어가 요청할 수 있게 해야 합니다.
+        RequestMoveFloorClientRpc();
+    }
+
+    [ClientRpc]
+    private void RequestMoveFloorClientRpc()
+    {
+        SetMapDataServerRpc();
     }
     
     /// <summary>

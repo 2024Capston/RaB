@@ -1,5 +1,74 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &52124645862053184
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3250295536785613020}
+  - component: {fileID: 5192289588843466667}
+  - component: {fileID: 6372125387550059699}
+  m_Layer: 0
+  m_Name: Elevator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3250295536785613020
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52124645862053184}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.1, z: -0.21}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4811466553517804466}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5192289588843466667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52124645862053184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f4c6983ac03103438f9b9901fc694ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _elevatorArrowButtonControllers: []
+  _elevatorMoveButtonController: {fileID: 0}
+  _elevatorDoor: {fileID: 4009264273103215621}
+--- !u!65 &6372125387550059699
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52124645862053184}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 5, y: 4.2562585, z: 4.3443294}
+  m_Center: {x: 0.00000019073487, y: 2.1281292, z: -0.32283774}
 --- !u!1 &352143297105617882
 GameObject:
   m_ObjectHideFlags: 0
@@ -44,8 +113,8 @@ GameObject:
   - component: {fileID: 4009264273103215621}
   - component: {fileID: 8762538242589933695}
   - component: {fileID: 8540418516937485669}
-  m_Layer: 2
-  m_Name: Elevator
+  m_Layer: 0
+  m_Name: ElevatorDoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -863,6 +932,7 @@ Transform:
   - {fileID: 5393298312352267969}
   - {fileID: 2930713750987733476}
   - {fileID: 8834778991276336676}
+  - {fileID: 3250295536785613020}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &207220044349025027
@@ -1303,7 +1373,7 @@ GameObject:
   - component: {fileID: 1740340731632160865}
   m_Layer: 0
   m_Name: 'Red Spawn Point '
-  m_TagString: Red Spawn Point
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5786,11 +5856,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: LeftDoor
-      objectReference: {fileID: 0}
-    - target: {fileID: 4867970995525982764, guid: 10852dbaae331464680e426ead754074,
-        type: 3}
-      propertyPath: m_Layer
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5243686920060092566, guid: 10852dbaae331464680e426ead754074,
         type: 3}
@@ -11695,7 +11760,7 @@ PrefabInstance:
     - target: {fileID: 42221701175973333, guid: a2c880416fc860240ae3a39a9621c247,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.21
       objectReference: {fileID: 0}
     - target: {fileID: 42221701175973333, guid: a2c880416fc860240ae3a39a9621c247,
         type: 3}
@@ -12472,11 +12537,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: RightDoor
-      objectReference: {fileID: 0}
-    - target: {fileID: 6223328295318933686, guid: 3e9958f06279f8f4ba30a3cbe5b4dd99,
-        type: 3}
-      propertyPath: m_Layer
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6707659402925509132, guid: 3e9958f06279f8f4ba30a3cbe5b4dd99,
         type: 3}
