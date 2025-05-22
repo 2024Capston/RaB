@@ -55,7 +55,7 @@ Material:
     - _PlayerColor: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ViewMode: 0
+    - _ViewMode: 1
     m_Colors:
     - _Blue: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionBlue: {r: 0.015686275, g: 0, b: 2.9960785, a: 0}

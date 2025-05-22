@@ -409,19 +409,42 @@ namespace Possessable
         private void InitializeClientRpc(ColorType color, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             _color = color;
-            _networkInterpolator.AddVisualReferenceDependantFunction(() =>
-            {
-                _meshRenderers =  _networkInterpolator.VisualReference.GetComponentsInChildren<MeshRenderer>();
 
-                foreach (MeshRenderer meshRenderer in _meshRenderers)
+            if (PlayerController.LocalPlayer)
+            {
+                _networkInterpolator.AddVisualReferenceDependantFunction(() =>
                 {
-                    Material[] materials = meshRenderer.materials;
-                    foreach (Material material in materials)
+                    _meshRenderers = _networkInterpolator.VisualReference.GetComponentsInChildren<MeshRenderer>();
+
+                    foreach (MeshRenderer meshRenderer in _meshRenderers)
                     {
-                        material.SetObjectColor(color);
+                        Material[] materials = meshRenderer.materials;
+                        foreach (Material material in materials)
+                        {
+                            material.SetMaterial(color, PlayerController.LocalPlayer.Color, 1);
+                        }
                     }
-                }
-            });
+                });
+            }
+            else
+            {
+                PlayerController.LocalPlayerCreated += () =>
+                {
+                    _networkInterpolator.AddVisualReferenceDependantFunction(() =>
+                    {
+                        _meshRenderers = _networkInterpolator.VisualReference.GetComponentsInChildren<MeshRenderer>();
+
+                        foreach (MeshRenderer meshRenderer in _meshRenderers)
+                        {
+                            Material[] materials = meshRenderer.materials;
+                            foreach (Material material in materials)
+                            {
+                                material.SetMaterial(color, PlayerController.LocalPlayer.Color, 1);
+                            }
+                        }
+                    });
+                };
+            }
 
             _rigidbody.MovePosition(position);
             _rigidbody.MoveRotation(rotation);

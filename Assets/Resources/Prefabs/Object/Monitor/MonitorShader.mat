@@ -69,6 +69,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 7148ba10abf4bc74a8d0aef081b0103a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_0cedfb12306d49fb83664a5f5b5e2ff5_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: c25072fb46cfda8429f2c3c798b1da11, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_175d9c64a38045ef8d321a9021c5e55a_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: 2e69a27fc83ec58448654e554c895821, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -85,8 +89,16 @@ Material:
         m_Texture: {fileID: 2800000, guid: 5e9071ceaae91e3439306fec34f599ca, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_2f49f32eb63a416e967fc03d57ff3d21_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 16f863831025da14f952462c79a59ebf, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_44abb00422ed433fb37c89610dd07bc8_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: 605eac839c9f64945815b485f444562f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_47737b62b86943a19fe752896ddd5fa5_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 0f2177696b2a5484c9971638ecfe23ab, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_4d0a10c6624c42049044876d83114b38_Texture_1_Texture2D:
@@ -107,6 +119,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_d069debfe30e483daea9f7a5d3d6df6d_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: 16f59d0d34e98ae4b998b95a4406ba63, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_e79fd7d7ffc34c1a961fc3509fefdae8_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 6397246fd6441234fb0863329e81a7b0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -146,7 +162,7 @@ Material:
     - _GlossyReflections: 0
     - _MONITORTYPE: 0
     - _Metallic: 0
-    - _MonitorType: 0
+    - _MonitorType: 14
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
