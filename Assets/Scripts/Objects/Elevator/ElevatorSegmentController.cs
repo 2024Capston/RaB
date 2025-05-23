@@ -17,23 +17,33 @@ public class ElevatorSegmentController : NetworkBehaviour
     };
     
     [SerializeField] private List<Material> _materials;
-    [SerializeField] private List<Material> _segments;
-    
-    private MeshRenderer _meshRenderer;
+    [SerializeField] private List<MeshRenderer> _segments;
 
-    private int _segmentValue;
+    private NetworkVariable<int> _segmentValue = new NetworkVariable<int>();
 
     public int SegmentValue
     {
-        get => _segmentValue;
+        get => _segmentValue.Value;
+        set => _segmentValue.Value = value;
     }
     
     
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        _meshRenderer = GetComponent<MeshRenderer>();
+        _segmentValue.OnValueChanged += OnValueChanged;
     }
-    
-    
+
+    private void OnValueChanged(int previousValue, int newValue)
+    {
+        SetSegment(newValue);
+    }
+
+    private void SetSegment(int value)
+    {
+        for (int i = 0; i < 7; i++)
+        {
+            _segments[i].material = _materials[Segment_Data[i][value]];
+        }
+    }
 }

@@ -45,6 +45,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     {
         SetMapDataServerRpc();
         SpawnPlayerServerRpc();
+        Elevator.InitElevator();
         AudioManager.Instance.StopBGM();
     }
 

@@ -6,12 +6,13 @@ using UnityEngine;
 
 public class ElevatorController : NetworkBehaviour
 {
-    private readonly int Max_Floor = 4;
+    private readonly int Max_Floor = 9;
 
     [SerializeField] private List<ElevatorArrowButtonController> _elevatorArrowButtonControllers = new List<ElevatorArrowButtonController>();
     [SerializeField] private ElevatorMoveButtonController _elevatorMoveButtonController;
     [SerializeField] private DoorController _elevatorDoor;
-    
+    [SerializeField] private List<ElevatorSegmentController> _elevatorSegments;
+    [SerializeField] private ElevatorArrowController _elevatorArrow;
     
     private int _selectFloor;
     /// <summary>
@@ -22,9 +23,14 @@ public class ElevatorController : NetworkBehaviour
         get => _selectFloor;
         set
         {
-            int temp = Math.Clamp(value, 0, Max_Floor);
+            int temp = Math.Clamp(value, 1, Max_Floor);
 
-            if (temp == 0)
+            foreach (var segment in _elevatorSegments)
+            {
+                segment.SegmentValue = temp;
+            }
+
+            if (temp == 1)
             {
                 // 아래키 비활성화
                 _elevatorArrowButtonControllers[0].IsActive = false;
@@ -40,7 +46,9 @@ public class ElevatorController : NetworkBehaviour
             {
                 _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive = true;
             }
-            
+
+            _elevatorMoveButtonController.IsActive = temp != SessionManager.Instance.CurrentFloor;
+            Logger.Log($"{temp}, {SessionManager.Instance.CurrentFloor}");
             _selectFloor = temp;
         }
     }
@@ -56,9 +64,9 @@ public class ElevatorController : NetworkBehaviour
 
         if (other.gameObject.CompareTag("Player"))
         {
-            if (++_playerCount == 2)
+            if (++_playerCount == 1)
             {
-                //_elevatorMoveButtonController.IsActive = true;
+                _elevatorMoveButtonController.IsActive = SessionManager.Instance.CurrentFloor != _selectFloor;
             }
             Logger.Log($"{other.gameObject.name} Enter {_playerCount}");
         }
@@ -74,23 +82,15 @@ public class ElevatorController : NetworkBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             --_playerCount;
-            //_elevatorMoveButtonController.IsActive = false;
+            _elevatorMoveButtonController.IsActive = false;
             
             Logger.Log($"{other.gameObject.name} Exit {_playerCount}");
         }
     }
-
-    private void Update()
+    
+    public void InitElevator()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            _elevatorDoor.IsOpened = false;
-            _elevatorDoor.Deactivate();
-        }
-        else if (Input.GetKeyDown(KeyCode.G))
-        {
-            _elevatorDoor.IsOpened = true;
-            _elevatorDoor.Activate();
-        }
+        // 강제로 세그먼트 방향버튼 갱신
+        SelectFloor = _selectFloor;
     }
 }
