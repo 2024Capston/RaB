@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
 {
-    private NetworkVariable<bool> _isActive;
+    private NetworkVariable<bool> _isActive = new NetworkVariable<bool>();
     [SerializeField] private List<Material> _materials;
 
     private MeshRenderer _meshRenderer;
@@ -16,6 +16,7 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
     {
         base.OnNetworkSpawn();
         _meshRenderer = GetComponent<MeshRenderer>();
+        Outline = GetComponent<Outline>();
         _isActive.OnValueChanged += OnValueChanged;
     }
 
@@ -62,11 +63,15 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
 
     private void ActivateButton()
     {
-        _meshRenderer.material = _materials[1];
+        Material[] materials = _meshRenderer.materials;
+        materials[1] = _materials[1];
+        _meshRenderer.materials = materials;
     }
 
     private void DeactivateButton()
     {
-        _meshRenderer.material = _materials[0];
+        Material[] materials = _meshRenderer.materials;
+        materials[1] = _materials[0];
+        _meshRenderer.materials = materials;
     }
 }
