@@ -52,8 +52,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     /// <summary>
     /// 엘리베이터에서 층을 이동할 때 호출됩니다.
     /// </summary>
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestMoveFloorServerRpc(int floor)
+    public void RequestMoveFloor(int floor)
     {
         // 이동할 floor를 SessionManager.Instance.CurrentFloor에 넣어준다.
         SessionManager.Instance.CurrentFloor = floor;
