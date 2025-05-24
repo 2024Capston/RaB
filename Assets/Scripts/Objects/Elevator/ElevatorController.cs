@@ -14,46 +14,50 @@ public class ElevatorController : NetworkBehaviour
     [SerializeField] private List<ElevatorSegmentController> _elevatorSegments;
     [SerializeField] private ElevatorArrowController _elevatorArrow;
     
-    private int _selectFloor;
+    private NetworkVariable<int> _selectFloor = new NetworkVariable<int>();
     /// <summary>
     /// 현재 선택한 층
     /// </summary>
     public int SelectFloor
     {
-        get => _selectFloor;
-        set
-        {
-            int temp = Math.Clamp(value, 1, Max_Floor);
-
-            foreach (var segment in _elevatorSegments)
-            {
-                segment.SegmentValue = temp;
-            }
-
-            if (temp == 1)
-            {
-                // 아래키 비활성화
-                _elevatorArrowButtonControllers[0].IsActive = false;
-                _elevatorArrowButtonControllers[1].IsActive = true;
-            }
-            else if (temp == Max_Floor)
-            {
-                // 윗키 비활성화
-                _elevatorArrowButtonControllers[0].IsActive = true;
-                _elevatorArrowButtonControllers[1].IsActive = false;
-            }
-            else
-            {
-                _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive = true;
-            }
-
-            _elevatorMoveButtonController.IsActive = temp != SessionManager.Instance.CurrentFloor;
-            Logger.Log($"{temp}, {SessionManager.Instance.CurrentFloor}");
-            _selectFloor = temp;
-        }
+        get => _selectFloor.Value;
+        set => _selectFloor.Value = Math.Clamp(value, 1, Max_Floor);
     }
     
     private int _playerCount = 0;
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        _selectFloor.OnValueChanged += OnValueChanged;
+    }
+
+    private void OnValueChanged(int previousValue, int newValue)
+    {
+        foreach (var segment in _elevatorSegments)
+        {
+            segment.SegmentValue = newValue;
+        }
+
+        if (newValue == 1)
+        {
+            // 아래키 비활성화
+            _elevatorArrowButtonControllers[0].IsActive = false;
+            _elevatorArrowButtonControllers[1].IsActive = true;
+        }
+        else if (newValue == Max_Floor)
+        {
+            // 윗키 비활성화
+            _elevatorArrowButtonControllers[0].IsActive = true;
+            _elevatorArrowButtonControllers[1].IsActive = false;
+        }
+        else
+        {
+            _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive = true;
+        }
+
+        _elevatorMoveButtonController.IsActive = newValue != SessionManager.Instance.CurrentFloor;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -64,9 +68,9 @@ public class ElevatorController : NetworkBehaviour
 
         if (other.gameObject.CompareTag("Player"))
         {
-            if (++_playerCount == 1)
+            if (++_playerCount == 2)
             {
-                _elevatorMoveButtonController.IsActive = SessionManager.Instance.CurrentFloor != _selectFloor;
+                _elevatorMoveButtonController.IsActive = SessionManager.Instance.CurrentFloor != SelectFloor;
             }
             Logger.Log($"{other.gameObject.name} Enter {_playerCount}");
         }
@@ -90,7 +94,11 @@ public class ElevatorController : NetworkBehaviour
     
     public void InitElevator()
     {
+        if (!IsServer)
+        {
+            return;
+        }
         // 강제로 세그먼트 방향버튼 갱신
-        SelectFloor = _selectFloor;
+        SelectFloor = _selectFloor.Value;
     }
 }

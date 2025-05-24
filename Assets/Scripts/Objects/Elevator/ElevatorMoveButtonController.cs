@@ -58,7 +58,7 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
     [ServerRpc(RequireOwnership = false)]
     private void RequestInteractionServerRpc()
     {
-        LobbyManager.Instance.RequestMoveFloorServerRpc(LobbyManager.Instance.Elevator.SelectFloor);
+        LobbyManager.Instance.RequestMoveFloor(LobbyManager.Instance.Elevator.SelectFloor);
     }
 
     private void ActivateButton()
