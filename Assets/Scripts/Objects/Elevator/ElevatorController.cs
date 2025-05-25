@@ -26,14 +26,24 @@ public class ElevatorController : NetworkBehaviour
     
     private int _playerCount = 0;
 
+    private void Awake()
+    {
+        _selectFloor.OnValueChanged += OnValueChanged;
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        _selectFloor.OnValueChanged += OnValueChanged;
+        
     }
 
     private void OnValueChanged(int previousValue, int newValue)
     {
+        if (!IsServer)
+        {
+            return;
+        }
+        
         foreach (var segment in _elevatorSegments)
         {
             segment.SegmentValue = newValue;
@@ -92,13 +102,10 @@ public class ElevatorController : NetworkBehaviour
         }
     }
     
-    public void InitElevator()
+    [ServerRpc(RequireOwnership = false)]
+    public void InitElevatorServerRpc()
     {
-        if (!IsServer)
-        {
-            return;
-        }
         // 강제로 세그먼트 방향버튼 갱신
-        SelectFloor = _selectFloor.Value;
+        OnValueChanged(SelectFloor, SelectFloor);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -12,12 +13,17 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
     
     public Outline Outline { get; set; }
 
-    public override void OnNetworkSpawn()
+    private void Awake()
     {
-        base.OnNetworkSpawn();
         _meshRenderer = GetComponent<MeshRenderer>();
         Outline = GetComponent<Outline>();
         _isActive.OnValueChanged += OnValueChanged;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        
     }
 
     private void OnValueChanged(bool previousValue, bool newValue)

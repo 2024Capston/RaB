@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -17,12 +18,17 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
 
     private NetworkVariable<bool> _isActive = new NetworkVariable<bool>();
 
-    public override void OnNetworkSpawn()
+    private void Awake()
     {
-        base.OnNetworkSpawn();
         _meshRenderer = GetComponent<MeshRenderer>();
         Outline = GetComponent<Outline>();
         _isActive.OnValueChanged += OnValueChanged;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        
     }
 
     private void OnValueChanged(bool previousValue, bool newValue)
@@ -65,7 +71,6 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
     [ServerRpc(RequireOwnership = false)]
     private void RequestInteractionServerRpc(int deltaValue)
     {
-        Logger.Log("Test");
         LobbyManager.Instance.Elevator.SelectFloor += deltaValue;
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -26,12 +27,16 @@ public class ElevatorSegmentController : NetworkBehaviour
         get => _segmentValue.Value;
         set => _segmentValue.Value = value;
     }
-    
-    
+
+    private void Awake()
+    {
+        _segmentValue.OnValueChanged += OnValueChanged;
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        _segmentValue.OnValueChanged += OnValueChanged;
+        
     }
 
     private void OnValueChanged(int previousValue, int newValue)
