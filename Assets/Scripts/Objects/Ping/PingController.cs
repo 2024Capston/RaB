@@ -7,6 +7,8 @@ public class PingController : NetworkBehaviour
 {
     [SerializeField] private Camera _mainCamera;
     [SerializeField] private GameObject _pings;
+    [SerializeField] private float _pingSpawnDuration = .5f;
+    [SerializeField] bool _availSpawnPing = true;
 
     public override void OnNetworkSpawn()
     {
@@ -33,10 +35,22 @@ public class PingController : NetworkBehaviour
             Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
 
             Debug.Log($"핑충돌! 각도{hit.normal}");
-            RequestSpawnPingServerRpc(offset, rotation, IsHost);
+            StartCoroutine(TimedSpawnPing(offset, rotation, IsHost, _pingSpawnDuration));
+            //RequestSpawnPingServerRpc(offset, rotation, IsHost);
         }
 
     }
+    IEnumerator TimedSpawnPing(Vector3 position, Quaternion rotation, bool isHost, float duration)
+    {
+        if (_availSpawnPing)
+        {
+            _availSpawnPing = false;
+            RequestSpawnPingServerRpc(position, rotation, isHost);
+            yield return new WaitForSeconds(duration);
+            _availSpawnPing = true;
+        }
+    }
+    
     [ServerRpc(RequireOwnership =false)]
     void RequestSpawnPingServerRpc(Vector3 position, Quaternion rotation, bool isHost)
     {
