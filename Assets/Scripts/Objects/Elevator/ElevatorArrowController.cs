@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -16,10 +17,15 @@ public class ElevatorArrowController : NetworkBehaviour
         set => _arrowValue.Value = value;
     }
 
+    private void Awake()
+    {
+        _arrowValue.OnValueChanged += OnValueChanged;
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        _arrowValue.OnValueChanged += OnValueChanged;
+        
     }
 
     private void OnValueChanged(int previousValue, int newValue)
