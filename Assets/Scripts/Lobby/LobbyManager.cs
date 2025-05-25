@@ -39,14 +39,16 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         }
 
         LobbyUIController.SetPlayerColorData(IsHost);
-        Elevator.InitElevatorServerRpc();
+        
     }
 
     private void Start()
     {
         SetMapDataServerRpc();
         SpawnPlayerServerRpc();
+        Elevator.InitElevatorServerRpc();
         AudioManager.Instance.StopBGM();
+        
     }
 
     /// <summary>

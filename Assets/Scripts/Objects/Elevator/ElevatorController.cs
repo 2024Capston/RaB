@@ -34,7 +34,7 @@ public class ElevatorController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        
+        _selectFloor.Value = SessionManager.Instance.CurrentFloor;
     }
 
     private void OnValueChanged(int previousValue, int newValue)
@@ -114,6 +114,7 @@ public class ElevatorController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void InitElevatorServerRpc()
     {
+        print(SelectFloor);
         // 강제로 세그먼트 방향버튼 갱신
         OnValueChanged(SelectFloor, SelectFloor);
     }
