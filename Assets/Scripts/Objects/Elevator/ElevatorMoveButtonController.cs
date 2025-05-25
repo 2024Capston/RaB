@@ -69,6 +69,7 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
 
     private void ActivateButton()
     {
+        Outline.enabled = false;
         Material[] materials = _meshRenderer.materials;
         materials[1] = _materials[1];
         _meshRenderer.materials = materials;
@@ -76,10 +77,11 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
 
     private void DeactivateButton()
     {
+        Outline.enabled = false;
         Material[] materials = _meshRenderer.materials;
         materials[1] = _materials[0];
         _meshRenderer.materials = materials;
 
-        Outline.enabled = false;
+        
     }
 }
