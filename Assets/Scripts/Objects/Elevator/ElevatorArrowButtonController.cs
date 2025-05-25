@@ -86,5 +86,7 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
         Material[] materials = _meshRenderer.materials;
         materials[_materialNum] = _materials[0];
         _meshRenderer.materials = materials;
+        
+        Outline.enabled = false;
     }
 }

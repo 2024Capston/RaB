@@ -14,7 +14,7 @@ public class ElevatorController : NetworkBehaviour
     [SerializeField] private List<ElevatorSegmentController> _elevatorSegments;
     [SerializeField] private ElevatorArrowController _elevatorArrow;
     
-    private NetworkVariable<int> _selectFloor = new NetworkVariable<int>();
+    private NetworkVariable<int> _selectFloor = new NetworkVariable<int>(1);
     /// <summary>
     /// 현재 선택한 층
     /// </summary>
@@ -46,9 +46,15 @@ public class ElevatorController : NetworkBehaviour
         
         foreach (var segment in _elevatorSegments)
         {
+            // 강제 갱신을 위한 코드
+            segment.SegmentValue = 0;
+            
             segment.SegmentValue = newValue;
         }
 
+        // 강제 갱신을 위한 코드
+        _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive = false;
+        
         if (newValue == 1)
         {
             // 아래키 비활성화
@@ -65,7 +71,10 @@ public class ElevatorController : NetworkBehaviour
         {
             _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive = true;
         }
-
+    
+        // 강제 갱신을 위한 코드
+        _elevatorMoveButtonController.IsActive = false;
+        
         _elevatorMoveButtonController.IsActive = newValue != SessionManager.Instance.CurrentFloor;
     }
 
