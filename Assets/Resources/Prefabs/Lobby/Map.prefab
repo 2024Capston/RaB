@@ -1303,7 +1303,7 @@ GameObject:
   - component: {fileID: 1740340731632160865}
   m_Layer: 0
   m_Name: 'Red Spawn Point '
-  m_TagString: Untagged
+  m_TagString: Red Spawn Point
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3343,6 +3343,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6488995887151591084, guid: 3b69376290d1f3e43a31a95a4c5dda68,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3889473959
+      objectReference: {fileID: 0}
     - target: {fileID: 6773205007094766562, guid: 3b69376290d1f3e43a31a95a4c5dda68,
         type: 3}
       propertyPath: m_Type
@@ -3798,6 +3803,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488995887151591084, guid: 3b69376290d1f3e43a31a95a4c5dda68,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3889473959
       objectReference: {fileID: 0}
     - target: {fileID: 6773205007094766562, guid: 3b69376290d1f3e43a31a95a4c5dda68,
         type: 3}
@@ -4803,6 +4813,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488995887151591084, guid: 3b69376290d1f3e43a31a95a4c5dda68,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3889473959
       objectReference: {fileID: 0}
     - target: {fileID: 6773205007094766562, guid: 3b69376290d1f3e43a31a95a4c5dda68,
         type: 3}
@@ -6347,6 +6362,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6488995887151591084, guid: 3b69376290d1f3e43a31a95a4c5dda68,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3889473959
+      objectReference: {fileID: 0}
     - target: {fileID: 6773205007094766562, guid: 3b69376290d1f3e43a31a95a4c5dda68,
         type: 3}
       propertyPath: m_Type
@@ -6906,6 +6926,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488995887151591084, guid: 3b69376290d1f3e43a31a95a4c5dda68,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3889473959
       objectReference: {fileID: 0}
     - target: {fileID: 6773205007094766562, guid: 3b69376290d1f3e43a31a95a4c5dda68,
         type: 3}
@@ -7933,6 +7958,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488995887151591084, guid: 3b69376290d1f3e43a31a95a4c5dda68,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3889473959
       objectReference: {fileID: 0}
     - target: {fileID: 6773205007094766562, guid: 3b69376290d1f3e43a31a95a4c5dda68,
         type: 3}
