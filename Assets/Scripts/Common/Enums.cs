@@ -43,7 +43,8 @@ public enum ButtonType
 /// </summary>
 public enum EventType
 {
-    EventA, EventB, EventC, EventD, EventE, EventF, EventG, EventH, EventI, EventJ, EventK, EventL, EventM, EventN, EventO, EventP
+    EventA, EventB, EventC, EventD, EventE, EventF, EventG, EventH, EventI, EventJ, EventK, EventL, EventM,
+    EventN, EventO, EventP, EventQ, EventR, EventS, EventT, EventU, EventV, EventW, EventX, EventY, EventZ
 }
 
 /// <summary>
@@ -56,5 +57,7 @@ public enum ArmType
 
 public enum MonitorType
 {
-    CheckMark, XMark, CubeMark
+    CheckMark, XMark,
+    CubeMark, AlphabetA, AlphabetB, AlphabetC, AlphabetD, AlphabetE, AlphabetF, AlphabetG, AlphabetH,
+    ArrowDown, ArrowLeft, ArrowRight, ArrowUp
 }

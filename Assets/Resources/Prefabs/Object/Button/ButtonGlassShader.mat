@@ -42,7 +42,7 @@ Material:
     - _PlayerColor: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ViewMode: 0
+    - _ViewMode: 1
     m_Colors:
     - _Blue: {r: 0, g: 0.019607844, b: 0.34901962, a: 0}
     - _Gray: {r: 0.0627451, g: 0.0627451, b: 0.0627451, a: 0}
