@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
 {
@@ -13,6 +14,7 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
     [SerializeField] private int _materialNum;
 
     private MeshRenderer _meshRenderer;
+    private AudioSource _audioSource;
     
     public Outline Outline { get; set; }
 
@@ -22,6 +24,7 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
     {
         _meshRenderer = GetComponent<MeshRenderer>();
         Outline = GetComponent<Outline>();
+        _audioSource = GetComponent<AudioSource>();
         _isActive.OnValueChanged += OnValueChanged;
     }
 
@@ -60,6 +63,21 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
     public bool StartInteraction(PlayerController player)
     {
         RequestInteractionServerRpc(_deltaValue);
+        
+        _audioSource.pitch = Random.Range(1.0f, 2.0f);
+        _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
+
+        PlayPressSound();
+
+        if (IsServer)
+        {
+            PlayPressSoundClientRpc();
+        }
+        else
+        {
+            PlayPressSoundServerRpc();
+        }
+        
         return false;
     }
 
@@ -87,7 +105,28 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
         Material[] materials = _meshRenderer.materials;
         materials[_materialNum] = _materials[0];
         _meshRenderer.materials = materials;
-        
-        
+    }
+    
+    private void PlayPressSound()
+    {
+        _audioSource.pitch = Random.Range(1.0f, 2.0f);
+        _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayPressSoundServerRpc()
+    {
+        PlayPressSound();
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void PlayPressSoundClientRpc()
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        PlayPressSound();
     }
 }
