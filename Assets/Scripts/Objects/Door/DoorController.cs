@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -18,6 +19,11 @@ public class DoorController : NetworkBehaviour, IActivatable
     /// 근처에 가면 열릴지 여부
     /// </summary>
     [SerializeField] private bool _isTriggerable = true;
+
+    /// <summary>
+    /// 문 조명을 IsOpen과 동기화할지 여부
+    /// </summary>
+    [SerializeField] private bool _automateLight = true;
 
     /// <summary>
     /// 호출되면 문을 열 이벤트
@@ -39,6 +45,11 @@ public class DoorController : NetworkBehaviour, IActivatable
     /// </summary>
     [SerializeField] private EventType[] _subscribeForSetClose;
 
+    /// <summary>
+    /// 호출되면 문 조명 색깔을 바꿀 이벤트
+    /// </summary>
+    [SerializeField] private EventType[] _subscribeForLightChange;
+
     private Animator _animator;
     private float _playerCount = 0;
 
@@ -52,19 +63,33 @@ public class DoorController : NetworkBehaviour, IActivatable
         get => _isOpened;
         set
         {
-            SetDoorLightClientRpc(value);
+            if (_automateLight)
+            {
+                SetDoorLightClientRpc(value, ColorType.None);
+            }
+            
             _isOpened = value;
         }
     } 
-    
-    private void Awake()
+
+    public override void OnNetworkSpawn()
     {
         _animator = GetComponent<Animator>();
-    }
 
-    private new void OnDestroy()
-    {
-        base.OnDestroy();
+        if (_lightRenderer != null)
+        {
+            if (PlayerController.LocalPlayer != null)
+            {
+                _lightRenderer.material.SetPlayerColor(PlayerController.LocalPlayer.Color);
+            }
+            else
+            {
+                PlayerController.LocalPlayerCreated += () =>
+                {
+                    _lightRenderer.material.SetPlayerColor(PlayerController.LocalPlayer.Color);
+                };
+            }
+        }
     }
 
     /// <summary>
@@ -166,9 +191,11 @@ public class DoorController : NetworkBehaviour, IActivatable
     /// <param name="isTriggerable">주변에 가면 켜질지 여부</param>
     /// <param name="isOpen">열린 상태 여부</param>
     [ClientRpc]
-    private void InitializeClientRpc(bool isTriggerable, bool isOpen)
+    private void InitializeClientRpc(bool isTriggerable, bool automateLight, bool isOpen)
     {
         _isTriggerable = isTriggerable;
+        _automateLight = automateLight;
+
         IsOpened = isOpen;
     }
 
@@ -177,14 +204,15 @@ public class DoorController : NetworkBehaviour, IActivatable
     /// </summary>
     /// <param name="isTriggerable">주변에 가면 켜질지 여부</param>
     /// <param name="isOpen">열린 상태 여부</param>
-    public void Initialize(bool isTriggerable, bool isOpen, EventType[] subscribeForActivation, EventType[] subscribeForDeactivation, EventType[] subscribeForSetOpen, EventType[] subscribeForSetClose)
+    public void Initialize(bool isTriggerable, bool automateLight, bool isOpen, EventType[] subscribeForActivation, EventType[] subscribeForDeactivation, EventType[] subscribeForSetOpen, EventType[] subscribeForSetClose, EventType[] subscribeForLightChange)
     {
-        InitializeClientRpc(isTriggerable, isOpen);
+        InitializeClientRpc(isTriggerable, automateLight, isOpen);
 
         _subscribeForActivation = subscribeForActivation;
         _subscribeForDeactivation = subscribeForDeactivation;
         _subscribeForSetOpen = subscribeForSetOpen;
         _subscribeForSetClose = subscribeForSetClose;
+        _subscribeForLightChange = subscribeForLightChange;
 
         foreach (EventType eventType in _subscribeForActivation)
         {
@@ -205,11 +233,33 @@ public class DoorController : NetworkBehaviour, IActivatable
         {
             EventBus.Instance.SubscribeEvent<UnityAction>(eventType, SetClose);
         }
+
+        foreach (EventType eventType in _subscribeForLightChange)
+        {
+            EventBus.Instance.SubscribeEvent<UnityAction<bool, ColorType>>(eventType, SetDoorLight);
+        }
     }
     
     [ClientRpc]
-    private void SetDoorLightClientRpc(bool isOpen)
+    private void SetDoorLightClientRpc(bool isOn, ColorType color)
     {
-        _lightRenderer.material.SetObjectColor(isOpen ? ColorType.Purple : ColorType.None);
+        if (_lightRenderer != null)
+        {
+            if (isOn)
+            {
+                _lightRenderer?.material.SetInt("_IsOn", 1);
+                _lightRenderer?.material.SetObjectColor(color);
+            }
+            else
+            {
+                _lightRenderer?.material.SetInt("_IsOn", 0);
+                _lightRenderer?.material.SetObjectColor(ColorType.None);
+            }
+        }
+    }
+
+    public void SetDoorLight(bool isOn, ColorType colorType)
+    {
+        SetDoorLightClientRpc(isOn, colorType);
     }
 }

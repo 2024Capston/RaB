@@ -8,12 +8,14 @@ public class DoorSpawner : NetworkObjectSpawner
     [SerializeField] string _name;
 
     [SerializeField] bool _isTrigerrable = false;
+    [SerializeField] bool _automateLight = true;
     [SerializeField] bool _isOpen = false;
 
     [SerializeField] EventType[] _subscribeForActivation;
     [SerializeField] EventType[] _subscribeForDeactivation;
     [SerializeField] EventType[] _subscribeForSetOpen;
     [SerializeField] EventType[] _subscribeForSetClose;
+    [SerializeField] EventType[] _subscribeForLightChange;
 
     public override void SpawnObject()
     {
@@ -31,6 +33,6 @@ public class DoorSpawner : NetworkObjectSpawner
         _spawnedObject.transform.localScale = transform.lossyScale;
 
         _spawnedObject.GetComponent<NetworkObject>().Spawn();
-        _spawnedObject.GetComponent<DoorController>().Initialize(_isTrigerrable, _isOpen, _subscribeForActivation, _subscribeForDeactivation, _subscribeForSetOpen, _subscribeForSetClose);
+        _spawnedObject.GetComponent<DoorController>().Initialize(_isTrigerrable, _automateLight, _isOpen, _subscribeForActivation, _subscribeForDeactivation, _subscribeForSetOpen, _subscribeForSetClose, _subscribeForLightChange);
     }
 }
