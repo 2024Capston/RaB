@@ -13,6 +13,8 @@ public class ElevatorController : NetworkBehaviour
     [SerializeField] private DoorController _elevatorDoor;
     [SerializeField] private List<ElevatorSegmentController> _elevatorSegments;
     [SerializeField] private ElevatorArrowController _elevatorArrow;
+
+    private AudioSource _moveAudio;
     
     private NetworkVariable<int> _selectFloor = new NetworkVariable<int>(1);
     /// <summary>
@@ -32,6 +34,7 @@ public class ElevatorController : NetworkBehaviour
     {
         _selectFloor.OnValueChanged += OnValueChanged;
         IsMoving = false;
+        _moveAudio = GetComponent<AudioSource>();
     }
 
     public override void OnNetworkSpawn()
@@ -176,6 +179,9 @@ public class ElevatorController : NetworkBehaviour
 
     private IEnumerator CoElevatorAnimation(int preFloor, int nxtFloor)
     {
+        _moveAudio.volume = 0;
+        _moveAudio.Play();
+        
         // 카메라 흔들림 시작
         float duration = 2f; 
         float elapsed = 0f;
@@ -184,9 +190,12 @@ public class ElevatorController : NetworkBehaviour
         {
             float value = elapsed / duration;
             CameraController.LocalCamera.ChangeShakeAmplitude(value);
+            _moveAudio.volume = value;
             elapsed += Time.deltaTime;
             yield return null;
         }
+
+        _moveAudio.volume = 1f;
         
         // 층 이동 시작
 
@@ -236,6 +245,7 @@ public class ElevatorController : NetworkBehaviour
         {
             float value = elapsed / duration;
             CameraController.LocalCamera.ChangeShakeAmplitude(1f - value);
+            _moveAudio.volume = 1f - value;
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -244,7 +254,11 @@ public class ElevatorController : NetworkBehaviour
         {
             _elevatorArrow.ArrowValue = 0;
         }
+
+        _moveAudio.volume = 0f;
+        _moveAudio.Stop();
         
+        AudioManager.Instance.PlaySFX(SFX.ElevatorArrive);
         LobbyManager.Instance.OnMoveFloorEndServerRpc(nxtFloor);
     }
 }

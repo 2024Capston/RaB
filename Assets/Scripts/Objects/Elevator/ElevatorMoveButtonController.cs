@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
 {
@@ -10,6 +11,7 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
     [SerializeField] private List<Material> _materials;
 
     private MeshRenderer _meshRenderer;
+    private AudioSource _audioSource;
     
     public Outline Outline { get; set; }
 
@@ -17,6 +19,7 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
     {
         _meshRenderer = GetComponent<MeshRenderer>();
         Outline = GetComponent<Outline>();
+        _audioSource = GetComponent<AudioSource>();
         _isActive.OnValueChanged += OnValueChanged;
     }
 
@@ -52,6 +55,20 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
 
     public bool StartInteraction(PlayerController player)
     {
+        _audioSource.pitch = Random.Range(1.0f, 2.0f);
+        _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
+        
+        PlayPressSound();
+
+        if (IsServer)
+        {
+            PlayPressSoundClientRpc();
+        }
+        else
+        {
+            PlayPressSoundServerRpc();
+        }
+        
         RequestInteractionServerRpc();
         return false;
     }
@@ -80,7 +97,28 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
         Material[] materials = _meshRenderer.materials;
         materials[1] = _materials[0];
         _meshRenderer.materials = materials;
+    }
+    
+    private void PlayPressSound()
+    {
+        _audioSource.pitch = Random.Range(1.0f, 2.0f);
+        _audioSource.PlayOneShot(_audioSource.clip, _audioSource.volume);
+    }
 
-        
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayPressSoundServerRpc()
+    {
+        PlayPressSound();
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void PlayPressSoundClientRpc()
+    {
+        if (IsServer)
+        {
+            return;
+        }
+
+        PlayPressSound();
     }
 }

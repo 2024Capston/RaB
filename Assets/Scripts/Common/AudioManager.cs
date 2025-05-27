@@ -17,6 +17,7 @@ public enum BGM
 public enum SFX
 {
     ButtonClick,
+    ElevatorArrive,
     Count
 }
 
