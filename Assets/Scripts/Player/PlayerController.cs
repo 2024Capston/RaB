@@ -544,24 +544,25 @@ public class PlayerController : NetworkBehaviour
         {
             if (_interactableOnPointer.StartInteraction(this))
             {
-                _interactableOnPointer.Outline.enabled = false;
                 _interactableInHand = _interactableOnPointer;
-                _interactableOnPointer = null;
-
-                if (_networkObjectOnPointer != null)
-                {
-                    if (IsServer)
-                    {
-                        SetInteractableInHandClientRpc(_networkObjectOnPointer);
-                    }
-                    else
-                    {
-                        SetInteractableInHandServerRpc(_networkObjectOnPointer);
-                    }
-                }
-
-                _networkObjectOnPointer = null;
             }
+
+            _interactableOnPointer.Outline.enabled = false;
+            _interactableOnPointer = null;
+
+            if (_networkObjectOnPointer != null)
+            {
+                if (IsServer)
+                {
+                    SetInteractableInHandClientRpc(_networkObjectOnPointer);
+                }
+                else
+                {
+                    SetInteractableInHandServerRpc(_networkObjectOnPointer);
+                }
+            }
+
+            _networkObjectOnPointer = null;
         }
     }
 
