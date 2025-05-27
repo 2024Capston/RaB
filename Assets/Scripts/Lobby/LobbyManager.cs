@@ -75,6 +75,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         SessionManager.Instance.CurrentFloor = curFloor;
         Elevator.SelectFloor = curFloor;
         RequestMoveFloorClientRpc();
+        Elevator.EndElevator();
         Elevator.OpenElevatorDoor();
     }
     

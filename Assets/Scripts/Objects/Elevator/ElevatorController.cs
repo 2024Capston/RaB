@@ -26,9 +26,12 @@ public class ElevatorController : NetworkBehaviour
     
     private int _playerCount = 0;
 
+    private bool IsMoving { get; set; }
+    
     private void Awake()
     {
         _selectFloor.OnValueChanged += OnValueChanged;
+        IsMoving = false;
     }
 
     public override void OnNetworkSpawn()
@@ -89,7 +92,7 @@ public class ElevatorController : NetworkBehaviour
         {
             if (++_playerCount == 2)
             {
-                _elevatorMoveButtonController.IsActive = SessionManager.Instance.CurrentFloor != SelectFloor;
+                _elevatorMoveButtonController.IsActive = !IsMoving && SessionManager.Instance.CurrentFloor != SelectFloor;
             }
         }
     }
@@ -138,8 +141,17 @@ public class ElevatorController : NetworkBehaviour
         _elevatorSegments[0].SegmentValue = SessionManager.Instance.CurrentFloor;
         
         // 버튼 다 잠구기
-        _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive =
-            _elevatorMoveButtonController.IsActive = false;
+        _elevatorArrowButtonControllers[0].IsActive = false;
+        _elevatorArrowButtonControllers[1].IsActive = false;
+        _elevatorMoveButtonController.IsActive = false;
+
+        IsMoving = true;
+    }
+
+    public void EndElevator()
+    {
+        IsMoving = false;
+        OnValueChanged(SelectFloor, SelectFloor);
     }
 
     [ClientRpc]
@@ -181,9 +193,9 @@ public class ElevatorController : NetworkBehaviour
 
         if (_elevatorArrow.ArrowValue == 1)
         {
-            for (int i = preFloor + 1; i <= nxtFloor; i++)
+            for (int i = preFloor + 1; i < nxtFloor; i++)
             {
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSeconds(3f);
                 if (IsServer)
                 {
                     foreach (var segment in _elevatorSegments)
@@ -195,9 +207,9 @@ public class ElevatorController : NetworkBehaviour
         }
         else
         {
-            for (int i = preFloor - 1; i >= nxtFloor; i--)
+            for (int i = preFloor - 1; i > nxtFloor; i--)
             {
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSeconds(3f);
                 if (IsServer)
                 {
                     foreach (var segment in _elevatorSegments)
@@ -206,6 +218,11 @@ public class ElevatorController : NetworkBehaviour
                     }
                 }
             }
+        }
+        
+        foreach (var segment in _elevatorSegments)
+        {
+            segment.SegmentValue = nxtFloor;
         }
         
         // 카메라 흔들림 종료
