@@ -101,6 +101,16 @@ public class CubeController : NetworkBehaviour, IInteractable
         }
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        // 플레이어가 벽을 타려고 하면 상호작용 중단
+        if (_interactingPlayer && collision.gameObject.GetComponent<PlayerController>() &&
+            collision.contacts[0].point.y >= _rigidbody.position.y)
+        {
+            ForceStopInteraction();
+        }
+    }
+
     public bool IsInteractable(PlayerController player)
     {
         return _color == player.Color && _isActive;
@@ -185,7 +195,15 @@ public class CubeController : NetworkBehaviour, IInteractable
 
         foreach (Vector3 position in raycastPosition)
         {
-            if (Physics.Raycast(position, _interactingRigidbody.position - position, out hit) &&
+            if (Physics.Raycast(position, Camera.main.transform.position - position, out hit) &&
+                hit.collider.gameObject == _interactingPlayer.gameObject)
+            {
+                gameObject.layer = originalLayer;
+
+                return false;
+            }
+
+            if (Physics.Raycast(position, _interactingPlayer.transform.position - position, out hit) &&
                 hit.collider.gameObject == _interactingPlayer.gameObject)
             {
                 gameObject.layer = originalLayer;
