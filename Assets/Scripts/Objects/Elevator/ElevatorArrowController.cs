@@ -32,13 +32,13 @@ public class ElevatorArrowController : NetworkBehaviour
     {
         if (newValue == -1)
         {
-            _meshRenderers[0].material = _materials[0];
-            _meshRenderers[1].material = _materials[1];
+            _meshRenderers[0].material = _materials[1];
+            _meshRenderers[1].material = _materials[0];
         }
         else if (newValue == 1)
         {
-            _meshRenderers[0].material = _materials[1];
-            _meshRenderers[1].material = _materials[0];
+            _meshRenderers[0].material = _materials[0];
+            _meshRenderers[1].material = _materials[1];
         }
         else
         {
