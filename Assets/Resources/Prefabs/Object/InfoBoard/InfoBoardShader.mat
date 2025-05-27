@@ -51,11 +51,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ObjectColor: 3
-    - _PlayerColor: 1
+    - _ObjectColor: 0
+    - _PlayerColor: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ViewMode: 0
+    - _ViewType: 0
     m_Colors:
     - _Blue: {r: 0.26666665, g: 0.32941177, b: 0.85882354, a: 1}
     - _Gray: {r: 0.9647059, g: 0.96862745, b: 0.9843137, a: 1}

@@ -16,6 +16,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     [SerializeField] private Transform[] _spawnPoints = new Transform[2];
     [SerializeField] private AirlockController[] _airlockControllers = new AirlockController[6];
     [SerializeField] private ElevatorController _elevatorController;
+    [SerializeField] private InfoBoardController _infoBoard;
     public LobbyUIController LobbyUIController {  get; private set; }
 
     public ElevatorController Elevator => _elevatorController;
@@ -155,6 +156,8 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
             
             SetAirlockDataClientRpc(i, (StageName)index, data.MapInfoList[index].OpenFlag == 1, clientRpcParams);
         }
+        
+        SetInfoBoardClientRpc(1, SessionManager.Instance.CurrentFloor, clientRpcParams);
     }
 
     /// <summary>
@@ -169,6 +172,12 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     {
         _airlockControllers[index].StageName = stageName;
         _airlockControllers[index].IsAirlockOpened = isAirlockOpened;
+    }
+
+    [ClientRpc]
+    private void SetInfoBoardClientRpc(int viewType, int curFloor, ClientRpcParams clientRpcParams = default)
+    {
+        _infoBoard.UpdateColorInfo(viewType, curFloor);
     }
 }
 
