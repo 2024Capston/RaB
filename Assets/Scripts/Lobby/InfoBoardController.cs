@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -12,27 +13,18 @@ public class InfoBoardController : MonoBehaviour
     
     private int _viewMode;
 
-    public void Start()
+    private void Awake()
     {
         _playerColor = NetworkManager.Singleton.IsHost ? ColorType.Blue : ColorType.Red;
-
-        Material[] materials = GetComponent<Renderer>().materials;
-        materials[1].SetMaterial(ColorType.Blue, _playerColor, 2);
-        materials[2].SetMaterial(ColorType.Purple, _playerColor, 2);
-        materials[3].SetMaterial(ColorType.Red, _playerColor, 2);
-        GetComponent<Renderer>().materials = materials;
-        
-        GetComponentInChildren<TMP_Text>().text = "1F";
     }
-
+    
     public void UpdateColorInfo(int viewType, int floor)
     {
-        _playerColor = NetworkManager.Singleton.IsHost ? ColorType.Blue : ColorType.Red;
-
         Material[] materials = GetComponent<Renderer>().materials;
-        materials[0].SetMaterial(ColorType.Blue, _playerColor, viewType);
-        materials[4].SetMaterial(ColorType.Purple, _playerColor, viewType);
-        materials[5].SetMaterial(ColorType.Red, _playerColor, viewType);
+        materials[0].SetMaterial(ColorType.None, _playerColor, viewType);
+        materials[1].SetMaterial(ColorType.Blue, _playerColor, viewType);
+        materials[2].SetMaterial(ColorType.Purple, _playerColor, viewType);
+        materials[3].SetMaterial(ColorType.Red, _playerColor, viewType);
         GetComponent<Renderer>().materials = materials;
         
         GetComponentInChildren<TMP_Text>().text = floor + "F";

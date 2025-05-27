@@ -202,6 +202,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f4c6983ac03103438f9b9901fc694ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &809175942 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1809806797010722887, guid: 7e3ba9bcd94342640b6a3e95831303dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 1053430536}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b3a62ae185c2634fbf3aff4ad6202ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1053430536
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -588,7 +600,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7352660028270428830, guid: 7e3ba9bcd94342640b6a3e95831303dd,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 7e3ba9bcd94342640b6a3e95831303dd, type: 3}
 --- !u!114 &1053430537 stripped
 MonoBehaviour:
@@ -803,6 +819,11 @@ PrefabInstance:
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 2372571027
       objectReference: {fileID: 0}
+    - target: {fileID: 7086138192284980404, guid: fb7fec8d8c3bbbf4f9374c52173e38a0,
+        type: 3}
+      propertyPath: _infoBoard
+      value: 
+      objectReference: {fileID: 809175942}
     - target: {fileID: 7086138192284980404, guid: fb7fec8d8c3bbbf4f9374c52173e38a0,
         type: 3}
       propertyPath: _elevatorController
