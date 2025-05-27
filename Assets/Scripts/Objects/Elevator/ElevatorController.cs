@@ -177,7 +177,6 @@ public class ElevatorController : NetworkBehaviour
     private IEnumerator CoElevatorAnimation(int preFloor, int nxtFloor)
     {
         // 카메라 흔들림 시작
-        
         float duration = 2f; 
         float elapsed = 0f;
         
@@ -195,7 +194,6 @@ public class ElevatorController : NetworkBehaviour
         {
             for (int i = preFloor + 1; i < nxtFloor; i++)
             {
-                yield return new WaitForSeconds(3f);
                 if (IsServer)
                 {
                     foreach (var segment in _elevatorSegments)
@@ -203,13 +201,13 @@ public class ElevatorController : NetworkBehaviour
                         segment.SegmentValue = i;
                     }
                 }
+                yield return new WaitForSeconds(3f);
             }
         }
         else
         {
             for (int i = preFloor - 1; i > nxtFloor; i--)
             {
-                yield return new WaitForSeconds(3f);
                 if (IsServer)
                 {
                     foreach (var segment in _elevatorSegments)
@@ -217,12 +215,16 @@ public class ElevatorController : NetworkBehaviour
                         segment.SegmentValue = i;
                     }
                 }
+                yield return new WaitForSeconds(3f);
             }
         }
         
-        foreach (var segment in _elevatorSegments)
+        if (IsServer)
         {
-            segment.SegmentValue = nxtFloor;
+            foreach (var segment in _elevatorSegments)
+            {
+                segment.SegmentValue = nxtFloor;
+            }
         }
         
         // 카메라 흔들림 종료
