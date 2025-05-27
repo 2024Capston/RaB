@@ -129,6 +129,19 @@ public class ElevatorController : NetworkBehaviour
         _elevatorDoor.Deactivate();
     }
 
+    /// <summary>
+    /// 엘레베이터 이동 시키기 위해 패널 조작
+    /// </summary>
+    public void StartElevator()
+    {
+        // 세그먼트 초기화
+        _elevatorSegments[0].SegmentValue = SessionManager.Instance.CurrentFloor;
+        
+        // 버튼 다 잠구기
+        _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive =
+            _elevatorMoveButtonController.IsActive = false;
+    }
+
     [ClientRpc]
     public void StartElevatorAnimationClientRpc(int preFloor, int nxtFloor)
     {
@@ -151,7 +164,9 @@ public class ElevatorController : NetworkBehaviour
 
     private IEnumerator CoElevatorAnimation(int preFloor, int nxtFloor)
     {
-        float duration = 5f; 
+        // 카메라 흔들림 시작
+        
+        float duration = 2f; 
         float elapsed = 0f;
         
         while (elapsed < duration)
@@ -161,12 +176,13 @@ public class ElevatorController : NetworkBehaviour
             elapsed += Time.deltaTime;
             yield return null;
         }
+        
+        // 층 이동 시작
 
         if (_elevatorArrow.ArrowValue == 1)
         {
-            for (int i = preFloor; i <= nxtFloor; i++)
+            for (int i = preFloor + 1; i <= nxtFloor; i++)
             {
-                Logger.Log(i.ToString());
                 yield return new WaitForSeconds(5f);
                 if (IsServer)
                 {
@@ -179,9 +195,8 @@ public class ElevatorController : NetworkBehaviour
         }
         else
         {
-            for (int i = preFloor; i >= nxtFloor; i--)
+            for (int i = preFloor - 1; i >= nxtFloor; i--)
             {
-                Logger.Log(i.ToString());
                 yield return new WaitForSeconds(5f);
                 if (IsServer)
                 {
@@ -193,7 +208,9 @@ public class ElevatorController : NetworkBehaviour
             }
         }
         
-        duration = 5f; 
+        // 카메라 흔들림 종료
+        
+        duration = 2f; 
         elapsed = 0f;
         
         while (elapsed < duration)

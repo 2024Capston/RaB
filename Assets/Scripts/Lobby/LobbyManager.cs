@@ -58,16 +58,19 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         // 문을 닫는다.
         Elevator.CloseElevatorDoor();
         
+        // 엘레베이터를 시작하기 위한 준비
+        Elevator.StartElevator();
+        
         Elevator.StartElevatorAnimationClientRpc(SessionManager.Instance.CurrentFloor, floor);
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void OnMoveFloorEndServerRpc(int curFloor, ServerRpcParams serverRpcParams = default)
     {
-        /*if (serverRpcParams.Receive.SenderClientId == NetworkManager.Singleton.LocalClientId)
+        if (serverRpcParams.Receive.SenderClientId == NetworkManager.Singleton.LocalClientId)
         {
             return;
-        }*/
+        }
 
         SessionManager.Instance.CurrentFloor = curFloor;
         Elevator.SelectFloor = curFloor;

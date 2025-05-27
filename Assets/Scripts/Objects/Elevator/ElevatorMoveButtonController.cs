@@ -52,7 +52,6 @@ public class ElevatorMoveButtonController : NetworkBehaviour, IInteractable
 
     public bool StartInteraction(PlayerController player)
     {
-        Logger.Log("HEllo");
         RequestInteractionServerRpc();
         return false;
     }
