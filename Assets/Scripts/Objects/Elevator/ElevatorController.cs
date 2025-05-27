@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class ElevatorController : NetworkBehaviour
 {
-    private readonly int Max_Floor = 9;
+    private readonly int Max_Floor = 4;
 
     [SerializeField] private List<ElevatorArrowButtonController> _elevatorArrowButtonControllers = new List<ElevatorArrowButtonController>();
     [SerializeField] private ElevatorMoveButtonController _elevatorMoveButtonController;
@@ -43,14 +43,14 @@ public class ElevatorController : NetworkBehaviour
         {
             return;
         }
-        
-        foreach (var segment in _elevatorSegments)
-        {
-            // 강제 갱신을 위한 코드
-            segment.SegmentValue = 0;
-            
-            segment.SegmentValue = newValue;
-        }
+
+        // 강제 갱신을 위한 코드
+        _elevatorSegments[0].SegmentValue = 0;
+        _elevatorSegments[0].SegmentValue = newValue;
+
+        // 강제 갱신을 위한 코드
+        _elevatorSegments[1].SegmentValue = _elevatorSegments[2].SegmentValue = 0;
+        _elevatorSegments[1].SegmentValue = _elevatorSegments[2].SegmentValue = SessionManager.Instance.CurrentFloor;
 
         // 강제 갱신을 위한 코드
         _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive = false;
@@ -67,7 +67,7 @@ public class ElevatorController : NetworkBehaviour
             _elevatorArrowButtonControllers[0].IsActive = true;
             _elevatorArrowButtonControllers[1].IsActive = false;
         }
-        else
+        else 
         {
             _elevatorArrowButtonControllers[0].IsActive = _elevatorArrowButtonControllers[1].IsActive = true;
         }
@@ -75,7 +75,7 @@ public class ElevatorController : NetworkBehaviour
         // 강제 갱신을 위한 코드
         _elevatorMoveButtonController.IsActive = false;
         
-        _elevatorMoveButtonController.IsActive = newValue != SessionManager.Instance.CurrentFloor;
+        _elevatorMoveButtonController.IsActive = newValue != SessionManager.Instance.CurrentFloor && _playerCount == 2;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -91,7 +91,6 @@ public class ElevatorController : NetworkBehaviour
             {
                 _elevatorMoveButtonController.IsActive = SessionManager.Instance.CurrentFloor != SelectFloor;
             }
-            Logger.Log($"{other.gameObject.name} Enter {_playerCount}");
         }
     }
 
@@ -106,10 +105,10 @@ public class ElevatorController : NetworkBehaviour
         {
             --_playerCount;
             _elevatorMoveButtonController.IsActive = false;
-            
-            Logger.Log($"{other.gameObject.name} Exit {_playerCount}");
         }
     }
+    
+    
     
     [ServerRpc(RequireOwnership = false)]
     public void InitElevatorServerRpc()
@@ -117,5 +116,99 @@ public class ElevatorController : NetworkBehaviour
         print(SelectFloor);
         // 강제로 세그먼트 방향버튼 갱신
         OnValueChanged(SelectFloor, SelectFloor);
+    }
+
+    public void OpenElevatorDoor()
+    {
+        _elevatorDoor.IsOpened = true;
+        _elevatorDoor.Activate();
+    }
+    public void CloseElevatorDoor()
+    {
+        _elevatorDoor.IsOpened = false;
+        _elevatorDoor.Deactivate();
+    }
+
+    [ClientRpc]
+    public void StartElevatorAnimationClientRpc(int preFloor, int nxtFloor)
+    {
+        int delta = preFloor - nxtFloor;
+        
+        if (IsServer)
+        {
+            if (delta < 0)
+            {
+                _elevatorArrow.ArrowValue = 1;
+            }
+            else
+            {
+                _elevatorArrow.ArrowValue = -1;
+            }
+        }
+
+        StartCoroutine(CoElevatorAnimation(preFloor, nxtFloor));
+    }
+
+    private IEnumerator CoElevatorAnimation(int preFloor, int nxtFloor)
+    {
+        float duration = 5f; 
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            float value = elapsed / duration;
+            CameraController.LocalCamera.ChangeShakeAmplitude(value);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (_elevatorArrow.ArrowValue == 1)
+        {
+            for (int i = preFloor; i <= nxtFloor; i++)
+            {
+                Logger.Log(i.ToString());
+                yield return new WaitForSeconds(5f);
+                if (IsServer)
+                {
+                    foreach (var segment in _elevatorSegments)
+                    {
+                        segment.SegmentValue = i;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = preFloor; i >= nxtFloor; i--)
+            {
+                Logger.Log(i.ToString());
+                yield return new WaitForSeconds(5f);
+                if (IsServer)
+                {
+                    foreach (var segment in _elevatorSegments)
+                    {
+                        segment.SegmentValue = i;
+                    }
+                }
+            }
+        }
+        
+        duration = 5f; 
+        elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            float value = elapsed / duration;
+            CameraController.LocalCamera.ChangeShakeAmplitude(1f - value);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (IsServer)
+        {
+            _elevatorArrow.ArrowValue = 0;
+        }
+        
+        LobbyManager.Instance.OnMoveFloorEndServerRpc(nxtFloor);
     }
 }
