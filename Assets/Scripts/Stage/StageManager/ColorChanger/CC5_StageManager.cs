@@ -7,6 +7,7 @@ namespace ColorChanger
     public class CC5_StageManager : StageManager
     {
         // FirstPlate: EventA -> EventB (ON) -> EventC (OFF)
+        // SubPlate:   EventS
         // SecondPlate: EventD -> EventE (O) -> EventF (C)
 
         // ThirdPlate: EventG -> EventH (ON) -> EventI (OFF)
@@ -17,6 +18,7 @@ namespace ColorChanger
 
         [SerializeField] private AudioSource _clearAudiouSource;
 
+        private bool _isFirstPlatePressed, _isSubPlatePressed;
         private bool _isSecondDoorOpen;
         private bool _isLeftPlatePressed, _isRightPlatePressed, _isClearDoorOpen;
 
@@ -46,6 +48,7 @@ namespace ColorChanger
         public override void StartGame()
         {
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventA, OnFirstPlatePressed);
+            EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventS, OnSubPlatePressed);
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventD, OnSecondPlatePressed);
 
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventG, OnThirdPlatePressed);
@@ -85,7 +88,23 @@ namespace ColorChanger
 
         public void OnFirstPlatePressed(PlateController plateController, GameObject objectOnPlate)
         {
-            if (plateController.ObjectsOnPlate.Count > 0)
+            _isFirstPlatePressed = plateController.ObjectsOnPlate.Count > 0;
+
+            if (_isFirstPlatePressed || _isSubPlatePressed)
+            {
+                EventBus.Instance.InvokeEvent(EventType.EventB);
+            }
+            else
+            {
+                EventBus.Instance.InvokeEvent(EventType.EventC);
+            }
+        }
+
+        public void OnSubPlatePressed(PlateController plateController, GameObject objectOnPlate)
+        {
+            _isSubPlatePressed = plateController.ObjectsOnPlate.Count > 0;
+
+            if (_isFirstPlatePressed || _isSubPlatePressed)
             {
                 EventBus.Instance.InvokeEvent(EventType.EventB);
             }

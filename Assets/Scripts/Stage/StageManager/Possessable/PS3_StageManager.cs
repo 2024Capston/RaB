@@ -55,7 +55,7 @@ namespace Possessable
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventE, OnSecondPlatePressed);
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventF, OnThirdPlatePressed);
 
-            EventBus.Instance.SubscribeEvent<UnityAction>(EventType.EventL, PlayClearSoundClientRpc);
+            EventBus.Instance.SubscribeEvent<UnityAction>(EventType.EventK, PlayClearSoundClientRpc);
             EventBus.Instance.SubscribeEvent<UnityAction>(EventType.EventL, OnButtonPairPressed);
 
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventN, OnLeftPlatePressed);
@@ -133,6 +133,7 @@ namespace Possessable
             else
             {
                 _isFirstDoorOpen = false;
+
                 EventBus.Instance.InvokeEvent(EventType.EventC);
                 EventBus.Instance.InvokeEvent(EventType.EventD, MonitorType.XMark);
             }

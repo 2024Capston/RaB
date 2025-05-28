@@ -49,8 +49,8 @@ namespace ColorChanger
         public override void StartGame()
         {
             EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventA, OnFirstTriggerEntered);
-            EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventC, OnFirstTriggerEntered);
-            EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventE, OnFirstTriggerEntered);
+            EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventC, OnSecondTriggerEntered);
+            EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventE, OnThirdTriggerEntered);
 
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventG, OnLeftPlatePressed);
             EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventJ, OnRightPlatePressed);
