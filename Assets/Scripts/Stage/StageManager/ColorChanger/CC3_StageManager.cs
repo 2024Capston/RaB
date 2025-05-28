@@ -8,7 +8,7 @@ namespace ColorChanger
     // Button: EventD
     // RightPlate: EventE -> EventF (O) -> EventG (C);
 
-    // ClearPlate: EventH, EventI, EventJ -> EventN (O) -> EventO (P);
+    // ClearPlate: EventH, EventI, EventJ -> EventN (O) -> EventO (C);
     //             EventK, EventL, EventM
 
     public class CC3_StageManager : StageManager
@@ -71,13 +71,13 @@ namespace ColorChanger
                     _isClearDoorOpen = true;
                     PlayClearSoundClientRpc();
 
-                    EventBus.Instance.InvokeEvent(EventType.EventO);
+                    EventBus.Instance.InvokeEvent(EventType.EventN);
                 }
             }
             else
             {
                 _isClearDoorOpen = false;
-                EventBus.Instance.InvokeEvent(EventType.EventP);
+                EventBus.Instance.InvokeEvent(EventType.EventO);
             }
         }
 
