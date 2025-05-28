@@ -5,11 +5,12 @@ using UnityEngine.Events;
 namespace ColorChanger
 {
     // LeftPlate: EventA -> EventB (O) -> EventC (C);
-    // Button: EventD
+    // Button: EventD -> EventR (L)
     // RightPlate: EventE -> EventF (O) -> EventG (C);
 
     // ClearPlate: EventH, EventI, EventJ -> EventN (O) -> EventO (C);
-    //             EventK, EventL, EventM
+    //             EventK, EventL, EventM (M)
+    //             EventP, EventQ (B)
 
     public class CC3_StageManager : StageManager
     {
@@ -100,6 +101,8 @@ namespace ColorChanger
         public void OnButtonPressed()
         {
             PlayClearSoundClientRpc();
+
+            EventBus.Instance.InvokeEvent(EventType.EventR, true, ColorType.None);
         }
 
         public void OnRightPlatePressed(PlateController plateController, GameObject objectOnPlate)
@@ -125,6 +128,7 @@ namespace ColorChanger
             if (_isFirstPlatePressed)
             {
                 EventBus.Instance.InvokeEvent(EventType.EventK, MonitorType.CheckMark);
+                EventBus.Instance.InvokeEvent(EventType.EventP);
             }
             else
             {
@@ -141,6 +145,7 @@ namespace ColorChanger
             if (_isSecondPlatePressed)
             {
                 EventBus.Instance.InvokeEvent(EventType.EventL, MonitorType.CheckMark);
+                EventBus.Instance.InvokeEvent(EventType.EventQ);
             }
             else
             {

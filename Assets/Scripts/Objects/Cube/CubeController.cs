@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -105,7 +106,7 @@ public class CubeController : NetworkBehaviour, IInteractable
     {
         // 플레이어가 벽을 타려고 하면 상호작용 중단
         if (_interactingPlayer && collision.gameObject.GetComponent<PlayerController>() &&
-            collision.contacts[0].point.y >= _rigidbody.position.y)
+            collision.contacts[0].point.y >= _rigidbody.position.y + 3.5f)
         {
             ForceStopInteraction();
         }
@@ -191,21 +192,25 @@ public class CubeController : NetworkBehaviour, IInteractable
                                       _rigidbody.position + transform.forward * 5f, _rigidbody.position - transform.forward * 5f};
 
         int originalLayer = gameObject.layer;
+        int layerMask = ~((1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Block Cube")));
+
         gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
         foreach (Vector3 position in raycastPosition)
         {
-            if (Physics.Raycast(position, Camera.main.transform.position - position, out hit) &&
+            if (Physics.Raycast(position, Camera.main.transform.position - position, out hit, Mathf.Infinity, layerMask) &&
                 hit.collider.gameObject == _interactingPlayer.gameObject)
             {
+                Debug.Log($"Hit: {hit.collider.gameObject}");
                 gameObject.layer = originalLayer;
 
                 return false;
             }
 
-            if (Physics.Raycast(position, _interactingPlayer.transform.position - position, out hit) &&
+            if (Physics.Raycast(position, _interactingPlayer.transform.position - position, out hit, Mathf.Infinity, layerMask) &&
                 hit.collider.gameObject == _interactingPlayer.gameObject)
             {
+                Debug.Log($"Hit: {hit.collider.gameObject}");
                 gameObject.layer = originalLayer;
 
                 return false;

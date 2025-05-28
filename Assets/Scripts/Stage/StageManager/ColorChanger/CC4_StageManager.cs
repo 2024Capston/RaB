@@ -90,7 +90,7 @@ namespace ColorChanger
                 PlayClearSoundClientRpc();
 
                 EventBus.Instance.InvokeEvent(EventType.EventD);
-                EventBus.Instance.InvokeEvent(EventType.EventU, MonitorType.CheckMark);
+                EventBus.Instance.InvokeEvent(EventType.EventT, MonitorType.CheckMark);
             }
         }
 
@@ -103,7 +103,7 @@ namespace ColorChanger
                 PlayClearSoundClientRpc();
 
                 EventBus.Instance.InvokeEvent(EventType.EventF);
-                EventBus.Instance.InvokeEvent(EventType.EventV, MonitorType.CheckMark);
+                EventBus.Instance.InvokeEvent(EventType.EventU, MonitorType.CheckMark);
             }
         }
 
