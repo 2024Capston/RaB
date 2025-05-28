@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 4009264273103215621}
   - component: {fileID: 8762538242589933695}
   - component: {fileID: 8540418516937485669}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Elevator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1303,7 +1303,7 @@ GameObject:
   - component: {fileID: 1740340731632160865}
   m_Layer: 0
   m_Name: 'Red Spawn Point '
-  m_TagString: Untagged
+  m_TagString: Red Spawn Point
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5786,6 +5786,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: LeftDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 4867970995525982764, guid: 10852dbaae331464680e426ead754074,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5243686920060092566, guid: 10852dbaae331464680e426ead754074,
         type: 3}
@@ -12467,6 +12472,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: RightDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 6223328295318933686, guid: 3e9958f06279f8f4ba30a3cbe5b4dd99,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6707659402925509132, guid: 3e9958f06279f8f4ba30a3cbe5b4dd99,
         type: 3}

@@ -11,6 +11,9 @@ namespace Possessable
     {
         [SerializeField] AudioClip[] _possessClips;
 
+        private const float TRANSPARENCY_COOLDOWN = 0.5f;       // 투명화가 적용되기 전까지 쿨타임
+        private const float TRANSFORM_CHANGE_COOLDOWN = 0.1f;   // 위치가 적용되기 전까지 쿨타임
+
         /// <summary>
         /// 물체의 색깔
         /// </summary>
@@ -28,7 +31,11 @@ namespace Possessable
         private NetworkInterpolator _networkInterpolator;
         private MeshRenderer[] _meshRenderers;
 
-        private float _transparentThreshold;    // 물체와 카메라의 거리가 이것보다 적으면 투명화 시작
+        private float _transformChangeCooldown; // <= 0.0f면 위치 갱신 시작
+        private float _transparencyCooldown;    // <= 0.0f면 투명화 갱신 시작
+        private float _currentAlpha = 1.0f;     // 현재 알파 값
+        private float _targetAlpha = 1.0f;      // 목표 알파 값
+        private float _transparencyThreshold;   // 물체와 카메라의 거리가 이것보다 적으면 투명화 시작
 
         // 빙의한 플레이어에 대한 레퍼런스
         private PlayerController _interactingPlayer;
@@ -56,7 +63,7 @@ namespace Possessable
                 _outline.enabled = false;
             });
 
-            _transparentThreshold = (_collider.bounds.extents.x * transform.localScale.x + _collider.bounds.extents.z * transform.localScale.z) / 2f;
+            _transparencyThreshold = (_collider.bounds.extents.x * transform.localScale.x + _collider.bounds.extents.z * transform.localScale.z) / 2f;
         }
 
         void Update()
@@ -66,21 +73,41 @@ namespace Possessable
                 return;
             }
 
-            // 빙의 상태에선 플레이어의 위치로 계속 이동
             if (_interactingPlayer)
             {
-                transform.position = _interactingPlayer.transform.position;
-                transform.rotation = _interactingPlayer.transform.rotation;
-
-                float distance = Vector3.Distance(transform.position, Camera.main.transform.position);
-
-                if (distance < _transparentThreshold)
+                // 위치 갱신 쿨타임이 지났으면 위치 갱신
+                if (_transformChangeCooldown > 0f)
                 {
-                    SetAlphaValue(distance / _transparentThreshold);
+                    _transformChangeCooldown -= Time.deltaTime;
                 }
                 else
                 {
-                    SetAlphaValue(1.0f);
+                    transform.position = _interactingPlayer.transform.position;
+                    transform.rotation = _interactingPlayer.transform.rotation;
+                }
+
+                // 투명화 갱신 쿨타임이 지났으면 투명화 갱신
+                if (_transparencyCooldown > 0f)
+                {
+                    _transparencyCooldown -= Time.deltaTime;
+                }
+                else
+                {
+                    float distance = Vector3.Distance(transform.position, Camera.main.transform.position);
+
+                    // 카메라와 물체의 거리가 Threshold 미만일 경우에만 투명화 적용
+                    if (distance < _transparencyThreshold)
+                    {
+                        _targetAlpha = distance / _transparencyThreshold;
+                    }
+                    else
+                    {
+                        _targetAlpha = 1.0f;
+                    }
+
+                    // 부드럽게 투명화 적용
+                    _currentAlpha = Mathf.Clamp01(_currentAlpha + Mathf.Sign(_targetAlpha - _currentAlpha) * Time.deltaTime);
+                    SetAlphaValue(_currentAlpha);
                 }
             }
         }
@@ -176,6 +203,9 @@ namespace Possessable
 
             _interactingCameraController.ForceThirdPersonCameraPosition(transform.position + (originalPosition - transform.position).normalized * 100f, Quaternion.LookRotation(transform.position - originalPosition, Vector3.up));
 
+            _transformChangeCooldown = TRANSFORM_CHANGE_COOLDOWN;
+            _transparencyCooldown = TRANSPARENCY_COOLDOWN;
+
             return true;
         }
 
@@ -203,6 +233,7 @@ namespace Possessable
 
                 _interactingPlayer = null;
 
+                _currentAlpha = 1.0f;
                 SetAlphaValue(1.0f);
 
                 return true;
@@ -378,19 +409,42 @@ namespace Possessable
         private void InitializeClientRpc(ColorType color, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             _color = color;
-            _networkInterpolator.AddVisualReferenceDependantFunction(() =>
-            {
-                _meshRenderers =  _networkInterpolator.VisualReference.GetComponentsInChildren<MeshRenderer>();
 
-                foreach (MeshRenderer meshRenderer in _meshRenderers)
+            if (PlayerController.LocalPlayer)
+            {
+                _networkInterpolator.AddVisualReferenceDependantFunction(() =>
                 {
-                    Material[] materials = meshRenderer.materials;
-                    foreach (Material material in materials)
+                    _meshRenderers = _networkInterpolator.VisualReference.GetComponentsInChildren<MeshRenderer>();
+
+                    foreach (MeshRenderer meshRenderer in _meshRenderers)
                     {
-                        material.SetObjectColor(color);
+                        Material[] materials = meshRenderer.materials;
+                        foreach (Material material in materials)
+                        {
+                            material.SetMaterial(color, PlayerController.LocalPlayer.Color, 1);
+                        }
                     }
-                }
-            });
+                });
+            }
+            else
+            {
+                PlayerController.LocalPlayerCreated += () =>
+                {
+                    _networkInterpolator.AddVisualReferenceDependantFunction(() =>
+                    {
+                        _meshRenderers = _networkInterpolator.VisualReference.GetComponentsInChildren<MeshRenderer>();
+
+                        foreach (MeshRenderer meshRenderer in _meshRenderers)
+                        {
+                            Material[] materials = meshRenderer.materials;
+                            foreach (Material material in materials)
+                            {
+                                material.SetMaterial(color, PlayerController.LocalPlayer.Color, 1);
+                            }
+                        }
+                    });
+                };
+            }
 
             _rigidbody.MovePosition(position);
             _rigidbody.MoveRotation(rotation);

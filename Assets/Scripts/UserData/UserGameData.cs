@@ -216,6 +216,7 @@ public class UserGameData : IUserData
         }
 
         PlayDatas[selectPlayData] = playData;
+        SaveData();
     }
 
     public void UpdateData(int selectPlayData, StageName stageName, int clearFlag)
