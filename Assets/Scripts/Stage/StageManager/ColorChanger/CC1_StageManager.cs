@@ -11,6 +11,7 @@ namespace ColorChanger
 
         // FirstPlate: EventF, EventG, EventH, EventI -> EventN (O) -> EventO (C)
         //             EventJ, EventK, EventL, EventM (M)
+        //             EventP, EventQ (B)
 
         [SerializeField] private AudioSource _clearAudiouSource;
 
@@ -118,6 +119,7 @@ namespace ColorChanger
             if (_isFirstPlatePressed)
             {
                 EventBus.Instance.InvokeEvent(EventType.EventJ, MonitorType.CheckMark);
+                EventBus.Instance.InvokeEvent(EventType.EventP);
             }
             else
             {
@@ -150,6 +152,7 @@ namespace ColorChanger
             if (_isThirdPlatePressed)
             {
                 EventBus.Instance.InvokeEvent(EventType.EventL, MonitorType.CheckMark);
+                EventBus.Instance.InvokeEvent(EventType.EventQ);
             }
             else
             {

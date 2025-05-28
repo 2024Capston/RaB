@@ -273,7 +273,9 @@ public class PlayerController : NetworkBehaviour
         if (_collider is CapsuleCollider)
         {
             Vector3 offset = Vector3.up * (_collider.bounds.extents.y - _collider.bounds.extents.x) * 0.9f;
-            _isGrounded = Physics.CapsuleCast(transform.position + offset, transform.position - offset, _collider.bounds.extents.x, Vector3.down, GROUND_DETECTION_THRESHOLD);
+            int layerMask = ~((1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Block Cube")));
+
+            _isGrounded = Physics.CapsuleCast(transform.position + offset, transform.position - offset, _collider.bounds.extents.x, Vector3.down, GROUND_DETECTION_THRESHOLD, layerMask);
         }
         else
         {
@@ -288,7 +290,9 @@ public class PlayerController : NetworkBehaviour
 
             foreach (Vector3 checkPosition in checkPositions)
             {
-                if (Physics.Raycast(checkPosition, Vector3.down, out RaycastHit hit, _collider.bounds.extents.y + GROUND_DETECTION_THRESHOLD) &&
+                int layerMask = ~((1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Block Cube")));
+
+                if (Physics.Raycast(checkPosition, Vector3.down, out RaycastHit hit, _collider.bounds.extents.y + GROUND_DETECTION_THRESHOLD, layerMask) &&
                     hit.collider.material.staticFriction > 0.0f)
                 {
                     _isGrounded = true;
@@ -382,9 +386,11 @@ public class PlayerController : NetworkBehaviour
         }
 
         int originalLayer = gameObject.layer;
+        int layerMask = ~((1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Block Cube")));
+
         gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, MAXIMUM_REACH_DISTANCE) &&
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, MAXIMUM_REACH_DISTANCE, layerMask) &&
             hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable) &&
             interactable.IsInteractable(this))
         {
