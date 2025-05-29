@@ -1,8 +1,6 @@
 using System;
 using Cinemachine;
 using Unity.Netcode;
-using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;

@@ -344,7 +344,7 @@ GameObject:
   - component: {fileID: 2946332759614325662}
   - component: {fileID: 862013569762312523}
   - component: {fileID: 4865121165414379012}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Airlock_Door_Out
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -384,10 +384,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lightRenderer: {fileID: 5234629832167414629}
   _isTriggerable: 1
+  _automateLight: 1
   _subscribeForActivation: 
   _subscribeForDeactivation: 
   _subscribeForSetOpen: 
   _subscribeForSetClose: 
+  _subscribeForLightChange: 
   _isOpened: 0
 --- !u!95 &5017732461582134471
 Animator:

@@ -173,38 +173,38 @@ public class PlayerController : NetworkBehaviour
             SendPlayerState();
 
             // !TEST
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                _cameraController.ChangeCameraMode(!_cameraController.IsFirstPerson);
-            }
+            //if (Input.GetKeyDown(KeyCode.C))
+            //{
+            //    _cameraController.ChangeCameraMode(!_cameraController.IsFirstPerson);
+            //}
 
-            if (Input.GetKeyDown(KeyCode.KeypadPlus))
-            {
-                CameraController.LocalCamera.ChangeShakeAmplitude(1.0f);
-            }
+            //if (Input.GetKeyDown(KeyCode.KeypadPlus))
+            //{
+            //    CameraController.LocalCamera.ChangeShakeAmplitude(1.0f);
+            //}
 
-            if (Input.GetKeyDown(KeyCode.KeypadMinus))
-            {
-                CameraController.LocalCamera.ChangeShakeAmplitude(0.0f);
-            }
+            //if (Input.GetKeyDown(KeyCode.KeypadMinus))
+            //{
+            //    CameraController.LocalCamera.ChangeShakeAmplitude(0.0f);
+            //}
 
-            if (Input.GetKeyDown(KeyCode.Alpha1))
-            {
-                QualitySettings.vSyncCount = 0;
-                Application.targetFrameRate = 30;
-            }
+            //if (Input.GetKeyDown(KeyCode.Alpha1))
+            //{
+            //    QualitySettings.vSyncCount = 0;
+            //    Application.targetFrameRate = 30;
+            //}
 
-            if (Input.GetKeyDown(KeyCode.Alpha2))
-            {
-                QualitySettings.vSyncCount = 0;
-                Application.targetFrameRate = 60;
-            }
+            //if (Input.GetKeyDown(KeyCode.Alpha2))
+            //{
+            //    QualitySettings.vSyncCount = 0;
+            //    Application.targetFrameRate = 60;
+            //}
 
-            if (Input.GetKeyDown(KeyCode.Alpha3))
-            {
-                QualitySettings.vSyncCount = 1;
-                Application.targetFrameRate = 0;
-            }
+            //if (Input.GetKeyDown(KeyCode.Alpha3))
+            //{
+            //    QualitySettings.vSyncCount = 1;
+            //    Application.targetFrameRate = 0;
+            //}
         }
     }
 

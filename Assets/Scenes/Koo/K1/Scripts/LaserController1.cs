@@ -36,17 +36,17 @@ public class LaserController1 : NetworkBehaviour
         {
             if (_axis == 'x')
             {
-                transform.rotation = Quaternion.Euler(new Vector3(2f, 0, 0)) * transform.rotation;
+                transform.rotation = Quaternion.Euler(new Vector3(1.5f, 0, 0)) * transform.rotation;
                 yield return null;
             } 
             else if (_axis == 'y')
             {
-                transform.rotation = Quaternion.Euler(new Vector3(0, 2f, 0)) * transform.rotation;
+                transform.rotation = Quaternion.Euler(new Vector3(0, 1.5f, 0)) * transform.rotation;
                 yield return null;
             }
             else
             {
-                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 2f)) * transform.rotation;
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 1.5f)) * transform.rotation;
                 yield return null;
             }
             

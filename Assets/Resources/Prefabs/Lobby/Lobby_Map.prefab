@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 8540418516937485669}
   - component: {fileID: 5756140850584554109}
   - component: {fileID: 6416604500677587788}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: ElevatorDoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105,10 +105,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lightRenderer: {fileID: 8943977591526983623}
   _isTriggerable: 1
+  _automateLight: 1
   _subscribeForActivation: 
   _subscribeForDeactivation: 
   _subscribeForSetOpen: 
   _subscribeForSetClose: 
+  _subscribeForLightChange: 
   _isOpened: 0
 --- !u!135 &8762538242589933695
 SphereCollider:
@@ -686,7 +688,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1000
+  m_Intensity: 3200
   m_Range: 56.39932
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -997,7 +999,7 @@ GameObject:
   - component: {fileID: 2445470673237493385}
   - component: {fileID: 4351379535230052652}
   m_Layer: 0
-  m_Name: Map
+  m_Name: Lobby_Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

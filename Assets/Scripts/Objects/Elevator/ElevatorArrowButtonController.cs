@@ -10,6 +10,8 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
     [SerializeField] private int _deltaValue;
     [SerializeField] private List<Material> _materials;
 
+    private Material[] _instancedMaterials;
+
     // 제경씨 덕분에 코드가 복잡해졌어요!
     [SerializeField] private int _materialNum;
 
@@ -26,6 +28,14 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
         Outline = GetComponent<Outline>();
         _audioSource = GetComponent<AudioSource>();
         _isActive.OnValueChanged += OnValueChanged;
+
+        _instancedMaterials = new Material[_meshRenderer.materials.Length];
+
+        for (int i = 0; i < _meshRenderer.materials.Length; i++)
+        {
+            _instancedMaterials[i] = new Material(_meshRenderer.materials[i]);
+        }
+        
     }
 
     public override void OnNetworkSpawn()
@@ -94,17 +104,16 @@ public class ElevatorArrowButtonController : NetworkBehaviour, IInteractable
 
     private void ActivateButton()
     {
-        Material[] materials = _meshRenderer.materials;
-        materials[_materialNum] = _materials[1];
-        _meshRenderer.materials = materials;
+        _instancedMaterials[_materialNum] = _materials[1];
+        _meshRenderer.materials = _instancedMaterials;
     }
 
     private void DeactivateButton()
     {
         Outline.enabled = false;
-        Material[] materials = _meshRenderer.materials;
-        materials[_materialNum] = _materials[0];
-        _meshRenderer.materials = materials;
+
+        _instancedMaterials[_materialNum] = _materials[0];
+        _meshRenderer.materials = _instancedMaterials;
     }
     
     private void PlayPressSound()
