@@ -17,6 +17,24 @@ public enum StageName
     Floor1_4,
     Floor1_5,
     Floor1_6,
+    Floor2_1,
+    Floor2_2,
+    Floor2_3,
+    Floor2_4,
+    Floor2_5,
+    Floor2_6,
+    Floor3_1,
+    Floor3_2,
+    Floor3_3,
+    Floor3_4,
+    Floor3_5,
+    Floor3_6,
+    Floor4_1,
+    Floor4_2,
+    Floor4_3,
+    Floor4_4,
+    Floor4_5,
+    Floor4_6,
     Size
 }
 
@@ -60,7 +78,9 @@ public enum ArmType
 
 public enum MonitorType
 {
-    CheckMark, XMark,
-    CubeMark, AlphabetA, AlphabetB, AlphabetC, AlphabetD, AlphabetE, AlphabetF, AlphabetG, AlphabetH,
-    ArrowDown, ArrowLeft, ArrowRight, ArrowUp
+    CheckMark, XMark, 
+    CubeMark, 
+    AlphabetA, AlphabetB, AlphabetC, AlphabetD, AlphabetE, AlphabetF, AlphabetG, AlphabetH,
+    ArrowDown, ArrowLeft, ArrowRight, ArrowUp,
+    Text, Color
 }

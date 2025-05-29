@@ -39,7 +39,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Factor: 0
-    - _ObjectColor: 0
+    - _ObjectColor: 2
     - _PlayerColor: 1
     - _QueueControl: 0
     - _QueueOffset: 0

@@ -39,15 +39,16 @@ public class NetworkPlatformFinder : NetworkBehaviour
 
             Rigidbody newPlatform = null;
             float minDistance = _detectionThreshold + 1f;
+            int layerMask = ~((1 << LayerMask.NameToLayer("Ignore Raycast")) & (1 << LayerMask.NameToLayer("Block Cube")));
 
             if (_characterController && false)
             {
                 Vector3 offset = Vector3.up * (_characterController.height * transform.localScale.y / 2f - _characterController.radius * transform.localScale.x);
-                hits = Physics.CapsuleCastAll(transform.position + offset, transform.position - offset, _characterController.radius * transform.localScale.x, Vector3.down, _detectionThreshold);
+                hits = Physics.CapsuleCastAll(transform.position + offset, transform.position - offset, _characterController.radius * transform.localScale.x, Vector3.down, _detectionThreshold, layerMask);
             }
             else
             {
-                hits = Physics.RaycastAll(transform.position, Vector3.down, _detectionThreshold);
+                hits = Physics.RaycastAll(transform.position, Vector3.down, _detectionThreshold, layerMask);
             }
 
             if (hits.Length > 0)

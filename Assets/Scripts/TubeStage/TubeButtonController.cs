@@ -1,0 +1,38 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEngine;
+
+namespace TubeStage
+{
+    public class TubeButtonController : ButtonController
+    {
+        public override bool OnInteractableCheck(PlayerController player)
+        {
+            return _isEnabled;
+        }
+
+        public override bool OnStartInteraction(PlayerController player)
+        {
+            ClickButtonServerRpc();
+            return false;
+        }
+        
+        [ServerRpc(RequireOwnership = false)]
+        private void ClickButtonServerRpc()
+        {
+            if (_isPressed)
+            {
+                UnpressButton();
+                PlayPressAnimation(false);
+            }
+            else
+            {
+                EventBus.Instance.InvokeEvent(EventType.EventA, _color);
+                PressButton();
+                PlayPressAnimation(true);
+            }
+        }
+    }
+}
+

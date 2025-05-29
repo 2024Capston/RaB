@@ -7,6 +7,12 @@ TagManager:
   - Blue Spawn Point
   - Red Spawn Point
   - Platform
+  - Blue Save Point 3
+  - Blue Save Point 2
+  - Red Save Point 2
+  - Red Save Point 1
+  - Blue Save Point 1
+  - Red Save Point 3
   layers:
   - Default
   - TransparentFX
@@ -18,6 +24,8 @@ TagManager:
   - Movable
   - Wall
   - 
+  - Cube
+  - Block Cube
   - 
   - 
   - 

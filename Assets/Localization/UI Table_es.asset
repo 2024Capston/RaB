@@ -126,30 +126,6 @@ MonoBehaviour:
     m_Localized: PRINCIPAL
     m_Metadata:
       m_Items: []
-  - m_Id: 27046127113728000
-    m_Localized: Mover
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27046285436121088
-    m_Localized: Saltar
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27046476067237888
-    m_Localized: "Emoci\xF3n"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27046731215138816
-    m_Localized: Interactuar
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27046915147952128
-    m_Localized: Ping
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27048205789818880
-    m_Localized: CONTROLAR
-    m_Metadata:
-      m_Items: []
   references:
     version: 2
     RefIds: []

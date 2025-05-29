@@ -202,8 +202,8 @@ MonoBehaviour:
     type: 3}
   _gaugeMeshRenderer: {fileID: 5906243595812253386}
   _materials:
-  - {fileID: 2100000, guid: bfb0ad4a0e0ee58428e9510d96fa9139, type: 2}
-  - {fileID: 2100000, guid: 4bf5a90f56cc59c4d9339aef13c4b42c, type: 2}
+  - {fileID: 2100000, guid: 22f7c1d4d260c0245a1eae71a6e6a381, type: 2}
+  - {fileID: 2100000, guid: 777c17a51faa9814394a88f47cad3480, type: 2}
 --- !u!82 &3477255772841828932
 AudioSource:
   m_ObjectHideFlags: 0

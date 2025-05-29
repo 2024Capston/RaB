@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Steamworks;
+using Unity.Multiplayer.Samples.BossRoom;
 using Unity.Multiplayer.Samples.Utilities;
 using Unity.Netcode;
 #if UNITY_EDITOR
@@ -14,7 +15,11 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     [SerializeField] private GameObject[] _playerPrefabs = new GameObject[2];
     [SerializeField] private Transform[] _spawnPoints = new Transform[2];
     [SerializeField] private AirlockController[] _airlockControllers = new AirlockController[6];
+    [SerializeField] private ElevatorController _elevatorController;
+    [SerializeField] private InfoBoardController _infoBoard;
     public LobbyUIController LobbyUIController {  get; private set; }
+
+    public ElevatorController Elevator => _elevatorController;
     
     protected override void Init()
     {
@@ -35,23 +40,53 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
         }
 
         LobbyUIController.SetPlayerColorData(IsHost);
+        
     }
 
     private void Start()
     {
         SetMapDataServerRpc();
         SpawnPlayerServerRpc();
+        Elevator.InitElevatorServerRpc();
         AudioManager.Instance.StopBGM();
     }
 
     /// <summary>
     /// 엘리베이터에서 층을 이동할 때 호출됩니다.
     /// </summary>
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestMoveFloorServerRpc(int floor)
+    public void RequestMoveFloor(int floor)
     {
+        // 문을 닫는다.
+        Elevator.CloseElevatorDoor();
         
+        // 엘레베이터를 시작하기 위한 준비
+        Elevator.StartElevator();
+        
+        Elevator.StartElevatorAnimationClientRpc(SessionManager.Instance.CurrentFloor, floor);
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void OnMoveFloorEndServerRpc(int curFloor, ServerRpcParams serverRpcParams = default)
+    {
+        if (serverRpcParams.Receive.SenderClientId == NetworkManager.Singleton.LocalClientId)
+        {
+            return;
+        }
+
+        SessionManager.Instance.CurrentFloor = curFloor;
+        Elevator.SelectFloor = curFloor;
+        RequestMoveFloorClientRpc();
+        Elevator.EndElevator();
+        Elevator.OpenElevatorDoor();
+    }
+    
+
+    [ClientRpc]
+    private void RequestMoveFloorClientRpc()
+    {
+        SetMapDataServerRpc();
+    }
+    
     
     /// <summary>
     /// 현재 선택한 Stage를 저장하고 InGame Scene으로 이동합니다.
@@ -121,6 +156,8 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
             
             SetAirlockDataClientRpc(i, (StageName)index, data.MapInfoList[index].OpenFlag == 1, clientRpcParams);
         }
+        
+        SetInfoBoardClientRpc(GetInfoValue(SessionManager.Instance.CurrentFloor), SessionManager.Instance.CurrentFloor, clientRpcParams);
     }
 
     /// <summary>
@@ -135,6 +172,17 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     {
         _airlockControllers[index].StageName = stageName;
         _airlockControllers[index].IsAirlockOpened = isAirlockOpened;
+    }
+
+    [ClientRpc]
+    private void SetInfoBoardClientRpc(int viewType, int curFloor, ClientRpcParams clientRpcParams = default)
+    {
+        _infoBoard.UpdateColorInfo(viewType, curFloor);
+    }
+
+    private int GetInfoValue(int floor)
+    {
+        return 1;
     }
 }
 
