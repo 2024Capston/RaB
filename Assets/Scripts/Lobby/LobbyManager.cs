@@ -157,7 +157,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
             SetAirlockDataClientRpc(i, (StageName)index, data.MapInfoList[index].OpenFlag == 1, clientRpcParams);
         }
         
-        SetInfoBoardClientRpc(1, SessionManager.Instance.CurrentFloor, clientRpcParams);
+        SetInfoBoardClientRpc(GetInfoValue(SessionManager.Instance.CurrentFloor), SessionManager.Instance.CurrentFloor, clientRpcParams);
     }
 
     /// <summary>
@@ -178,6 +178,11 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
     private void SetInfoBoardClientRpc(int viewType, int curFloor, ClientRpcParams clientRpcParams = default)
     {
         _infoBoard.UpdateColorInfo(viewType, curFloor);
+    }
+
+    private int GetInfoValue(int floor)
+    {
+        return 1;
     }
 }
 
