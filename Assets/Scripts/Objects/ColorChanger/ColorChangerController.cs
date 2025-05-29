@@ -28,8 +28,6 @@ namespace ColorChanger
         private Rigidbody _cubeRigidbody;
         private ColorChangerUtil _utilObject;
 
-        private Material[] _instancedMaterials;
-
         private float _timer;
 
         private void Awake()
@@ -162,8 +160,8 @@ namespace ColorChanger
             float fillTime = TRANSITION_TIME * 0.8f;
 
             Color initialColor = _gaugeMeshRenderer.material.GetColor("_FillColor");
-            Color originalColor = _instancedMaterials[(int)cubeController.Color - 1].color;
-            Color newColor = _instancedMaterials[2 - (int)cubeController.Color].color;
+            Color originalColor = _materials[(int)cubeController.Color - 1].color;
+            Color newColor = _materials[2 - (int)cubeController.Color].color;
 
             _gaugeMeshRenderer.material.SetColor("_BackgroundColor", originalColor);
 
@@ -209,17 +207,21 @@ namespace ColorChanger
         private void InitializeClientRpc(float changeTime)
         {
             _changeTime = changeTime;
-            _instancedMaterials = _materials;
+            
+            for (int i = 0; i < _materials.Length; i++)
+            {
+                _materials[i] = new Material(_materials[i]);
+            }
 
             if (PlayerController.LocalPlayer)
             {
-                _instancedMaterials[2 - (int)PlayerController.LocalPlayer.Color].color = new Color(1.0f, 1.0f, 1.0f);
+                _materials[2 - (int)PlayerController.LocalPlayer.Color].color = new Color(1.0f, 1.0f, 1.0f);
             }
             else
             {
                 PlayerController.LocalPlayerCreated += () =>
                 {
-                    _instancedMaterials[2 - (int)PlayerController.LocalPlayer.Color].color = new Color(1.0f, 1.0f, 1.0f);
+                    _materials[2 - (int)PlayerController.LocalPlayer.Color].color = new Color(1.0f, 1.0f, 1.0f);
                 };
             }
         }
