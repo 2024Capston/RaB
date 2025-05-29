@@ -22,6 +22,8 @@ TagManager:
   - UI
   - Camera
   - Movable
+  - Wall
+  - 
   - Cube
   - Block Cube
   - 
