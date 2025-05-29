@@ -183,6 +183,7 @@ public class DoorController : NetworkBehaviour, IActivatable
     public void SetClose()
     {
         IsOpened = false;
+        CloseDoorServerRpc();
     }
 
     /// <summary>
