@@ -1,8 +1,12 @@
 using System;
 using Cinemachine;
 using Unity.Netcode;
+using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// 플레이어 카메라를 조작하는 Class
@@ -25,6 +29,8 @@ public class CameraController : NetworkBehaviour
 
     private Rigidbody _rigidbody;           // 플레이어의 Rigidbody
     private PlayerRenderer _playerRenderer; // 플레이어의 렌더러
+
+    private DepthOfField _depthOfField;
 
     // 카메라 조작 활성화 여부
     private static bool _isInputEnabled = true;
@@ -109,6 +115,20 @@ public class CameraController : NetworkBehaviour
                     _thirdPersonCamera.m_XAxis.m_InputAxisValue = 0.0f;
                 }
             }
+
+            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+
+            if (Physics.SphereCast(Camera.main.transform.position, 1.0f, Camera.main.transform.forward * 1024f, out RaycastHit hit))
+            {
+                _depthOfField.gaussianStart.overrideState = true;
+                _depthOfField.gaussianStart.value = Mathf.Sqrt(hit.distance) * 32.0f;
+
+                _depthOfField.gaussianEnd.overrideState = true;
+                _depthOfField.gaussianEnd.value = Mathf.Sqrt(hit.distance) * 512.0f;
+            }
+
+            PlayerController.LocalPlayer.gameObject.layer = LayerMask.NameToLayer("Movable");
+
         }
     }
 
@@ -140,6 +160,8 @@ public class CameraController : NetworkBehaviour
 
         _rigidbody = GetComponent<Rigidbody>();
         _playerRenderer = GetComponent<PlayerRenderer>();
+
+        GameObject.Find("Global Volume").GetComponent<Volume>().sharedProfile.TryGet<DepthOfField>(out _depthOfField);
 
         InputHandler.Instance.OnLookAround += OnLookAroundInput;
 
