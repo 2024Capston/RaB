@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace StageJS
 {
+    public enum SideType { None, Left, Right }
     /// <summary>
     /// 파괴광선을 나타내는 클래스.
     /// </summary>

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5629638317416070342}
   - component: {fileID: 1548867308462305257}
   - component: {fileID: -5780286063110969806}
-  m_Layer: 8
+  m_Layer: 2
   m_Name: Dynamic_Color_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 346198916
+  GlobalObjectIdHash: 3265512473
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -244,6 +244,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Color_Wall
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c3a1809db1b28fd4b976e091118505d4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
