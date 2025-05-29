@@ -71,7 +71,7 @@ namespace ColorWall
             _rigidbody = GetComponent<Rigidbody>();
             _childWall = transform.Find("Color_Wall");
             _colorMeshRenderer = _childWall.GetComponent<MeshRenderer>();
-            Debug.Log($"_colorMeshRenderer:{_colorMeshRenderer}");
+            //Debug.Log($"_colorMeshRenderer:{_colorMeshRenderer}");
         }
         public override void OnNetworkSpawn()
         {
@@ -213,8 +213,17 @@ namespace ColorWall
                 _colorMeshRenderer.enabled = _canSeeOtherColor;
             }
 
-            _colorMeshRenderer.material.color = newColor;
-            
+            if (PlayerController.LocalPlayer)
+            {
+                _colorMeshRenderer.material.SetMaterial(after, PlayerController.LocalPlayer.Color, 2);   //2는 투명
+            }
+            else
+            {
+                PlayerController.LocalPlayerCreated += () =>
+                {
+                    _colorMeshRenderer.material.SetMaterial(after, PlayerController.LocalPlayer.Color, 2);
+                };
+            }
 
             //gameObject.layer = newLayer;
             // 다른 색깔 물체와는 물리 상호작용하지 않도록 지정

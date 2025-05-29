@@ -9,38 +9,59 @@ namespace ColorWall
 { 
     public class CC17_StageManager : StageManager
     {
+        int playerCount = 0;
+
+        public void OnGoalEnter(GameObject other)
+        {
+            if (other.GetComponent<PlayerController>()) {
+                playerCount++;
+            };
+            if (playerCount == 2)
+            {
+                EventBus.Instance.InvokeEvent(EventType.EventC);
+            }
+        }
+
+        public void OnGoalExit(GameObject other)
+        {
+            if (other.GetComponent<PlayerController>()) {
+                playerCount--;
+            };
+            if (playerCount == 0)
+            {
+                EventBus.Instance.InvokeEvent(EventType.EventD);
+            }
+        }
         public override void EndGame()
         {
-            EventBus.Instance.UnsubscribeEvent<UnityAction<GameObject>>(EventType.EventA, OnRoomEntered);
-            //EventBus.Instance.UnsubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventC, OnPlatePressed);
-
+            EventBus.Instance.ClearEventBus();
             InGameManager.Instance.EndGameServerRpc();
         }
 
         public override void RestartGame()
         {
+            EventBus.Instance.ClearEventBus();
+
+            foreach (PlayerController playerController in FindObjectsOfType<PlayerController>())
+            {
+                playerController.RespawnPlayer();
+                playerController.ForceStopInteraction();
+            }
+
+            foreach (NetworkObjectSpawner networkObjectSpawner in FindObjectsOfType<NetworkObjectSpawner>())
+            {
+                networkObjectSpawner.SpawnObject();
+            }
+
+            StartGame();
         }
 
         public override void StartGame()
         {
-            EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventA, OnRoomEntered);
-            //EventBus.Instance.SubscribeEvent<UnityAction<PlateController, GameObject>>(EventType.EventC, OnPlatePressed);
+            EventBus.Instance.ClearEventBus();
+            EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventA, OnGoalEnter);
+            EventBus.Instance.SubscribeEvent<UnityAction<GameObject>>(EventType.EventB, OnGoalExit);
         }
 
-        public void OnRoomEntered(GameObject other)
-        {
-            if (other.GetComponent<CubeController>())
-            {
-                EventBus.Instance.InvokeEvent(EventType.EventB);
-            }
-        }
-
-        public void OnPlatePressed(PlateController plateController, GameObject objectOnPlate)
-        {
-            if (objectOnPlate.GetComponent<CubeController>())
-            {
-                EventBus.Instance.InvokeEvent(EventType.EventD);
-            }
-        }
     }
 }
