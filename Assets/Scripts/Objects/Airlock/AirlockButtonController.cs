@@ -28,7 +28,6 @@ public class AirlockButtonController : NetworkBehaviour, IInteractable
 
     public bool IsInteractable(PlayerController player)
     {
-        return true;
         return player.Color == _buttonColor;
     }
 

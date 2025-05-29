@@ -182,6 +182,7 @@ public class LobbyManager : NetworkSingletonBehaviour<LobbyManager>
 
     private int GetInfoValue(int floor)
     {
+        if (floor == 3) return 2;
         return 1;
     }
 }

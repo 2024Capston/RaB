@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 7491870980377275817}
   - component: {fileID: -7003528103421170569}
   - component: {fileID: -4888093720654665678}
+  - component: {fileID: 537489923095191401}
   m_Layer: 0
-  m_Name: Floor1_1Loader
+  m_Name: Floor3_5Loader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 829660867
+  GlobalObjectIdHash: 4025420701
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -66,7 +67,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3269885e930f0c544927bd1745655329, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _networkObjects:
-  - {fileID: 4760297340198228138, guid: 34b9e6db20b15dc41903aa33ac751566, type: 3}
+  _networkObjects: []
   _localObjects:
-  - {fileID: 4962143760822976058, guid: 3943fb116465d784eb7e63c1c448502c, type: 3}
+  - {fileID: 6720805664367485064, guid: e9ad3939881700d41a5fe734ad525afc, type: 3}
+--- !u!114 &537489923095191401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4760297340198228138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24e9ac5bee82bb34ea9c67bf6c24c8f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

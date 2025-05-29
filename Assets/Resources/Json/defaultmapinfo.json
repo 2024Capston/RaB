@@ -33,7 +33,7 @@
     {
       "Floor" : 1,
       "Stage" : 6,
-      "OpenFlag" : 1,
+      "OpenFlag" : 0,
       "ClearFlag" : 0
     },
     {
@@ -51,19 +51,19 @@
     {
       "Floor" : 2,
       "Stage" : 3,
-      "OpenFlag" : 0,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
       "Floor" : 2,
       "Stage" : 4,
-      "OpenFlag" : 0,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
       "Floor" : 2,
       "Stage" : 5,
-      "OpenFlag" : 0,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
@@ -93,13 +93,13 @@
     {
       "Floor" : 3,
       "Stage" : 4,
-      "OpenFlag" : 0,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
       "Floor" : 3,
       "Stage" : 5,
-      "OpenFlag" : 0,
+      "OpenFlag" : 1,
       "ClearFlag" : 0
     },
     {
@@ -129,7 +129,7 @@
     {
       "Floor" : 4,
       "Stage" : 4,
-      "OpenFlag" : 1,
+      "OpenFlag" : 0,
       "ClearFlag" : 0
     },
     {

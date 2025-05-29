@@ -131,6 +131,7 @@ public class PlayerController : NetworkBehaviour
             _localPlayerCreated?.Invoke();
             
             UIManager.Instance.CloseAllOpenUI();
+            Cursor.lockState = CursorLockMode.Locked;
         }
         else
         {
