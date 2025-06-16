@@ -212,18 +212,6 @@ namespace ColorChanger
             {
                 _materials[i] = new Material(_materials[i]);
             }
-
-            if (PlayerController.LocalPlayer)
-            {
-                _materials[2 - (int)PlayerController.LocalPlayer.Color].color = new Color(1.0f, 1.0f, 1.0f);
-            }
-            else
-            {
-                PlayerController.LocalPlayerCreated += () =>
-                {
-                    _materials[2 - (int)PlayerController.LocalPlayer.Color].color = new Color(1.0f, 1.0f, 1.0f);
-                };
-            }
         }
     }
 }

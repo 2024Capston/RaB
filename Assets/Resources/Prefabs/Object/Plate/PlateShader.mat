@@ -55,14 +55,14 @@ Material:
     - _PlayerColor: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ViewMode: 1
+    - _ViewMode: 0
     m_Colors:
     - _Blue: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionBlue: {r: 0.015686275, g: 0, b: 2.9960785, a: 0}
-    - _EmissionGray: {r: 0, g: 0, b: 0, a: 0}
-    - _EmissionPurple: {r: 2.9960785, g: 0, b: 2.9960785, a: 0}
-    - _EmissionRed: {r: 2.9960785, g: 0, b: 0, a: 0}
-    - _Gray: {r: 0.35294116, g: 0.35294116, b: 0.35686272, a: 1}
+    - _EmissionBlue: {r: 4, g: 4, b: 4, a: 0}
+    - _EmissionGray: {r: 1, g: 1, b: 1, a: 0}
+    - _EmissionPurple: {r: 4, g: 4, b: 4, a: 0}
+    - _EmissionRed: {r: 4, g: 4, b: 4, a: 0}
+    - _Gray: {r: 1, g: 1, b: 1, a: 1}
     - _Purple: {r: 1, g: 1, b: 1, a: 1}
     - _Red: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
